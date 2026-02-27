@@ -3,7 +3,7 @@ import './App.css';
 import pointsData from './stats/points.json';
 import reboundsData from './stats/rebounds.json';
 import assistsData from './stats/assists.json';
-import { getSalaryByNickname } from './salaryUtils';
+import { getPositionByNickname, getSalaryByNickname } from './salaryUtils';
 
 // Returns an array of up to 9 players maximizing fantasy points with total salary <= 50,000
 function getOptimalLineup(players, reboundsMap, assistsMap, getSalaryByNickname, maxCount = 9, maxSalary = 50000) {
@@ -208,8 +208,8 @@ function App() {
       <table>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Name</th>
+            <th>Position</th>
             <th>Points</th>
             <th>Points Odds</th>
             <th>Rebounds</th>
@@ -232,20 +232,22 @@ function App() {
               const salary = getSalaryByNickname(p.name);
               const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal;
               const value = salary && Number(salary) > 0 ? (fantasyPoints / Number(salary)) * 1000 : 0;
+              const position = getPositionByNickname(p.name);
               return {
                 p,
                 reboundsObj,
                 assistsObj,
                 salary,
                 fantasyPoints,
-                value
+                value,
+                position
               };
             })
             .sort((a, b) => b.value - a.value)
-            .map(({ p, reboundsObj, assistsObj, salary, fantasyPoints, value }) => (
+            .map(({ p, reboundsObj, assistsObj, salary, fantasyPoints, value, position }) => (
               <tr key={p.id}>
-                <td>{p.id}</td>
                 <td>{p.name}</td>
+                <td>{position}</td>
                 <td>{p.points}</td>
                 <td>{p.oddsStr}</td>
                 <td>{reboundsObj.rebounds || ''}</td>
@@ -282,20 +284,23 @@ function App() {
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Position</th>
                   <th>Salary</th>
                   <th>Fantasy Points</th>
                 </tr>
               </thead>
               <tbody>
-                {paddedLineup.map(({ name, salary, fantasyPoints }, idx) => (
+                {paddedLineup.map(({ name, position, salary, fantasyPoints }, idx) => (
                   <tr key={idx}>
                     <td>{name}</td>
+                    <td>{position || (name ? getPositionByNickname(name) : '')}</td>
                     <td>{salary}</td>
                     <td>{fantasyPoints !== '' ? Number(fantasyPoints).toFixed(2) : ''}</td>
                   </tr>
                 ))}
                 <tr key="aggregate" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
                   <td>Total</td>
+                  <td></td>
                   <td>{totalSalary}</td>
                   <td>{totalFantasyPoints.toFixed(2)}</td>
                 </tr>

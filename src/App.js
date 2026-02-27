@@ -5,111 +5,182 @@ import reboundsData from './stats/rebounds.json';
 import assistsData from './stats/assists.json';
 import { getPositionByNickname, getSalaryByNickname } from './salaryUtils';
 
-// Returns an array of up to 9 players maximizing fantasy points with total salary <= 50,000
+// Returns a 9-player lineup maximizing fantasy points under the salary cap,
+// with roster constraints: 1 C, 2 PF, 2 SF, 2 SG, 2 PG.
+// Multi-position strings like "PG/SG" count as eligible for either slot.
 function getOptimalLineup(players, reboundsMap, assistsMap, getSalaryByNickname, maxCount = 9, maxSalary = 50000) {
-  // Build player objects with name, salary, fantasyPoints
-  const playerObjs = players.map((p) => {
-    const reboundsObj = reboundsMap.get(p.id) || {};
-    const assistsObj = assistsMap.get(p.id) || {};
-    const reboundsVal = Number(reboundsObj.rebounds || 0);
-    const pointsVal = Number(p.points || 0);
-    const assistsVal = Number(assistsObj.assists || 0);
-    const salary = Number(getSalaryByNickname(p.name)) || 0;
-    const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal;
-    return {
-      name: p.name,
-      salary,
-      fantasyPoints,
-      id: p.id
-    };
-  }).filter(p => p.salary > 0);
+  const required = { C: 1, PF: 2, SF: 2, SG: 2, PG: 2 };
+  const posOrder = ['C', 'PF', 'SF', 'SG', 'PG'];
+  const totalRequired = posOrder.reduce((sum, p) => sum + required[p], 0);
+  if (maxCount !== totalRequired) {
+    maxCount = totalRequired;
+  }
+
+  const positionSet = new Set(posOrder);
+  const normalizePositions = (positionStr) => {
+    if (!positionStr) return [];
+    return String(positionStr)
+      .split(/[\/,]/)
+      .map((p) => p.trim())
+      .filter((p) => positionSet.has(p));
+  };
+
+  const playerObjs = players
+    .map((p) => {
+      const reboundsObj = reboundsMap.get(p.id) || {};
+      const assistsObj = assistsMap.get(p.id) || {};
+      const reboundsVal = Number(reboundsObj.rebounds || 0);
+      const pointsVal = Number(p.points || 0);
+      const assistsVal = Number(assistsObj.assists || 0);
+      const salary = Number(getSalaryByNickname(p.name)) || 0;
+      const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal;
+      const positionStr = getPositionByNickname(p.name);
+      const eligiblePositions = normalizePositions(positionStr);
+      return {
+        id: p.id,
+        name: p.name,
+        salary,
+        fantasyPoints,
+        position: positionStr,
+        eligiblePositions
+      };
+    })
+    .filter((p) => p.salary > 0 && p.eligiblePositions.length > 0);
 
   if (playerObjs.length < maxCount) return [];
 
-  // For small N, use combinatorial search
-  if (playerObjs.length <= 30) {
-    let bestLineup = [];
-    let bestPoints = -Infinity;
-    function* combinations(arr, k, start = 0, prefix = []) {
-      if (prefix.length === k) {
-        yield prefix;
-        return;
-      }
-      for (let i = start; i < arr.length; ++i) {
-        yield* combinations(arr, k, i + 1, [...prefix, arr[i]]);
+  // Encode counts into a compact state integer using mixed radix:
+  // C:0-1 (base2), others:0-2 (base3).
+  const base = { C: 2, PF: 3, SF: 3, SG: 3, PG: 3 };
+  const multipliers = {};
+  let mult = 1;
+  for (let i = posOrder.length - 1; i >= 0; i--) {
+    multipliers[posOrder[i]] = mult;
+    mult *= base[posOrder[i]];
+  }
+  const numStates = mult;
+
+  const encode = (counts) => {
+    let s = 0;
+    for (const pos of posOrder) {
+      s += counts[pos] * multipliers[pos];
+    }
+    return s;
+  };
+
+  const decode = (state) => {
+    const counts = {};
+    let rem = state;
+    for (const pos of posOrder) {
+      const m = multipliers[pos];
+      const b = base[pos];
+      const digit = Math.floor(rem / m) % b;
+      counts[pos] = digit;
+    }
+    return counts;
+  };
+
+  const finalState = encode(required);
+
+  // Precompute transitions: nextState[state][posIndex] -> newState or -1
+  const nextState = Array.from({ length: numStates }, () => Array(posOrder.length).fill(-1));
+  for (let state = 0; state < numStates; state++) {
+    const counts = decode(state);
+    for (let pi = 0; pi < posOrder.length; pi++) {
+      const pos = posOrder[pi];
+      if (counts[pos] < required[pos]) {
+        const newCounts = { ...counts, [pos]: counts[pos] + 1 };
+        nextState[state][pi] = encode(newCounts);
       }
     }
-    for (const combo of combinations(playerObjs, maxCount)) {
-      const totalSalary = combo.reduce((sum, p) => sum + p.salary, 0);
-      if (totalSalary <= maxSalary) {
-        const totalPoints = combo.reduce((sum, p) => sum + p.fantasyPoints, 0);
-        if (totalPoints > bestPoints) {
-          bestPoints = totalPoints;
-          bestLineup = combo;
-        }
-      }
-    }
-    return bestLineup.length === maxCount ? bestLineup : [];
   }
 
-  // For large N, use DP knapsack (with player count constraint)
-  // dp[i][s][k] = max points using first i players, salary s, k players
-  const n = playerObjs.length;
-  const dp = Array.from({ length: n + 1 }, () =>
-    Array.from({ length: maxSalary + 1 }, () =>
-      Array(maxCount + 1).fill(-Infinity)
-    )
-  );
-  const choice = Array.from({ length: n + 1 }, () =>
-    Array.from({ length: maxSalary + 1 }, () =>
-      Array(maxCount + 1).fill(false)
-    )
-  );
-  dp[0][0][0] = 0;
-  for (let i = 0; i < n; ++i) {
-    const { salary, fantasyPoints } = playerObjs[i];
-    for (let s = 0; s <= maxSalary; ++s) {
-      for (let k = 0; k <= maxCount; ++k) {
-        if (dp[i][s][k] > -Infinity) {
-          // Don't take
-          if (dp[i][s][k] > dp[i + 1][s][k]) {
-            dp[i + 1][s][k] = dp[i][s][k];
-            choice[i + 1][s][k] = false;
-          }
-          // Take
-          if (k + 1 <= maxCount && s + salary <= maxSalary) {
-            const newPoints = dp[i][s][k] + fantasyPoints;
-            if (newPoints > dp[i + 1][s + salary][k + 1]) {
-              dp[i + 1][s + salary][k + 1] = newPoints;
-              choice[i + 1][s + salary][k + 1] = true;
-            }
+  // DP per roster-state with a Pareto frontier over salary.
+  // dp[state] is a Map<salary, node> where node has best points for that exact salary.
+  const dp = Array.from({ length: numStates }, () => new Map());
+  dp[0].set(0, { points: 0, salary: 0, prev: null, player: null });
+
+  const pruneFrontier = (salaryToNode) => {
+    if (salaryToNode.size <= 1) return salaryToNode;
+    const entries = Array.from(salaryToNode.entries())
+      .map(([salary, node]) => ({ salary, node }))
+      .sort((a, b) => a.salary - b.salary);
+    const pruned = new Map();
+    let bestPointsSoFar = -Infinity;
+    for (const { salary, node } of entries) {
+      if (node.points > bestPointsSoFar) {
+        bestPointsSoFar = node.points;
+        pruned.set(salary, node);
+      }
+    }
+    return pruned;
+  };
+
+  for (const player of playerObjs) {
+    const updated = dp.map((m) => new Map(m));
+    const eligiblePosIdx = player.eligiblePositions
+      .map((p) => posOrder.indexOf(p))
+      .filter((idx) => idx >= 0);
+
+    for (let state = 0; state < numStates; state++) {
+      const frontier = dp[state];
+      if (frontier.size === 0) continue;
+
+      for (const [salarySoFar, node] of frontier.entries()) {
+        for (const pi of eligiblePosIdx) {
+          const newState = nextState[state][pi];
+          if (newState === -1) continue;
+          const newSalary = salarySoFar + player.salary;
+          if (newSalary > maxSalary) continue;
+          const newPoints = node.points + player.fantasyPoints;
+          const existing = updated[newState].get(newSalary);
+          if (!existing || newPoints > existing.points) {
+            updated[newState].set(newSalary, {
+              points: newPoints,
+              salary: newSalary,
+              prev: node,
+              player
+            });
           }
         }
       }
     }
-  }
-  // Find best total points for exactly maxCount players
-  let bestS = -1;
-  let bestScore = -Infinity;
-  for (let s = 0; s <= maxSalary; ++s) {
-    if (dp[n][s][maxCount] > bestScore) {
-      bestScore = dp[n][s][maxCount];
-      bestS = s;
+
+    // Prune after each player to keep maps small.
+    for (let state = 0; state < numStates; state++) {
+      updated[state] = pruneFrontier(updated[state]);
+    }
+    for (let state = 0; state < numStates; state++) {
+      dp[state] = updated[state];
     }
   }
-  if (bestScore === -Infinity) return [];
-  // Reconstruct lineup
-  let res = [];
-  let i = n, s = bestS, k = maxCount;
-  while (k > 0) {
-    if (choice[i][s][k]) {
-      res.push(playerObjs[i - 1]);
-      s -= playerObjs[i - 1].salary;
-      k--;
+
+  const finalFrontier = dp[finalState];
+  if (!finalFrontier || finalFrontier.size === 0) return [];
+
+  // Choose the best points among all salaries <= cap.
+  let bestNode = null;
+  for (const node of finalFrontier.values()) {
+    if (!bestNode || node.points > bestNode.points) {
+      bestNode = node;
     }
-    i--;
   }
-  return res.reverse();
+  if (!bestNode) return [];
+
+  // Reconstruct lineup.
+  const lineup = [];
+  let cur = bestNode;
+  while (cur && cur.player) {
+    lineup.push({
+      id: cur.player.id,
+      name: cur.player.name,
+      position: cur.player.position,
+      salary: cur.player.salary,
+      fantasyPoints: cur.player.fantasyPoints
+    });
+    cur = cur.prev;
+  }
+  return lineup.reverse();
 }
 
 // Deduplicate assists by id, keep odds closest to -110

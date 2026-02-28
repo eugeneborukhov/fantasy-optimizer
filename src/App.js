@@ -7,10 +7,96 @@ import blocksData from './stats/blocks.json';
 import stealsData from './stats/steals.json';
 import { getPositionByNickname, getSalaryByNickname } from './salaryUtils';
 
+/**
+ * Estimates statistical projection using only "Over" odds and a whole-number line.
+ * @param {number} line - The whole number line (e.g., 5)
+ * @param {number} overOdds - American odds for the Over (e.g., 150)
+ * @returns {object} Statistical projection and the estimated chance of a Push
+ */
+function getStatisticalProjection(line, overOdds) {
+    // 1. Calculate Implied Probability of the Over
+    const impliedOver = overOdds > 0 
+        ? 100 / (overOdds + 100) 
+        : Math.abs(overOdds) / (Math.abs(overOdds) + 100);
+
+    // 2. Estimate Fair Probability
+    // On player props, sportsbooks usually bake in a ~5% - 7% margin.
+    // We "de-vig" by assuming the Over is slightly overpriced.
+    const estimatedMargin = 0.05; 
+    const fairProbOver = impliedOver / (1 + estimatedMargin);
+
+    // 3. Poisson Helper Functions
+    function factorial(n) {
+        let res = 1;
+        for (let i = 2; i <= n; i++) res *= i;
+        return res;
+    }
+
+    function getOverWinRate(lambda, targetLine) {
+        const pUnder = [...Array(targetLine).keys()].reduce((sum, i) => 
+            sum + (Math.exp(-lambda) * Math.pow(lambda, i)) / factorial(i), 0);
+        
+        const pExactly = (Math.exp(-lambda) * Math.pow(lambda, targetLine)) / factorial(targetLine);
+        const pOver = 1 - (pUnder + pExactly);
+        
+        // Return conditional probability: Chance of winning given it's not a push
+        return pOver / (pOver + pUnder);
+    }
+
+    // 4. Binary Search for the Mean (Lambda)
+    let low = 0, high = line * 2, iterations = 30;
+    for (let i = 0; i < iterations; i++) {
+        let mid = (low + high) / 2;
+        if (getOverWinRate(mid, line) < fairProbOver) low = mid;
+        else high = mid;
+    }
+
+    const finalMean = (low + high) / 2;
+    const pushProb = (Math.exp(-finalMean) * Math.pow(finalMean, line)) / factorial(line);
+
+    return {
+        projectedMean: finalMean.toFixed(2),
+        chanceOfPush: (pushProb * 100).toFixed(2) + "%",
+        fairWinProbability: (fairProbOver * 100).toFixed(2) + "%"
+    };
+}
+
+// // Example usage:
+// const result = getStatisticalProjection(5, 150);
+// console.log(result);
+// /* Output: {
+//   projectedMean: "4.74", 
+//   chanceOfPush: "17.45%", 
+//   fairWinProbability: "38.10%" 
+// }
+// */
+
+
+function getProjectedStat(lineValue, oddsValue) {
+  const lineNum = Number(lineValue);
+  const oddsNum = Number(oddsValue);
+  if (!Number.isFinite(lineNum) || !Number.isFinite(oddsNum)) return null;
+
+  const result = getStatisticalProjection(lineNum, oddsNum);
+
+  // Support both return styles:
+  // - number (older implementation)
+  // - object with { projectedMean: "4.74", ... } (current implementation)
+  const projectedMean =
+    typeof result === 'number'
+      ? result
+      : result && typeof result === 'object' && 'projectedMean' in result
+        ? Number(result.projectedMean)
+        : NaN;
+
+  return Number.isFinite(projectedMean) ? projectedMean : null;
+}
+
+
 // Returns a 9-player lineup maximizing fantasy points under the salary cap,
 // with roster constraints: 1 C, 2 PF, 2 SF, 2 SG, 2 PG.
 // Multi-position strings like "PG/SG" count as eligible for either slot.
-function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount = 9, maxSalary = 50000) {
+function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount = 9, maxSalary = 60000) {
   const required = { C: 1, PF: 2, SF: 2, SG: 2, PG: 2 };
   const posOrder = ['C', 'PF', 'SF', 'SG', 'PG'];
   const totalRequired = posOrder.reduce((sum, p) => sum + required[p], 0);
@@ -33,11 +119,19 @@ function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap
       const assistsObj = assistsMap.get(p.id) || {};
       const blocksObj = blocksMap.get(p.id) || {};
       const stealsObj = stealsMap.get(p.id) || {};
-      const reboundsVal = Number(reboundsObj.rebounds || 0);
-      const pointsVal = Number(p.points || 0);
-      const assistsVal = Number(assistsObj.assists || 0);
-      const blocksVal = Number(blocksObj.blocks || 0);
-      const stealsVal = Number(stealsObj.steals || 0);
+
+      const projectedPoints = getProjectedStat(p.points, p.oddsValue);
+      const projectedRebounds = getProjectedStat(reboundsObj.rebounds, reboundsObj.oddsValue);
+      const projectedAssists = getProjectedStat(assistsObj.assists, assistsObj.oddsValue);
+      const projectedBlocks = getProjectedStat(blocksObj.blocks, blocksObj.oddsValue);
+      const projectedSteals = getProjectedStat(stealsObj.steals, stealsObj.oddsValue);
+
+      const pointsVal = projectedPoints ?? 0;
+      const reboundsVal = projectedRebounds ?? 0;
+      const assistsVal = projectedAssists ?? 0;
+      const blocksVal = projectedBlocks ?? 0;
+      const stealsVal = projectedSteals ?? 0;
+
       const salary = Number(getSalaryByNickname(p.name)) || 0;
       const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal + 3 * blocksVal + 3 * stealsVal;
       const positionStr = getPositionByNickname(p.name);
@@ -259,7 +353,9 @@ function getBestStealsMap(selections) {
 
 function parseAmericanOdds(oddsStr) {
   // Remove any non-numeric characters except minus sign
-  const cleaned = oddsStr.replace(/[^\d-]/g, '');
+  const cleaned = String(oddsStr)
+    .replace(/\u2212/g, '-')
+    .replace(/[^\d-]/g, '');
   return parseInt(cleaned, 10);
 }
 
@@ -340,14 +436,19 @@ function App() {
             <th>Name</th>
             <th>Position</th>
             <th>Points</th>
+            <th>Projected Points</th>
             <th>Points Odds</th>
             <th>Rebounds</th>
+            <th>Projected Rebounds</th>
             <th>Rebounds Odds</th>
             <th>Assists</th>
+            <th>Projected Assists</th>
             <th>Assists Odds</th>
             <th>Blocks</th>
+            <th>Projected Blocks</th>
             <th>Blocks Odds</th>
             <th>Steals</th>
+            <th>Projected Steals</th>
             <th>Steals Odds</th>
             <th>Salary</th>
             <th>Fantasy Points</th>
@@ -361,11 +462,19 @@ function App() {
               const assistsObj = assistsMap.get(p.id) || {};
               const blocksObj = blocksMap.get(p.id) || {};
               const stealsObj = stealsMap.get(p.id) || {};
-              const reboundsVal = Number(reboundsObj.rebounds || 0);
-              const pointsVal = Number(p.points || 0);
-              const assistsVal = Number(assistsObj.assists || 0);
-              const blocksVal = Number(blocksObj.blocks || 0);
-              const stealsVal = Number(stealsObj.steals || 0);
+
+              const projectedPoints = getProjectedStat(p.points, p.oddsValue);
+              const projectedRebounds = getProjectedStat(reboundsObj.rebounds, reboundsObj.oddsValue);
+              const projectedAssists = getProjectedStat(assistsObj.assists, assistsObj.oddsValue);
+              const projectedBlocks = getProjectedStat(blocksObj.blocks, blocksObj.oddsValue);
+              const projectedSteals = getProjectedStat(stealsObj.steals, stealsObj.oddsValue);
+
+              const pointsVal = projectedPoints ?? 0;
+              const reboundsVal = projectedRebounds ?? 0;
+              const assistsVal = projectedAssists ?? 0;
+              const blocksVal = projectedBlocks ?? 0;
+              const stealsVal = projectedSteals ?? 0;
+
               const salary = getSalaryByNickname(p.name);
               const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal + 3 * blocksVal + 3 * stealsVal;
               const value = salary && Number(salary) > 0 ? (fantasyPoints / Number(salary)) * 1000 : 0;
@@ -376,6 +485,11 @@ function App() {
                 assistsObj,
                 blocksObj,
                 stealsObj,
+                projectedPoints,
+                projectedRebounds,
+                projectedAssists,
+                projectedBlocks,
+                projectedSteals,
                 salary,
                 fantasyPoints,
                 value,
@@ -383,19 +497,24 @@ function App() {
               };
             })
             .sort((a, b) => b.value - a.value)
-            .map(({ p, reboundsObj, assistsObj, blocksObj, stealsObj, salary, fantasyPoints, value, position }) => (
+            .map(({ p, reboundsObj, assistsObj, blocksObj, stealsObj, projectedPoints, projectedRebounds, projectedAssists, projectedBlocks, projectedSteals, salary, fantasyPoints, value, position }) => (
               <tr key={p.id}>
                 <td>{p.name}</td>
                 <td>{position}</td>
                 <td>{p.points}</td>
+                <td>{projectedPoints !== null ? Number(projectedPoints).toFixed(2) : ''}</td>
                 <td>{p.oddsStr}</td>
                 <td>{reboundsObj.rebounds || ''}</td>
+                <td>{projectedRebounds !== null ? Number(projectedRebounds).toFixed(2) : ''}</td>
                 <td>{reboundsObj.oddsStr || ''}</td>
                 <td>{assistsObj.assists || ''}</td>
+                <td>{projectedAssists !== null ? Number(projectedAssists).toFixed(2) : ''}</td>
                 <td>{assistsObj.oddsStr || ''}</td>
                 <td>{blocksObj.blocks || ''}</td>
+                <td>{projectedBlocks !== null ? Number(projectedBlocks).toFixed(2) : ''}</td>
                 <td>{blocksObj.oddsStr || ''}</td>
                 <td>{stealsObj.steals || ''}</td>
+                <td>{projectedSteals !== null ? Number(projectedSteals).toFixed(2) : ''}</td>
                 <td>{stealsObj.oddsStr || ''}</td>
                 <td>{salary}</td>
                 <td>{fantasyPoints.toFixed(2)}</td>
@@ -407,7 +526,7 @@ function App() {
 
       <h2>Optimal Lineup</h2>
       {(() => {
-        const lineup = getOptimalLineup(participants, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, 9, 50000);
+        const lineup = getOptimalLineup(participants, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, 9, 60000);
         const isEmpty = lineup.length === 0;
         const totalSalary = lineup.reduce((sum, row) => sum + row.salary, 0);
         const totalFantasyPoints = lineup.reduce((sum, row) => sum + row.fantasyPoints, 0);
@@ -420,7 +539,7 @@ function App() {
           <>
             {isEmpty && (
               <div style={{ color: 'red', marginBottom: '8px' }}>
-                No valid 9-player lineup exists under the $50,000 salary cap.
+                No valid 9-player lineup exists under the $60,000 salary cap.
               </div>
             )}
             <table>

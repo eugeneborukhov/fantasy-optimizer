@@ -96,7 +96,17 @@ function getProjectedStat(lineValue, oddsValue) {
 // Returns a 9-player lineup maximizing fantasy points under the salary cap,
 // with roster constraints: 1 C, 2 PF, 2 SF, 2 SG, 2 PG.
 // Multi-position strings like "PG/SG" count as eligible for either slot.
-function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount = 9, maxSalary = 60000) {
+function getOptimalLineup(
+  players,
+  reboundsMap,
+  assistsMap,
+  blocksMap,
+  stealsMap,
+  getSalaryByNickname,
+  maxCount = 9,
+  maxSalary = 60000,
+  excludedIds = new Set()
+) {
   const required = { C: 1, PF: 2, SF: 2, SG: 2, PG: 2 };
   const posOrder = ['C', 'PF', 'SF', 'SG', 'PG'];
   const totalRequired = posOrder.reduce((sum, p) => sum + required[p], 0);
@@ -145,7 +155,7 @@ function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap
         eligiblePositions
       };
     })
-    .filter((p) => p.salary > 0 && p.eligiblePositions.length > 0);
+    .filter((p) => p.salary > 0 && p.eligiblePositions.length > 0 && !excludedIds.has(p.id));
 
   if (playerObjs.length < maxCount) return [];
 
@@ -281,6 +291,27 @@ function getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap
     cur = cur.prev;
   }
   return lineup.reverse();
+}
+
+function getNextBestLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount = 9, maxSalary = 60000) {
+  const best = getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount, maxSalary);
+  if (best.length === 0) return { best: [], nextBest: [] };
+
+  let bestAlt = [];
+  let bestAltPoints = -Infinity;
+
+  for (const player of best) {
+    const excluded = new Set([player.id]);
+    const alt = getOptimalLineup(players, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, maxCount, maxSalary, excluded);
+    if (alt.length !== maxCount) continue;
+    const altPoints = alt.reduce((sum, p) => sum + Number(p.fantasyPoints || 0), 0);
+    if (altPoints > bestAltPoints) {
+      bestAltPoints = altPoints;
+      bestAlt = alt;
+    }
+  }
+
+  return { best, nextBest: bestAlt };
 }
 
 // Deduplicate assists by id, keep odds closest to -110
@@ -526,7 +557,16 @@ function App() {
 
       <h2>Optimal Lineup</h2>
       {(() => {
-        const lineup = getOptimalLineup(participants, reboundsMap, assistsMap, blocksMap, stealsMap, getSalaryByNickname, 9, 60000);
+        const { best: lineup, nextBest } = getNextBestLineup(
+          participants,
+          reboundsMap,
+          assistsMap,
+          blocksMap,
+          stealsMap,
+          getSalaryByNickname,
+          9,
+          60000
+        );
         const isEmpty = lineup.length === 0;
         const totalSalary = lineup.reduce((sum, row) => sum + row.salary, 0);
         const totalFantasyPoints = lineup.reduce((sum, row) => sum + row.fantasyPoints, 0);
@@ -535,6 +575,15 @@ function App() {
         while (paddedLineup.length < 9) {
           paddedLineup.push({ name: '', salary: '', fantasyPoints: '' });
         }
+
+        const isNextBestEmpty = nextBest.length === 0;
+        const totalSalary2 = nextBest.reduce((sum, row) => sum + row.salary, 0);
+        const totalFantasyPoints2 = nextBest.reduce((sum, row) => sum + row.fantasyPoints, 0);
+        const paddedNextBest = [...nextBest];
+        while (paddedNextBest.length < 9) {
+          paddedNextBest.push({ name: '', salary: '', fantasyPoints: '' });
+        }
+
         return (
           <>
             {isEmpty && (
@@ -565,6 +614,39 @@ function App() {
                   <td></td>
                   <td>{totalSalary}</td>
                   <td>{totalFantasyPoints.toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h2>Next Best Lineup</h2>
+            {isNextBestEmpty && !isEmpty && (
+              <div style={{ color: 'red', marginBottom: '8px' }}>
+                No second lineup could be found under the $60,000 salary cap.
+              </div>
+            )}
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Position</th>
+                  <th>Salary</th>
+                  <th>Fantasy Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paddedNextBest.map(({ name, position, salary, fantasyPoints }, idx) => (
+                  <tr key={idx}>
+                    <td>{name}</td>
+                    <td>{position || (name ? getPositionByNickname(name) : '')}</td>
+                    <td>{salary}</td>
+                    <td>{fantasyPoints !== '' ? Number(fantasyPoints).toFixed(2) : ''}</td>
+                  </tr>
+                ))}
+                <tr key="aggregate2" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
+                  <td>Total</td>
+                  <td></td>
+                  <td>{totalSalary2}</td>
+                  <td>{Number(totalFantasyPoints2 || 0).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>

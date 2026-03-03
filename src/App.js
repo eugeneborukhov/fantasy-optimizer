@@ -22,7 +22,7 @@ function getStatisticalProjection(line, overOdds) {
     // 2. Estimate Fair Probability
     // On player props, sportsbooks usually bake in a ~5% - 7% margin.
     // We "de-vig" by assuming the Over is slightly overpriced.
-    const estimatedMargin = 0.05; 
+    const estimatedMargin = 0.10; 
     const fairProbOver = impliedOver / (1 + estimatedMargin);
 
     // 3. Poisson Helper Functions

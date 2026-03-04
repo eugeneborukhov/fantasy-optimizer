@@ -3,12 +3,14 @@ import salaries from './salaries.json';
 // Build maps from Nickname to fields for fast lookup
 const salaryMap = new Map();
 const positionMap = new Map();
+const gameMap = new Map();
 
 salaries.forEach((row) => {
   const nickname = row["Nickname"];
   if (!nickname) return;
   if (row["Salary"]) salaryMap.set(nickname, row["Salary"]);
   if (row["Position"]) positionMap.set(nickname, row["Position"]);
+  if (row["Game"]) gameMap.set(nickname, row["Game"]);
 });
 
 function stripSuffix(name) {
@@ -66,4 +68,8 @@ export function getSalaryByNickname(nickname) {
 
 export function getPositionByNickname(nickname) {
   return getByNickname(positionMap, nickname);
+}
+
+export function getGameByNickname(nickname) {
+  return getByNickname(gameMap, nickname);
 }

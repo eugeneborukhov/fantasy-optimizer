@@ -5,7 +5,7 @@ import reboundsData from './stats/rebounds.json';
 import assistsData from './stats/assists.json';
 import blocksData from './stats/blocks.json';
 import stealsData from './stats/steals.json';
-import { getPositionByNickname, getSalaryByNickname } from './salaryUtils';
+import { getGameByNickname, getPositionByNickname, getSalaryByNickname } from './salaryUtils';
 
 /**
  * Estimates statistical projection using only "Over" odds and a whole-number line.
@@ -143,7 +143,7 @@ function getOptimalLineup(
       const stealsVal = projectedSteals ?? 0;
 
       const salary = Number(getSalaryByNickname(p.name)) || 0;
-      const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal + 3 * blocksVal + 3 * stealsVal;
+      const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.0 * assistsVal + 3 * blocksVal + 3 * stealsVal;
       const positionStr = getPositionByNickname(p.name);
       const eligiblePositions = normalizePositions(positionStr);
       return {
@@ -314,6 +314,276 @@ function getNextBestLineup(players, reboundsMap, assistsMap, blocksMap, stealsMa
   return { best, nextBest: bestAlt };
 }
 
+// Returns a maxCount-player lineup maximizing fantasy points under the salary cap,
+// with no position constraints.
+function getOptimalLineupNoPositions(
+  players,
+  reboundsMap,
+  assistsMap,
+  blocksMap,
+  stealsMap,
+  getSalaryByNickname,
+  maxCount = 6,
+  maxSalary = 60000,
+  excludedIds = new Set()
+) {
+  const playerObjs = players
+    .map((p) => {
+      const reboundsObj = reboundsMap.get(p.id) || {};
+      const assistsObj = assistsMap.get(p.id) || {};
+      const blocksObj = blocksMap.get(p.id) || {};
+      const stealsObj = stealsMap.get(p.id) || {};
+
+      const projectedPoints = getProjectedStat(p.points, p.oddsValue);
+      const projectedRebounds = getProjectedStat(reboundsObj.rebounds, reboundsObj.oddsValue);
+      const projectedAssists = getProjectedStat(assistsObj.assists, assistsObj.oddsValue);
+      const projectedBlocks = getProjectedStat(blocksObj.blocks, blocksObj.oddsValue);
+      const projectedSteals = getProjectedStat(stealsObj.steals, stealsObj.oddsValue);
+
+      const pointsVal = projectedPoints ?? 0;
+      const reboundsVal = projectedRebounds ?? 0;
+      const assistsVal = projectedAssists ?? 0;
+      const blocksVal = projectedBlocks ?? 0;
+      const stealsVal = projectedSteals ?? 0;
+
+      const salary = Number(getSalaryByNickname(p.name)) || 0;
+      const fantasyPoints =
+        pointsVal +
+        1.2 * reboundsVal +
+        1.0 * assistsVal +
+        3 * blocksVal +
+        3 * stealsVal;
+
+      return {
+        id: p.id,
+        name: p.name,
+        salary,
+        fantasyPoints,
+        position: getPositionByNickname(p.name)
+      };
+    })
+    .filter((p) => p.salary > 0 && !excludedIds.has(p.id));
+
+  if (playerObjs.length < maxCount) return [];
+
+  // dp[count] = Map<salary, node>
+  const dp = Array.from({ length: maxCount + 1 }, () => new Map());
+  dp[0].set(0, { points: 0, salary: 0, prev: null, player: null });
+
+  const pruneFrontier = (salaryToNode) => {
+    if (salaryToNode.size <= 1) return salaryToNode;
+    const entries = Array.from(salaryToNode.entries())
+      .map(([salary, node]) => ({ salary, node }))
+      .sort((a, b) => a.salary - b.salary);
+    const pruned = new Map();
+    let bestPointsSoFar = -Infinity;
+    for (const { salary, node } of entries) {
+      if (node.points > bestPointsSoFar) {
+        bestPointsSoFar = node.points;
+        pruned.set(salary, node);
+      }
+    }
+    return pruned;
+  };
+
+  for (const player of playerObjs) {
+    for (let count = maxCount - 1; count >= 0; count--) {
+      const frontier = dp[count];
+      if (frontier.size === 0) continue;
+      for (const [salarySoFar, node] of frontier.entries()) {
+        const newSalary = salarySoFar + player.salary;
+        if (newSalary > maxSalary) continue;
+        const newPoints = node.points + player.fantasyPoints;
+        const existing = dp[count + 1].get(newSalary);
+        if (!existing || newPoints > existing.points) {
+          dp[count + 1].set(newSalary, {
+            points: newPoints,
+            salary: newSalary,
+            prev: node,
+            player
+          });
+        }
+      }
+    }
+    for (let count = 0; count <= maxCount; count++) {
+      dp[count] = pruneFrontier(dp[count]);
+    }
+  }
+
+  const finalFrontier = dp[maxCount];
+  if (!finalFrontier || finalFrontier.size === 0) return [];
+
+  let bestNode = null;
+  for (const node of finalFrontier.values()) {
+    if (!bestNode || node.points > bestNode.points) bestNode = node;
+  }
+  if (!bestNode) return [];
+
+  const lineup = [];
+  let cur = bestNode;
+  while (cur && cur.player) {
+    lineup.push({
+      id: cur.player.id,
+      name: cur.player.name,
+      position: cur.player.position,
+      salary: cur.player.salary,
+      fantasyPoints: cur.player.fantasyPoints
+    });
+    cur = cur.prev;
+  }
+
+  return lineup.reverse();
+}
+
+function getOptimalLineupNoPositionsWithMVP(
+  players,
+  reboundsMap,
+  assistsMap,
+  blocksMap,
+  stealsMap,
+  getSalaryByNickname,
+  maxCount = 6,
+  maxSalary = 60000
+) {
+  const playerObjs = players
+    .map((p) => {
+      const reboundsObj = reboundsMap.get(p.id) || {};
+      const assistsObj = assistsMap.get(p.id) || {};
+      const blocksObj = blocksMap.get(p.id) || {};
+      const stealsObj = stealsMap.get(p.id) || {};
+
+      const projectedPoints = getProjectedStat(p.points, p.oddsValue);
+      const projectedRebounds = getProjectedStat(reboundsObj.rebounds, reboundsObj.oddsValue);
+      const projectedAssists = getProjectedStat(assistsObj.assists, assistsObj.oddsValue);
+      const projectedBlocks = getProjectedStat(blocksObj.blocks, blocksObj.oddsValue);
+      const projectedSteals = getProjectedStat(stealsObj.steals, stealsObj.oddsValue);
+
+      const pointsVal = projectedPoints ?? 0;
+      const reboundsVal = projectedRebounds ?? 0;
+      const assistsVal = projectedAssists ?? 0;
+      const blocksVal = projectedBlocks ?? 0;
+      const stealsVal = projectedSteals ?? 0;
+
+      const salary = Number(getSalaryByNickname(p.name)) || 0;
+      const fantasyPoints =
+        pointsVal +
+        1.2 * reboundsVal +
+        1.0 * assistsVal +
+        3 * blocksVal +
+        3 * stealsVal;
+
+      return {
+        id: p.id,
+        name: p.name,
+        salary,
+        fantasyPoints,
+        position: getPositionByNickname(p.name)
+      };
+    })
+    .filter((p) => p.salary > 0);
+
+  if (playerObjs.length < maxCount) return { lineup: [], mvp: null };
+
+  const pickBestNoPos = (candidates, count, cap) => {
+    if (candidates.length < count) return [];
+    const dp = Array.from({ length: count + 1 }, () => new Map());
+    dp[0].set(0, { points: 0, salary: 0, prev: null, player: null });
+
+    const pruneFrontier = (salaryToNode) => {
+      if (salaryToNode.size <= 1) return salaryToNode;
+      const entries = Array.from(salaryToNode.entries())
+        .map(([salary, node]) => ({ salary, node }))
+        .sort((a, b) => a.salary - b.salary);
+      const pruned = new Map();
+      let bestPointsSoFar = -Infinity;
+      for (const { salary, node } of entries) {
+        if (node.points > bestPointsSoFar) {
+          bestPointsSoFar = node.points;
+          pruned.set(salary, node);
+        }
+      }
+      return pruned;
+    };
+
+    for (const player of candidates) {
+      for (let c = count - 1; c >= 0; c--) {
+        const frontier = dp[c];
+        if (frontier.size === 0) continue;
+        for (const [salarySoFar, node] of frontier.entries()) {
+          const newSalary = salarySoFar + player.salary;
+          if (newSalary > cap) continue;
+          const newPoints = node.points + player.fantasyPoints;
+          const existing = dp[c + 1].get(newSalary);
+          if (!existing || newPoints > existing.points) {
+            dp[c + 1].set(newSalary, {
+              points: newPoints,
+              salary: newSalary,
+              prev: node,
+              player
+            });
+          }
+        }
+      }
+      for (let c = 0; c <= count; c++) {
+        dp[c] = pruneFrontier(dp[c]);
+      }
+    }
+
+    const finalFrontier = dp[count];
+    if (!finalFrontier || finalFrontier.size === 0) return [];
+    let bestNode = null;
+    for (const node of finalFrontier.values()) {
+      if (!bestNode || node.points > bestNode.points) bestNode = node;
+    }
+    if (!bestNode) return [];
+    const lineup = [];
+    let cur = bestNode;
+    while (cur && cur.player) {
+      lineup.push({
+        id: cur.player.id,
+        name: cur.player.name,
+        position: cur.player.position,
+        salary: cur.player.salary,
+        fantasyPoints: cur.player.fantasyPoints
+      });
+      cur = cur.prev;
+    }
+    return lineup.reverse();
+  };
+
+  let best = { lineup: [], mvp: null, totalPoints: -Infinity };
+
+  for (const mvp of playerObjs) {
+    const mvpSalary = mvp.salary * 1.5;
+    if (mvpSalary > maxSalary) continue;
+    const remainingCap = maxSalary - mvpSalary;
+    const others = playerObjs.filter((p) => p.id !== mvp.id);
+    const rest = pickBestNoPos(others, maxCount - 1, remainingCap);
+    if (rest.length !== maxCount - 1) continue;
+
+    const totalPoints = mvp.fantasyPoints * 1.5 + rest.reduce((s, p) => s + p.fantasyPoints, 0);
+    if (totalPoints > best.totalPoints) {
+      best = {
+        lineup: [
+          {
+            id: mvp.id,
+            name: mvp.name,
+            position: mvp.position,
+            salary: mvp.salary,
+            fantasyPoints: mvp.fantasyPoints
+          },
+          ...rest
+        ],
+        mvp,
+        totalPoints
+      };
+    }
+  }
+
+  if (best.lineup.length !== maxCount || !best.mvp) return { lineup: [], mvp: null };
+  return { lineup: best.lineup, mvp: best.mvp };
+}
+
 // Deduplicate assists by id, keep odds closest to -110
 function getBestAssistsMap(selections) {
   const assistsMap = new Map();
@@ -414,9 +684,22 @@ function getUniqueParticipantsWithBestOdds(selections) {
 }
 
 function App() {
+  const [generatedGameLineups, setGeneratedGameLineups] = useState({});
+
   const participants = pointsData.selections
     ? getUniqueParticipantsWithBestOdds(pointsData.selections)
     : [];
+
+  const participantsByGame = (() => {
+    const map = new Map();
+    for (const p of participants) {
+      const game = getGameByNickname(p.name);
+      if (!game) continue;
+      if (!map.has(game)) map.set(game, []);
+      map.get(game).push(p);
+    }
+    return map;
+  })();
 
   // Build a map of id -> best rebounds label (same logic as points)
   function getBestReboundsMap(selections) {
@@ -507,7 +790,7 @@ function App() {
               const stealsVal = projectedSteals ?? 0;
 
               const salary = getSalaryByNickname(p.name);
-              const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.5 * assistsVal + 3 * blocksVal + 3 * stealsVal;
+              const fantasyPoints = pointsVal + 1.2 * reboundsVal + 1.0 * assistsVal + 3 * blocksVal + 3 * stealsVal;
               const value = salary && Number(salary) > 0 ? (fantasyPoints / Number(salary)) * 1000 : 0;
               const position = getPositionByNickname(p.name);
               return {
@@ -555,7 +838,7 @@ function App() {
         </tbody>
       </table>
 
-      <h2>Optimal Lineup</h2>
+      <h2>Optimal Lineup (All Games)</h2>
       {(() => {
         const { best: lineup, nextBest } = getNextBestLineup(
           participants,
@@ -570,7 +853,6 @@ function App() {
         const isEmpty = lineup.length === 0;
         const totalSalary = lineup.reduce((sum, row) => sum + row.salary, 0);
         const totalFantasyPoints = lineup.reduce((sum, row) => sum + row.fantasyPoints, 0);
-        // Pad to 9 rows if needed
         const paddedLineup = [...lineup];
         while (paddedLineup.length < 9) {
           paddedLineup.push({ name: '', salary: '', fantasyPoints: '' });
@@ -609,7 +891,7 @@ function App() {
                     <td>{fantasyPoints !== '' ? Number(fantasyPoints).toFixed(2) : ''}</td>
                   </tr>
                 ))}
-                <tr key="aggregate" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
+                <tr key="aggregate-all" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
                   <td>Total</td>
                   <td></td>
                   <td>{totalSalary}</td>
@@ -618,7 +900,7 @@ function App() {
               </tbody>
             </table>
 
-            <h2>Next Best Lineup</h2>
+            <h2>Next Best Lineup (All Games)</h2>
             {isNextBestEmpty && !isEmpty && (
               <div style={{ color: 'red', marginBottom: '8px' }}>
                 No second lineup could be found under the $60,000 salary cap.
@@ -642,7 +924,7 @@ function App() {
                     <td>{fantasyPoints !== '' ? Number(fantasyPoints).toFixed(2) : ''}</td>
                   </tr>
                 ))}
-                <tr key="aggregate2" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
+                <tr key="aggregate-all-2" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
                   <td>Total</td>
                   <td></td>
                   <td>{totalSalary2}</td>
@@ -653,6 +935,105 @@ function App() {
           </>
         );
       })()}
+
+      <h2>Optimal Lineups By Game</h2>
+      {Array.from(participantsByGame.entries())
+        .sort(([a], [b]) => String(a).localeCompare(String(b)))
+        .map(([game, gameParticipants]) => {
+          const generated = generatedGameLineups[game];
+          const lineup = generated && Array.isArray(generated.lineup) ? generated.lineup : [];
+          const mvp = generated && generated.mvp ? generated.mvp : null;
+
+          const isGenerated = Boolean(generated);
+          const isEmpty = isGenerated && lineup.length === 0;
+
+          const mvpId = mvp ? mvp.id : '';
+          const totalSalary =
+            lineup.reduce((sum, row) => sum + Number(row.salary || 0), 0) +
+            (mvp ? 0.5 * Number(mvp.salary || 0) : 0);
+          const totalFantasyPoints =
+            lineup.reduce((sum, row) => sum + Number(row.fantasyPoints || 0), 0) +
+            (mvp ? 0.5 * Number(mvp.fantasyPoints || 0) : 0);
+
+          const paddedLineup = [...lineup];
+          while (paddedLineup.length < 6) paddedLineup.push({ name: '', salary: '', fantasyPoints: '' });
+
+          return (
+            <div key={game} style={{ marginTop: '16px' }}>
+              <h3>{game}</h3>
+              <button
+                onClick={() => {
+                  const result = getOptimalLineupNoPositionsWithMVP(
+                    gameParticipants,
+                    reboundsMap,
+                    assistsMap,
+                    blocksMap,
+                    stealsMap,
+                    getSalaryByNickname,
+                    6,
+                    60000
+                  );
+                  setGeneratedGameLineups((prev) => ({ ...prev, [game]: result }));
+                }}
+                style={{ marginBottom: '8px' }}
+              >
+                Generate
+              </button>
+
+              {isGenerated && !isEmpty && mvp && (
+                <div style={{ marginBottom: '8px' }}>
+                  MVP: <strong>{mvp.name}</strong> — Salary: {Math.round(Number(mvp.salary || 0) * 1.5)}, Fantasy Points: {(Number(mvp.fantasyPoints || 0) * 1.5).toFixed(2)}
+                </div>
+              )}
+
+              {isGenerated && isEmpty && (
+                <div style={{ color: 'red', marginBottom: '8px' }}>
+                  No valid 6-player lineup exists under the $60,000 salary cap.
+                </div>
+              )}
+
+              {isGenerated && !isEmpty && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Position</th>
+                      <th>Salary</th>
+                      <th>Fantasy Points</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paddedLineup.map(({ id, name, position, salary, fantasyPoints }, idx) => {
+                      const isMvp = id && id === mvpId;
+                      const salaryDisplay = isMvp ? Math.round(Number(salary) * 1.5) : salary;
+                      const pointsDisplay =
+                        fantasyPoints !== ''
+                          ? isMvp
+                            ? Number(fantasyPoints) * 1.5
+                            : Number(fantasyPoints)
+                          : '';
+
+                      return (
+                        <tr key={idx} style={isMvp ? { fontWeight: 'bold' } : undefined}>
+                          <td>{name ? (isMvp ? `${name} (MVP)` : name) : ''}</td>
+                          <td>{position || (name ? getPositionByNickname(name) : '')}</td>
+                          <td>{salaryDisplay}</td>
+                          <td>{pointsDisplay !== '' ? Number(pointsDisplay).toFixed(2) : ''}</td>
+                        </tr>
+                      );
+                    })}
+                    <tr key="aggregate" style={{ fontWeight: 'bold', background: '#f0f0f0' }}>
+                      <td>Total</td>
+                      <td></td>
+                      <td>{Math.round(totalSalary)}</td>
+                      <td>{totalFantasyPoints.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
+            </div>
+          );
+        })}
     </div>
   );
 }

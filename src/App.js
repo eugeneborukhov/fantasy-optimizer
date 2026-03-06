@@ -8,57 +8,70 @@ import stealsData from './stats/steals.json';
 import { getGameByNickname, getPositionByNickname, getSalaryByNickname } from './salaryUtils';
 
 /**
- * Estimates statistical projection using only "Over" odds and a whole-number line.
- * @param {number} line - The whole number line (e.g., 5)
- * @param {number} overOdds - American odds for the Over (e.g., 150)
- * @returns {object} Statistical projection and the estimated chance of a Push
+ * Estimates statistical projection from a line and American odds.
+ *
+ * We interpret the odds as vig-included implied probability of the event being
+ * equal-or-over the line (e.g. "18+" means X >= 18). For half lines (e.g. 21.5),
+ * this corresponds to X >= ceil(21.5) = 22.
+ *
+ * We model the stat as a Poisson random variable X with mean λ and solve for λ such that:
+ *   P(X >= ceil(line)) = impliedProbability(americanOdds)
+ *
+ * @param {number} line - The prop line (whole or half)
+ * @param {number|string} americanOdds - American odds (e.g., -110, +150)
+ * @returns {object|null} Statistical projection details
  */
-function getStatisticalProjection(line, overOdds) {
-    // 1. Calculate Implied Probability of the Over
-    const impliedOver = overOdds > 0 
-        ? 100 / (overOdds + 100) 
-        : Math.abs(overOdds) / (Math.abs(overOdds) + 100);
+function getStatisticalProjection(line, americanOdds) {
+  const impliedProb = americanOddsToImpliedProbability(americanOdds);
+  if (!Number.isFinite(line) || !Number.isFinite(impliedProb)) return null;
+  if (impliedProb <= 0 || impliedProb >= 1) return null;
 
-    // 2. Estimate Fair Probability
-    // On player props, sportsbooks usually bake in a ~5% - 7% margin.
-    // We "de-vig" by assuming the Over is slightly overpriced.
-    const estimatedMargin = 0.10; 
-    const fairProbOver = impliedOver / (1 + estimatedMargin);
+  const kMin = Math.max(0, Math.ceil(line));
 
-    // 3. Poisson Helper Functions
-    function factorial(n) {
-        let res = 1;
-        for (let i = 2; i <= n; i++) res *= i;
-        return res;
+  // Poisson CDF computed iteratively to avoid factorial overflow.
+  function poissonCDF(lambda, kMax) {
+    if (kMax < 0) return 0;
+    let term = Math.exp(-lambda); // k=0
+    let sum = term;
+    for (let k = 1; k <= kMax; k++) {
+      term *= lambda / k;
+      sum += term;
     }
+    return sum;
+  }
 
-    function getOverWinRate(lambda, targetLine) {
-        const pUnder = [...Array(targetLine).keys()].reduce((sum, i) => 
-            sum + (Math.exp(-lambda) * Math.pow(lambda, i)) / factorial(i), 0);
-        
-        const pExactly = (Math.exp(-lambda) * Math.pow(lambda, targetLine)) / factorial(targetLine);
-        const pOver = 1 - (pUnder + pExactly);
-        
-        // Return conditional probability: Chance of winning given it's not a push
-        return pOver / (pOver + pUnder);
-    }
+  function probEqualOrOver(lambda) {
+    if (kMin === 0) return 1;
+    return 1 - poissonCDF(lambda, kMin - 1);
+  }
 
-    // 4. Binary Search for the Mean (Lambda)
-    let low = 0, high = line * 2, iterations = 30;
-    for (let i = 0; i < iterations; i++) {
-        let mid = (low + high) / 2;
-        if (getOverWinRate(mid, line) < fairProbOver) low = mid;
-        else high = mid;
-    }
+  // Binary search for λ
+  let low = 0;
+  let high = Math.max(10, kMin * 2);
+  while (probEqualOrOver(high) < impliedProb && high < 1000) {
+    high *= 2;
+  }
 
-    const finalMean = (low + high) / 2;
-    const pushProb = (Math.exp(-finalMean) * Math.pow(finalMean, line)) / factorial(line);
+  const iterations = 30;
+  for (let i = 0; i < iterations; i++) {
+    const mid = (low + high) / 2;
+    if (probEqualOrOver(mid) < impliedProb) low = mid;
+    else high = mid;
+  }
 
-    return {
-        projectedMean: finalMean.toFixed(2),
-        chanceOfPush: (pushProb * 100).toFixed(2) + "%",
-        fairWinProbability: (fairProbOver * 100).toFixed(2) + "%"
-    };
+  const finalMean = (low + high) / 2;
+
+  // Not a push anymore, but keeping the field for backwards compatibility.
+  // This is the probability of landing exactly on ceil(line).
+  const cdfAtK = poissonCDF(finalMean, kMin);
+  const cdfAtKMinus1 = kMin - 1 >= 0 ? poissonCDF(finalMean, kMin - 1) : 0;
+  const pExactAtKMin = kMin === 0 ? 0 : Math.max(0, cdfAtK - cdfAtKMinus1);
+
+  return {
+    projectedMean: finalMean.toFixed(2),
+    chanceOfPush: (pExactAtKMin * 100).toFixed(2) + "%",
+    fairWinProbability: (impliedProb * 100).toFixed(2) + "%"
+  };
 }
 
 // // Example usage:
@@ -76,6 +89,7 @@ function getProjectedStat(lineValue, oddsValue) {
   const lineNum = Number(lineValue);
   const oddsNum = Number(oddsValue);
   if (!Number.isFinite(lineNum) || !Number.isFinite(oddsNum)) return null;
+  if (oddsNum === 0) return null;
 
   const result = getStatisticalProjection(lineNum, oddsNum);
 
@@ -590,14 +604,16 @@ function getBestAssistsMap(selections) {
   selections && selections.forEach(sel => {
     const odds = sel.displayOdds && sel.displayOdds.american;
     if (!odds) return;
-    const oddsValue = parseAmericanOdds(odds);
+    const american = parseAmericanOdds(odds);
+    if (!Number.isFinite(american)) return;
+    const oddsValue = american;
     const assists = sel.label ? sel.label.replace('+', '') : '';
     (sel.participants || []).forEach(p => {
       if (!assistsMap.has(p.id)) {
         assistsMap.set(p.id, { assists, oddsValue, oddsStr: odds });
       } else {
         const existing = assistsMap.get(p.id);
-        if (Math.abs(oddsValue + 110) < Math.abs(existing.oddsValue + 110)) {
+        if (Math.abs(american + 110) < Math.abs(Number(existing.oddsValue) + 110)) {
           assistsMap.set(p.id, { assists, oddsValue, oddsStr: odds });
         }
       }
@@ -612,14 +628,16 @@ function getBestBlocksMap(selections) {
   selections && selections.forEach(sel => {
     const odds = sel.displayOdds && sel.displayOdds.american;
     if (!odds) return;
-    const oddsValue = parseAmericanOdds(odds);
+    const american = parseAmericanOdds(odds);
+    if (!Number.isFinite(american)) return;
+    const oddsValue = american;
     const blocks = sel.label ? sel.label.replace('+', '') : '';
     (sel.participants || []).forEach(p => {
       if (!blocksMap.has(p.id)) {
         blocksMap.set(p.id, { blocks, oddsValue, oddsStr: odds });
       } else {
         const existing = blocksMap.get(p.id);
-        if (Math.abs(oddsValue + 110) < Math.abs(existing.oddsValue + 110)) {
+        if (Math.abs(american + 110) < Math.abs(Number(existing.oddsValue) + 110)) {
           blocksMap.set(p.id, { blocks, oddsValue, oddsStr: odds });
         }
       }
@@ -634,14 +652,16 @@ function getBestStealsMap(selections) {
   selections && selections.forEach(sel => {
     const odds = sel.displayOdds && sel.displayOdds.american;
     if (!odds) return;
-    const oddsValue = parseAmericanOdds(odds);
+    const american = parseAmericanOdds(odds);
+    if (!Number.isFinite(american)) return;
+    const oddsValue = american;
     const steals = sel.label ? sel.label.replace('+', '') : '';
     (sel.participants || []).forEach(p => {
       if (!stealsMap.has(p.id)) {
         stealsMap.set(p.id, { steals, oddsValue, oddsStr: odds });
       } else {
         const existing = stealsMap.get(p.id);
-        if (Math.abs(oddsValue + 110) < Math.abs(existing.oddsValue + 110)) {
+        if (Math.abs(american + 110) < Math.abs(Number(existing.oddsValue) + 110)) {
           stealsMap.set(p.id, { steals, oddsValue, oddsStr: odds });
         }
       }
@@ -660,20 +680,47 @@ function parseAmericanOdds(oddsStr) {
   return parseInt(cleaned, 10);
 }
 
+function americanOddsToImpliedProbability(americanOdds) {
+  const odds = Number(americanOdds);
+  if (!Number.isFinite(odds) || odds === 0) return null;
+  if (odds > 0) return 100 / (odds + 100);
+  return Math.abs(odds) / (Math.abs(odds) + 100);
+}
+
 function getUniqueParticipantsWithBestOdds(selections) {
   const participantMap = new Map();
   selections.forEach(sel => {
     const odds = sel.displayOdds && sel.displayOdds.american;
     if (!odds) return;
-    const oddsValue = parseAmericanOdds(odds);
-    const points = sel.label ? sel.label.replace('+', '') : '';
+    const american = parseAmericanOdds(odds);
+    if (!Number.isFinite(american)) return;
+    const oddsValue = american;
+
+    // Points markets are O/U. For those, keep only Over so oddsValue is P(X >= ceil(line)).
+    const isOverUnderSelection =
+      (sel && (sel.label === 'Over' || sel.label === 'Under')) ||
+      (sel && (sel.outcomeType === 'Over' || sel.outcomeType === 'Under')) ||
+      (sel && sel.points != null);
+    if (isOverUnderSelection) {
+      const isOver = (sel && sel.label === 'Over') || (sel && sel.outcomeType === 'Over');
+      if (!isOver) return;
+    }
+
+    const points =
+      sel && sel.points != null
+        ? sel.points
+        : sel && sel.milestoneValue != null
+          ? sel.milestoneValue
+          : sel.label
+            ? sel.label.replace('+', '')
+            : '';
     (sel.participants || []).forEach(p => {
       if (!participantMap.has(p.id)) {
         participantMap.set(p.id, { ...p, oddsValue, oddsStr: odds, points });
       } else {
         const existing = participantMap.get(p.id);
         // Compare which odds is closer to -110
-        if (Math.abs(oddsValue + 110) < Math.abs(existing.oddsValue + 110)) {
+        if (Math.abs(american + 110) < Math.abs(Number(existing.oddsValue) + 110)) {
           participantMap.set(p.id, { ...p, oddsValue, oddsStr: odds, points });
         }
       }
@@ -707,14 +754,16 @@ function App() {
     selections && selections.forEach(sel => {
       const odds = sel.displayOdds && sel.displayOdds.american;
       if (!odds) return;
-      const oddsValue = parseAmericanOdds(odds);
+      const american = parseAmericanOdds(odds);
+      if (!Number.isFinite(american)) return;
+      const oddsValue = american;
       const rebounds = sel.label ? sel.label.replace('+', '') : '';
       (sel.participants || []).forEach(p => {
         if (!reboundsMap.has(p.id)) {
           reboundsMap.set(p.id, { rebounds, oddsValue, oddsStr: odds });
         } else {
           const existing = reboundsMap.get(p.id);
-          if (Math.abs(oddsValue + 110) < Math.abs(existing.oddsValue + 110)) {
+          if (Math.abs(american + 110) < Math.abs(Number(existing.oddsValue) + 110)) {
             reboundsMap.set(p.id, { rebounds, oddsValue, oddsStr: odds });
           }
         }

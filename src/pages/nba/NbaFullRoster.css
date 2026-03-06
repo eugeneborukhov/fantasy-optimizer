@@ -25,6 +25,23 @@
   white-space: nowrap;
 }
 
+.sectionTitle {
+  margin: 24px 0 12px;
+  text-align: center;
+}
+
+.lineupsRow {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.lineupPanel {
+  width: max-content;
+}
+
 .emptyCell {
   text-align: center;
 }

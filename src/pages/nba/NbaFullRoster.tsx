@@ -6,8 +6,8 @@ import assistsJson from '../../sport/nba/type/full-roster/stats/assists.json'
 import stealsJson from '../../sport/nba/type/full-roster/stats/steals.json'
 import blocksJson from '../../sport/nba/type/full-roster/stats/blocks.json'
 import salariesJson from '../../sport/nba/type/full-roster/salaries.json'
-import { projectMeanLogNormalFromOverUnder } from '../../lib/logNormalProjection'
 import { projectMeanPoissonFromOverUnder } from '../../lib/poissonProjection'
+import { projectMeanTunedLogNormalFromOverUnder } from '../../lib/pointsProjection'
 
 const STAT_GROUPS = ['Points', 'Rebounds', 'Assists', 'Blocks', 'Steals'] as const
 
@@ -25,7 +25,6 @@ function buildColumns(): Column[] {
   for (const stat of STAT_GROUPS) {
     columns.push({ key: `${stat}:actual`, label: stat })
     columns.push({ key: `${stat}:over`, label: 'Over' })
-    columns.push({ key: `${stat}:under`, label: 'Under' })
     columns.push({ key: `${stat}:proj`, label: `Projected ${stat}` })
   }
 
@@ -41,6 +40,8 @@ const columns = buildColumns()
 type PointsSelection = {
   label?: string
   points?: number
+  milestoneValue?: number
+  marketId?: string | number
   displayOdds?: {
     american?: string
   }
@@ -57,6 +58,40 @@ function formatAmericanOdds(american: string | undefined): string {
 type StatName = (typeof STAT_GROUPS)[number]
 
 type StatSelection = PointsSelection
+
+function parseAmericanOdds(value: string): number | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const normalized = trimmed.replaceAll('−', '-').replaceAll('–', '-').replaceAll('+', '')
+  const match = normalized.match(/-?\d+/)
+  if (!match) return null
+  const n = Number(match[0])
+  return Number.isFinite(n) && n !== 0 ? n : null
+}
+
+function impliedProbabilityFromAmericanOdds(odds: number): number {
+  if (odds < 0) {
+    const a = Math.abs(odds)
+    return a / (a + 100)
+  }
+  return 100 / (odds + 100)
+}
+
+function clamp01(p: number): number {
+  if (p <= 0) return 1e-6
+  if (p >= 1) return 1 - 1e-6
+  return p
+}
+
+function americanOddsFromProbability(p: number): string {
+  const pp = clamp01(p)
+  if (pp >= 0.5) {
+    const odds = -Math.round((100 * pp) / (1 - pp))
+    return String(odds)
+  }
+  const odds = Math.round((100 * (1 - pp)) / pp)
+  return `+${odds}`
+}
 
 type SalaryEntry = {
   Nickname?: string
@@ -148,30 +183,73 @@ function maybeProject(
   if (projected !== null) player.projected[stat] = projected
 }
 
-function mergeSelections(
+function mergeMilestoneSelections(
   map: Map<string, PlayerAccumulator>,
   stat: StatName,
   selections: StatSelection[],
   projector: (params: { line: number; overAmericanOdds: string; underAmericanOdds: string }) => number | null,
 ) {
-  for (const selection of selections) {
-    const label = (selection.label ?? '').toLowerCase()
-    const odds = formatAmericanOdds(selection.displayOdds?.american)
-    const line = selection.points
+  type Best = { milestone: number; american: string; p: number }
 
-    for (const participant of selection.participants ?? []) {
+  const bestByPlayer = new Map<string, { name: string; best: Best | null }>()
+
+  for (const selection of selections) {
+    const milestone =
+      typeof selection.milestoneValue === 'number'
+        ? selection.milestoneValue
+        : typeof selection.points === 'number'
+          ? selection.points
+          : null
+
+    if (milestone === null) continue
+
+    const american = formatAmericanOdds(selection.displayOdds?.american)
+    if (!american) continue
+
+    const parsedOdds = parseAmericanOdds(american)
+    if (parsedOdds === null) continue
+    const pOver = clamp01(impliedProbabilityFromAmericanOdds(parsedOdds))
+
+    const participants = selection.participants ?? []
+    if (participants.length === 0) continue
+
+    for (const participant of participants) {
       const id = participant.id
       const playerId = id === undefined || id === null ? '' : String(id)
       if (!playerId) continue
+      const playerName = participant.name ?? ''
 
-      const player = getOrCreatePlayer(map, playerId, participant.name ?? '')
+      const existing = bestByPlayer.get(playerId)
+      const currentBest = existing?.best
+      const candidate: Best = { milestone, american, p: pOver }
 
-      if (player.lines[stat] === undefined && line !== undefined) player.lines[stat] = line
-      if (label === 'over') player.overOdds[stat] = odds
-      if (label === 'under') player.underOdds[stat] = odds
+      const isBetter =
+        currentBest === null ||
+        currentBest === undefined ||
+        Math.abs(candidate.p - 0.5) < Math.abs(currentBest.p - 0.5)
 
-      maybeProject(stat, player, projector)
+      if (!existing) {
+        bestByPlayer.set(playerId, { name: playerName, best: candidate })
+      } else {
+        if (!existing.name && playerName) existing.name = playerName
+        if (isBetter) existing.best = candidate
+      }
     }
+  }
+
+  for (const [playerId, entry] of bestByPlayer.entries()) {
+    if (!entry.best) continue
+    const player = getOrCreatePlayer(map, playerId, entry.name)
+
+    const line = entry.best.milestone - 0.5
+    const overOdds = entry.best.american
+    const underOdds = americanOddsFromProbability(1 - entry.best.p)
+
+    player.lines[stat] = line
+    player.overOdds[stat] = overOdds
+    player.underOdds[stat] = underOdds
+
+    maybeProject(stat, player, projector)
   }
 }
 
@@ -185,14 +263,10 @@ function buildRows(): Array<Record<string, string | number>> {
   const blocksSelections = (blocksJson as { selections?: StatSelection[] }).selections ?? []
 
   const projectRebounds = (params: { line: number; overAmericanOdds: string; underAmericanOdds: string }) =>
-    params.line <= 5
-      ? projectMeanPoissonFromOverUnder(params)
-      : projectMeanLogNormalFromOverUnder(params)
+    projectMeanTunedLogNormalFromOverUnder(params)
 
   const projectAssists = (params: { line: number; overAmericanOdds: string; underAmericanOdds: string }) =>
-    params.line <= 5
-      ? projectMeanPoissonFromOverUnder(params)
-      : projectMeanLogNormalFromOverUnder(params)
+    params.line <= 4 ? projectMeanPoissonFromOverUnder(params) : projectMeanTunedLogNormalFromOverUnder(params)
 
   const computeFantasyPoints = (p: PlayerAccumulator): number | '' => {
     const projectedPoints = p.projected.Points
@@ -218,14 +292,20 @@ function buildRows(): Array<Record<string, string | number>> {
       3 * (projectedSteals ?? 0) +
       3 * (projectedBlocks ?? 0)
 
-    return Math.round(value * 100) / 100
+    const assistsForTurnovers = projectedAssists ?? 0
+    const estimatedTurnovers = assistsForTurnovers >= 5 ? assistsForTurnovers / 2.5 : assistsForTurnovers / 2.0
+
+    // FanDuel NBA: -1 per turnover (estimated)
+    const withTurnovers = value - estimatedTurnovers
+
+    return Math.round(withTurnovers * 100) / 100
   }
 
-  mergeSelections(map, 'Points', pointsSelections, projectMeanLogNormalFromOverUnder)
-  mergeSelections(map, 'Rebounds', reboundsSelections, projectRebounds)
-  mergeSelections(map, 'Assists', assistsSelections, projectAssists)
-  mergeSelections(map, 'Steals', stealsSelections, projectMeanPoissonFromOverUnder)
-  mergeSelections(map, 'Blocks', blocksSelections, projectMeanPoissonFromOverUnder)
+  mergeMilestoneSelections(map, 'Points', pointsSelections, projectMeanTunedLogNormalFromOverUnder)
+  mergeMilestoneSelections(map, 'Rebounds', reboundsSelections, projectRebounds)
+  mergeMilestoneSelections(map, 'Assists', assistsSelections, projectAssists)
+  mergeMilestoneSelections(map, 'Steals', stealsSelections, projectMeanPoissonFromOverUnder)
+  mergeMilestoneSelections(map, 'Blocks', blocksSelections, projectMeanPoissonFromOverUnder)
 
   return [...map.values()]
     .filter((p) => p.name)
@@ -252,22 +332,18 @@ function buildRows(): Array<Record<string, string | number>> {
 
         'Rebounds:actual': p.lines.Rebounds ?? '',
         'Rebounds:over': p.overOdds.Rebounds ?? '',
-        'Rebounds:under': p.underOdds.Rebounds ?? '',
         'Rebounds:proj': p.projected.Rebounds ?? '',
 
         'Assists:actual': p.lines.Assists ?? '',
         'Assists:over': p.overOdds.Assists ?? '',
-        'Assists:under': p.underOdds.Assists ?? '',
         'Assists:proj': p.projected.Assists ?? '',
 
         'Blocks:actual': p.lines.Blocks ?? '',
         'Blocks:over': p.overOdds.Blocks ?? '',
-        'Blocks:under': p.underOdds.Blocks ?? '',
         'Blocks:proj': p.projected.Blocks ?? '',
 
         'Steals:actual': p.lines.Steals ?? '',
         'Steals:over': p.overOdds.Steals ?? '',
-        'Steals:under': p.underOdds.Steals ?? '',
         'Steals:proj': p.projected.Steals ?? '',
 
         fantasyPoints,

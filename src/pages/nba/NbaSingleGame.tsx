@@ -367,93 +367,12 @@ type OptimalLineupRow = {
     value: number | ''
 }
 
-type RosterPosition = 'PG' | 'SG' | 'SF' | 'PF' | 'C'
-
-const ROSTER_REQUIREMENTS: Record<RosterPosition, number> = {
-    PG: 2,
-    SG: 2,
-    SF: 2,
-    PF: 2,
-    C: 1,
-}
-
-const ROSTER_POSITIONS: RosterPosition[] = ['PG', 'SG', 'SF', 'PF', 'C']
-
-function parseEligiblePositions(position: string): RosterPosition[] {
-    const normalized = position.trim().toUpperCase()
-    if (!normalized) return []
-
-    const parts = normalized.split('/').map((p) => p.trim())
-    const eligible: RosterPosition[] = []
-    for (const part of parts) {
-        if (ROSTER_POSITIONS.includes(part as RosterPosition)) eligible.push(part as RosterPosition)
-    }
-    return eligible
-}
-
-function pickSalaryScale(salaries: number[]): number {
-    if (salaries.length === 0) return 100
-    const allDivisibleBy = (n: number) => salaries.every((s) => s % n === 0)
-    if (allDivisibleBy(100)) return 100
-    if (allDivisibleBy(50)) return 50
-    if (allDivisibleBy(10)) return 10
-    return 1
-}
-
-function orderLineupByRosterSlots(lineup: OptimalLineupRow[]): OptimalLineupRow[] {
-    const buckets: Record<RosterPosition, OptimalLineupRow[]> = {
-        PG: [],
-        SG: [],
-        SF: [],
-        PF: [],
-        C: [],
-    }
-
-    for (const row of lineup) {
-        const pos = row.position as RosterPosition
-        if (ROSTER_POSITIONS.includes(pos)) buckets[pos].push(row)
-    }
-
-    const ordered: OptimalLineupRow[] = []
-    for (const pos of ROSTER_POSITIONS) {
-        const need = ROSTER_REQUIREMENTS[pos]
-        for (let i = 0; i < need; i++) {
-            const next = buckets[pos].shift()
-            if (next) {
-                ordered.push(next)
-            } else {
-                ordered.push({ name: '', position: pos, salary: '' as const, fantasyPoints: '' as const, value: '' as const })
-            }
-        }
-    }
-
-    return ordered
-}
-
-function encodeRosterState(pg: number, sg: number, sf: number, pf: number, c: number): number {
-    return ((((pg * 3 + sg) * 3 + sf) * 3 + pf) * 2 + c)
-}
-
-function decodeRosterState(state: number): { pg: number; sg: number; sf: number; pf: number; c: number } {
-    let x = state
-    const c = x % 2
-    x = (x - c) / 2
-    const pf = x % 3
-    x = (x - pf) / 3
-    const sf = x % 3
-    x = (x - sf) / 3
-    const sg = x % 3
-    const pg = (x - sg) / 3
-    return { pg, sg, sf, pf, c }
-}
-
 function round2(n: number): number {
     return Math.round(n * 100) / 100
 }
 
 type Candidate = {
     name: string
-    eligible: RosterPosition[]
     salary: number
     fantasyPoints: number
 }
@@ -463,8 +382,39 @@ type LineupResult = {
     totals: OptimalLineupRow
 }
 
+const SINGLE_GAME_ROSTER_SIZE = 6
+const MVP_MULTIPLIER = 1.5
+
+function pickSalaryUnitForMvp(salaries: number[]): number {
+    if (salaries.length === 0) return 1
+
+    const works = (unit: number) =>
+        salaries.every((s) => s % unit === 0 && (s * 3) % (2 * unit) === 0)
+
+    for (const unit of [100, 50, 25, 10, 5, 1]) {
+        if (works(unit)) return unit
+    }
+
+    return 1
+}
+
+function orderSingleGameLineup(lineup: OptimalLineupRow[]): OptimalLineupRow[] {
+    const copy = [...lineup]
+    copy.sort((a, b) => {
+        const aIsMvp = a.position === 'MVP' ? 1 : 0
+        const bIsMvp = b.position === 'MVP' ? 1 : 0
+        if (bIsMvp !== aIsMvp) return bIsMvp - aIsMvp
+        return String(a.name).localeCompare(String(b.name))
+    })
+    return copy
+}
+
 function finalizeLineup(lineup: OptimalLineupRow[]): LineupResult {
-    const orderedLineup = orderLineupByRosterSlots(lineup)
+    const orderedLineup = orderSingleGameLineup(lineup)
+
+    while (orderedLineup.length < SINGLE_GAME_ROSTER_SIZE) {
+        orderedLineup.push({ name: '', position: '', salary: '' as const, fantasyPoints: '' as const, value: '' as const })
+    }
 
     const totalSalary = orderedLineup.reduce((sum, r) => sum + (typeof r.salary === 'number' ? r.salary : 0), 0)
     const totalFantasyPoints = orderedLineup.reduce(
@@ -493,22 +443,20 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
             const name = typeof r.name === 'string' ? r.name : ''
             const salary = typeof r.salary === 'number' ? r.salary : null
             const fantasyPoints = typeof r.fantasyPoints === 'number' ? r.fantasyPoints : null
-            const position = typeof r.position === 'string' ? r.position : ''
-            const eligible = parseEligiblePositions(position)
 
             if (!name || salary === null || fantasyPoints === null) return null
             if (salary <= 0 || salary > salaryCap) return null
-            if (eligible.length === 0) return null
 
-            return { name, eligible, salary, fantasyPoints }
+            return { name, salary, fantasyPoints }
         })
         .filter((x): x is Candidate => x !== null)
 
-    const scale = pickSalaryScale(candidates.map((c) => c.salary))
-    const capScaled = Math.floor(salaryCap / scale)
+    const unit = pickSalaryUnitForMvp(candidates.map((c) => c.salary))
+    const capScaled = Math.floor(salaryCap / unit)
 
-    const stateCount = 3 * 3 * 3 * 3 * 2
-    const targetState = encodeRosterState(ROSTER_REQUIREMENTS.PG, ROSTER_REQUIREMENTS.SG, ROSTER_REQUIREMENTS.SF, ROSTER_REQUIREMENTS.PF, ROSTER_REQUIREMENTS.C)
+    const encodeState = (count: number, mvpUsed: 0 | 1) => count * 2 + mvpUsed
+    const stateCount = (SINGLE_GAME_ROSTER_SIZE + 1) * 2
+    const targetState = encodeState(SINGLE_GAME_ROSTER_SIZE, 1)
 
     const capPlusOne = capScaled + 1
     const cellCount = stateCount * capPlusOne
@@ -526,8 +474,8 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
     const bestChosenPlayer = new Int32Array(cellCount)
     const secondChosenPlayer = new Int32Array(cellCount)
 
-    const bestChosenPos = new Int8Array(cellCount)
-    const secondChosenPos = new Int8Array(cellCount)
+    const bestChosenVariant = new Int8Array(cellCount)
+    const secondChosenVariant = new Int8Array(cellCount)
 
     bestScore.fill(NEG_INF)
     secondScore.fill(NEG_INF)
@@ -537,19 +485,12 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
     secondPrevRank.fill(-1)
     bestChosenPlayer.fill(-1)
     secondChosenPlayer.fill(-1)
-    bestChosenPos.fill(-1)
-    secondChosenPos.fill(-1)
+    bestChosenVariant.fill(-1)
+    secondChosenVariant.fill(-1)
 
-    bestScore[0] = 0
+    bestScore[encodeState(0, 0) * capPlusOne + 0] = 0
 
-    const tryInsert = (
-        cell: number,
-        score: number,
-        prevCell: number,
-        prevRank: 0 | 1,
-        playerIdx: number,
-        posIdx: number,
-    ) => {
+    const tryInsert = (cell: number, score: number, prevCell: number, prevRank: 0 | 1, playerIdx: number, variant: 0 | 1) => {
         const b = bestScore[cell]
         const s = secondScore[cell]
 
@@ -559,14 +500,14 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
                 secondPrev[cell] = bestPrev[cell]
                 secondPrevRank[cell] = bestPrevRank[cell]
                 secondChosenPlayer[cell] = bestChosenPlayer[cell]
-                secondChosenPos[cell] = bestChosenPos[cell]
+                secondChosenVariant[cell] = bestChosenVariant[cell]
             }
 
             bestScore[cell] = score
             bestPrev[cell] = prevCell
             bestPrevRank[cell] = prevRank
             bestChosenPlayer[cell] = playerIdx
-            bestChosenPos[cell] = posIdx
+            bestChosenVariant[cell] = variant
             return
         }
 
@@ -575,66 +516,46 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
             secondPrev[cell] = prevCell
             secondPrevRank[cell] = prevRank
             secondChosenPlayer[cell] = playerIdx
-            secondChosenPos[cell] = posIdx
-        }
-    }
-
-    const nextStateByPos = new Int16Array(stateCount * ROSTER_POSITIONS.length)
-    nextStateByPos.fill(-1)
-
-    for (let state = 0; state < stateCount; state++) {
-        const decoded = decodeRosterState(state)
-        for (let posIdx = 0; posIdx < ROSTER_POSITIONS.length; posIdx++) {
-            const pos = ROSTER_POSITIONS[posIdx]
-            let { pg, sg, sf, pf, c } = decoded
-            if (pos === 'PG') {
-                if (pg >= ROSTER_REQUIREMENTS.PG) continue
-                pg += 1
-            } else if (pos === 'SG') {
-                if (sg >= ROSTER_REQUIREMENTS.SG) continue
-                sg += 1
-            } else if (pos === 'SF') {
-                if (sf >= ROSTER_REQUIREMENTS.SF) continue
-                sf += 1
-            } else if (pos === 'PF') {
-                if (pf >= ROSTER_REQUIREMENTS.PF) continue
-                pf += 1
-            } else if (pos === 'C') {
-                if (c >= ROSTER_REQUIREMENTS.C) continue
-                c += 1
-            }
-            const nextState = encodeRosterState(pg, sg, sf, pf, c)
-            nextStateByPos[state * ROSTER_POSITIONS.length + posIdx] = nextState
+            secondChosenVariant[cell] = variant
         }
     }
 
     for (let playerIdx = 0; playerIdx < candidates.length; playerIdx++) {
         const candidate = candidates[playerIdx]
-        const cost = Math.round(candidate.salary / scale)
-        if (cost <= 0 || cost > capScaled) continue
+        const normalCost = Math.round(candidate.salary / unit)
+        const mvpCost = Math.round((candidate.salary * 3) / (2 * unit))
+        if (normalCost <= 0) continue
+        if (normalCost > capScaled) continue
 
         const fpUnits = Math.round(candidate.fantasyPoints * 100)
         if (!Number.isFinite(fpUnits)) continue
 
-        const eligiblePosIdxs = candidate.eligible.map((p) => ROSTER_POSITIONS.indexOf(p)).filter((idx) => idx >= 0)
+        const normalAdd = fpUnits * 2
+        const mvpAdd = fpUnits * 3
 
-        for (let used = capScaled - cost; used >= 0; used--) {
-            for (let state = stateCount - 1; state >= 0; state--) {
-                const baseIdx = state * capPlusOne + used
-                const newUsed = used + cost
-                const baseOffset = state * ROSTER_POSITIONS.length
+        for (let used = capScaled; used >= 0; used--) {
+            for (let count = SINGLE_GAME_ROSTER_SIZE - 1; count >= 0; count--) {
+                for (let mvpUsed = 1 as 0 | 1; mvpUsed >= 0; mvpUsed = (mvpUsed - 1) as 0 | 1) {
+                    const baseState = encodeState(count, mvpUsed)
+                    const baseIdx = baseState * capPlusOne + used
 
-                for (let rank = 0 as 0 | 1; rank <= 1; rank = (rank + 1) as 0 | 1) {
-                    const baseScoreValue = rank === 0 ? bestScore[baseIdx] : secondScore[baseIdx]
-                    if (baseScoreValue === NEG_INF) continue
+                    for (let rank = 0 as 0 | 1; rank <= 1; rank = (rank + 1) as 0 | 1) {
+                        const baseScoreValue = rank === 0 ? bestScore[baseIdx] : secondScore[baseIdx]
+                        if (baseScoreValue === NEG_INF) continue
 
-                    for (const posIdx of eligiblePosIdxs) {
-                        const nextState = nextStateByPos[baseOffset + posIdx]
-                        if (nextState < 0) continue
+                        // Normal pick
+                        if (used + normalCost <= capScaled) {
+                            const nextState = encodeState(count + 1, mvpUsed)
+                            const nextIdx = nextState * capPlusOne + (used + normalCost)
+                            tryInsert(nextIdx, baseScoreValue + normalAdd, baseIdx, rank, playerIdx, 0)
+                        }
 
-                        const nextIdx = nextState * capPlusOne + newUsed
-                        const nextScore = baseScoreValue + fpUnits
-                        tryInsert(nextIdx, nextScore, baseIdx, rank, playerIdx, posIdx)
+                        // MVP pick (only if MVP not used yet)
+                        if (mvpUsed === 0 && used + mvpCost <= capScaled) {
+                            const nextState = encodeState(count + 1, 1)
+                            const nextIdx = nextState * capPlusOne + (used + mvpCost)
+                            tryInsert(nextIdx, baseScoreValue + mvpAdd, baseIdx, rank, playerIdx, 1)
+                        }
                     }
                 }
             }
@@ -682,22 +603,24 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
 
         while (cursor !== 0 && cursor >= 0) {
             const pIdx = cursorRank === 0 ? bestChosenPlayer[cursor] : secondChosenPlayer[cursor]
-            const posIdx = cursorRank === 0 ? bestChosenPos[cursor] : secondChosenPos[cursor]
-            if (pIdx < 0 || posIdx < 0) break
+            const variant = cursorRank === 0 ? bestChosenVariant[cursor] : secondChosenVariant[cursor]
+            if (pIdx < 0 || variant < 0) break
 
             const prevCell = cursorRank === 0 ? bestPrev[cursor] : secondPrev[cursor]
             const prevRankValue = cursorRank === 0 ? bestPrevRank[cursor] : secondPrevRank[cursor]
             const prevRank = (prevRankValue === 1 ? 1 : 0) as 0 | 1
 
             const c = candidates[pIdx]
-            const assigned = ROSTER_POSITIONS[posIdx]
-            const value = c.salary > 0 ? round2((c.fantasyPoints * 1000) / c.salary) : ('' as const)
+            const isMvp = variant === 1
+            const effectiveSalary = isMvp ? c.salary * MVP_MULTIPLIER : c.salary
+            const effectiveFantasyPoints = isMvp ? c.fantasyPoints * MVP_MULTIPLIER : c.fantasyPoints
+            const value = effectiveSalary > 0 ? round2((effectiveFantasyPoints * 1000) / effectiveSalary) : ('' as const)
 
             lineup.push({
                 name: c.name,
-                position: assigned,
-                salary: c.salary,
-                fantasyPoints: round2(c.fantasyPoints),
+                position: isMvp ? 'MVP' : '',
+                salary: round2(effectiveSalary),
+                fantasyPoints: round2(effectiveFantasyPoints),
                 value: typeof value === 'number' ? value : ('' as const),
             })
 

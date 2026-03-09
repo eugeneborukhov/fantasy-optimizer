@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import './NbaFullRoster.css'
-import pointsJson from '../../sport/nba/type/single-game/stats/points.json'
-import reboundsJson from '../../sport/nba/type/single-game/stats/rebounds.json'
-import assistsJson from '../../sport/nba/type/single-game/stats/assists.json'
-import stealsJson from '../../sport/nba/type/single-game/stats/steals.json'
-import blocksJson from '../../sport/nba/type/single-game/stats/blocks.json'
+import pointsJson from '../../sport/nba/type/stats/points.json'
+import reboundsJson from '../../sport/nba/type/stats/rebounds.json'
+import assistsJson from '../../sport/nba/type/stats/assists.json'
+import stealsJson from '../../sport/nba/type/stats/steals.json'
+import blocksJson from '../../sport/nba/type/stats/blocks.json'
 import salariesJson from '../../sport/nba/type/single-game/salaries.json'
 import { projectMeanPoissonFromOverUnder } from '../../lib/poissonProjection'
 import { projectMeanTunedLogNormalFromOverUnder } from '../../lib/pointsProjection'
@@ -107,7 +107,13 @@ type SalaryInfo = {
 const NAME_SUFFIXES = new Set(['jr', 'sr', 'ii', 'iii', 'iv', 'v'])
 
 function normalizePlayerName(name: string): string {
-    const cleaned = name
+    let preNormalized = name.trim()
+
+    // Exceptions for mismatched salary vs. stats feeds
+    if (/^jaylin\s+williams\s*\(okc\)\s*$/i.test(preNormalized)) preNormalized = 'Jaylin Williams'
+    if (/^nicolas\s+claxton\s*$/i.test(preNormalized)) preNormalized = 'Nic Claxton'
+
+    const cleaned = preNormalized
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, ' ')
         .trim()
@@ -312,6 +318,7 @@ function buildRows(): Array<Record<string, string | number>> {
         .map((p) => {
             const fantasyPoints = computeFantasyPoints(p)
             const salaryInfo = salaryByName.get(normalizePlayerName(p.name))
+            if (!salaryInfo) return null
             const salary = salaryInfo?.salary
             const position = salaryInfo?.position ?? ''
 
@@ -350,6 +357,9 @@ function buildRows(): Array<Record<string, string | number>> {
 
             return { row, valueSort: valueNumber ?? -Infinity }
         })
+        .filter(
+            (x): x is { row: Record<string, string | number>; valueSort: number } => x !== null,
+        )
         .sort((a, b) => {
             if (b.valueSort !== a.valueSort) return b.valueSort - a.valueSort
             return String(a.row.name).localeCompare(String(b.row.name))

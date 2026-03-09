@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import './NbaFullRoster.css'
-import pointsJson from '../../sport/nba/type/full-roster/stats/points.json'
-import reboundsJson from '../../sport/nba/type/full-roster/stats/rebounds.json'
-import assistsJson from '../../sport/nba/type/full-roster/stats/assists.json'
-import stealsJson from '../../sport/nba/type/full-roster/stats/steals.json'
-import blocksJson from '../../sport/nba/type/full-roster/stats/blocks.json'
+import pointsJson from '../../sport/nba/type/stats/points.json'
+import reboundsJson from '../../sport/nba/type/stats/rebounds.json'
+import assistsJson from '../../sport/nba/type/stats/assists.json'
+import stealsJson from '../../sport/nba/type/stats/steals.json'
+import blocksJson from '../../sport/nba/type/stats/blocks.json'
 import salariesJson from '../../sport/nba/type/full-roster/salaries.json'
 import { projectMeanPoissonFromOverUnder } from '../../lib/poissonProjection'
 import { projectMeanTunedLogNormalFromOverUnder } from '../../lib/pointsProjection'
@@ -107,7 +107,13 @@ type SalaryInfo = {
 const NAME_SUFFIXES = new Set(['jr', 'sr', 'ii', 'iii', 'iv', 'v'])
 
 function normalizePlayerName(name: string): string {
-  const cleaned = name
+  let preNormalized = name.trim()
+
+  // Exceptions for mismatched salary vs. stats feeds
+  if (/^jaylin\s+williams\s*\(okc\)\s*$/i.test(preNormalized)) preNormalized = 'Jaylin Williams'
+  if (/^nicolas\s+claxton\s*$/i.test(preNormalized)) preNormalized = 'Nic Claxton'
+
+  const cleaned = preNormalized
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
     .trim()

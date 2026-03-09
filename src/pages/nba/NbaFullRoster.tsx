@@ -495,7 +495,7 @@ function finalizeLineup(lineup: OptimalLineupRow[]): LineupResult {
 function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { best: LineupResult; second: LineupResult } {
   const salaryCap = 60000
 
-  const candidates: Candidate[] = rows
+  const rawCandidates: Candidate[] = rows
     .map((r) => {
       const name = typeof r.name === 'string' ? r.name : ''
       const salary = typeof r.salary === 'number' ? r.salary : null
@@ -510,6 +510,33 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): { bes
       return { name, eligible, salary, fantasyPoints }
     })
     .filter((x): x is Candidate => x !== null)
+
+  // Enforce: same player cannot be used more than once in a lineup.
+  // (Some slates/feeds can contain duplicate rows for the same player.)
+  const candidatesByName = new Map<string, Candidate>()
+  for (const c of rawCandidates) {
+    const key = normalizePlayerName(c.name)
+    if (!key) continue
+
+    const existing = candidatesByName.get(key)
+    if (!existing) {
+      candidatesByName.set(key, c)
+      continue
+    }
+
+    const mergedEligible = [...new Set([...existing.eligible, ...c.eligible])]
+    const isBetter =
+      c.fantasyPoints > existing.fantasyPoints ||
+      (c.fantasyPoints === existing.fantasyPoints && c.salary < existing.salary)
+
+    if (isBetter) {
+      candidatesByName.set(key, { ...c, eligible: mergedEligible })
+    } else {
+      candidatesByName.set(key, { ...existing, eligible: mergedEligible })
+    }
+  }
+
+  const candidates = [...candidatesByName.values()]
 
   const scale = pickSalaryScale(candidates.map((c) => c.salary))
   const capScaled = Math.floor(salaryCap / scale)

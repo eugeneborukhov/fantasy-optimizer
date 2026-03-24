@@ -709,39 +709,6 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): {
       }
     }
   }
-
-  const bestPick = { score: NEG_INF, cell: -1, rank: 0 as 0 | 1 };
-  const secondPick = { score: NEG_INF, cell: -1, rank: 0 as 0 | 1 };
-
-  for (let used = 0; used <= capScaled; used++) {
-    const cell = targetState * capPlusOne + used;
-    const scores: Array<{ score: number; rank: 0 | 1 }> = [
-      { score: bestScore[cell], rank: 0 },
-      { score: secondScore[cell], rank: 1 },
-    ];
-
-    for (const candidateScore of scores) {
-      const score = candidateScore.score;
-      const rank = candidateScore.rank;
-      if (score === NEG_INF) continue;
-
-      if (score > bestPick.score) {
-        if (score !== bestPick.score) {
-          secondPick.score = bestPick.score;
-          secondPick.cell = bestPick.cell;
-          secondPick.rank = bestPick.rank;
-        }
-        bestPick.score = score;
-        bestPick.cell = cell;
-        bestPick.rank = rank;
-      } else if (score < bestPick.score && score > secondPick.score) {
-        secondPick.score = score;
-        secondPick.cell = cell;
-        secondPick.rank = rank;
-      }
-    }
-  }
-
   const reconstruct = (cell: number, rank: 0 | 1): OptimalLineupRow[] => {
     const lineup: OptimalLineupRow[] = [];
     if (cell < 0) return lineup;
@@ -791,6 +758,69 @@ function buildTopTwoLineups(rows: Array<Record<string, string | number>>): {
     lineup.reverse();
     return lineup;
   };
+
+  const isValidSingleGameLineup = (lineup: OptimalLineupRow[]): boolean => {
+    if (lineup.length !== SINGLE_GAME_ROSTER_SIZE) return false;
+
+    let mvpCount = 0;
+    const seen = new Set<string>();
+
+    for (const row of lineup) {
+      const key = normalizePlayerName(row.name);
+      if (!key) return false;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      if (row.position === "MVP") mvpCount += 1;
+    }
+
+    return mvpCount === 1;
+  };
+
+  const makeSingleGameLineupKey = (lineup: OptimalLineupRow[]): string => {
+    let mvp = "";
+    const others: string[] = [];
+
+    for (const row of lineup) {
+      const key = normalizePlayerName(row.name);
+      if (!key) continue;
+      if (row.position === "MVP") mvp = key;
+      else others.push(key);
+    }
+
+    others.sort();
+    return `mvp:${mvp}|u:${others.join(",")}`;
+  };
+
+  type Pick = { score: number; cell: number; rank: 0 | 1; key: string };
+  let bestPick: Pick = { score: NEG_INF, cell: -1, rank: 0, key: "" };
+  let secondPick: Pick = { score: NEG_INF, cell: -1, rank: 0, key: "" };
+
+  const considerPick = (cell: number, rank: 0 | 1, score: number) => {
+    if (score === NEG_INF) return;
+
+    const lineup = reconstruct(cell, rank);
+    if (!isValidSingleGameLineup(lineup)) return;
+    const key = makeSingleGameLineupKey(lineup);
+    if (!key) return;
+
+    if (key === bestPick.key || key === secondPick.key) return;
+
+    if (score > bestPick.score) {
+      secondPick = bestPick;
+      bestPick = { score, cell, rank, key };
+      return;
+    }
+
+    if (score > secondPick.score) {
+      secondPick = { score, cell, rank, key };
+    }
+  };
+
+  for (let used = 0; used <= capScaled; used++) {
+    const cell = targetState * capPlusOne + used;
+    considerPick(cell, 0, bestScore[cell]);
+    considerPick(cell, 1, secondScore[cell]);
+  }
 
   const bestLineup =
     bestPick.score === NEG_INF ? [] : reconstruct(bestPick.cell, bestPick.rank);

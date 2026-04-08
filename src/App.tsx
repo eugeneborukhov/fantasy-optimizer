@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import SelectionPage from './pages/SelectionPage'
 import NbaFullRoster from './pages/nba/NbaFullRoster'
 import NbaSingleGame from './pages/nba/NbaSingleGame'
+import PgaFullRoster from './pages/pga/PgaFullRoster'
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/nba/full-roster" element={<NbaFullRoster />} />
       <Route path="/nba/single-game" element={<NbaSingleGame />} />
+      <Route path="/pga/full-roster" element={<PgaFullRoster />} />
       <Route path="/:sport/:type" element={<SelectionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

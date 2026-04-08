@@ -1,0 +1,26 @@
+.pageHeader {
+  padding: 16px;
+  text-align: center;
+}
+
+.pageHeader h1 {
+  margin: 0 0 0.5rem;
+}
+
+.tableWrap {
+  padding: 16px;
+  overflow: auto;
+}
+
+.dataTable {
+  width: max-content;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.dataTable th,
+.dataTable td {
+  border: 1px solid currentColor;
+  padding: 0.65rem 0.8rem;
+  white-space: nowrap;
+}

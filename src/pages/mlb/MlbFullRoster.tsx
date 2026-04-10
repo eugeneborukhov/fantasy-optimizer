@@ -1,6 +1,14 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './MlbFullRoster.css'
 import salariesJson from '../../sport/mlb/Type/full-roster/salaries.json'
+import { projectMeanPoissonFromOverUnder } from '../../lib/poissonProjection'
+import {
+  optimizeMlbLineup,
+  type MlbOptimizedLineup,
+  type MlbLineupPlayer,
+  MLB_DK_SLOTS,
+} from '../../lib/mlbLineupOptimizer'
 
 const MLB_STAT_MODULES = import.meta.glob('../../sport/mlb/Type/stats/*.json', {
   eager: true,
@@ -139,6 +147,87 @@ type StolenBasesInfo = {
   preferred: boolean
 }
 
+type EarnedRunsSelection = {
+  label?: string
+  points?: number
+  outcomeType?: string
+  displayOdds?: {
+    american?: string
+  }
+  participants?: Array<{
+    name?: string
+    seoIdentifier?: string
+  }>
+  tags?: string[]
+}
+
+type EarnedRunsInfo = {
+  line: number
+  overOdds: string
+  underOdds: string
+  odds: string
+}
+
+type OutsRecordedSelection = {
+  label?: string
+  points?: number
+  outcomeType?: string
+  displayOdds?: {
+    american?: string
+  }
+  participants?: Array<{
+    name?: string
+    seoIdentifier?: string
+  }>
+  tags?: string[]
+}
+
+type OutsRecordedInfo = {
+  line: number
+  overOdds: string
+  underOdds: string
+  odds: string
+}
+
+type StrikeoutsSelection = {
+  label?: string
+  points?: number
+  outcomeType?: string
+  displayOdds?: {
+    american?: string
+  }
+  participants?: Array<{
+    name?: string
+    seoIdentifier?: string
+  }>
+  tags?: string[]
+}
+
+type StrikeoutsInfo = {
+  line: number
+  overOdds: string
+  underOdds: string
+  odds: string
+}
+
+type WinsSelection = {
+  label?: string
+  outcomeType?: string
+  displayOdds?: {
+    american?: string
+  }
+  participants?: Array<{
+    name?: string
+    seoIdentifier?: string
+  }>
+}
+
+type WinsInfo = {
+  yesOdds: string
+  noOdds: string
+  yesProbabilityFair: number
+}
+
 type Row = {
   key: string
   name: string
@@ -158,12 +247,30 @@ type Row = {
   stolenBases: string | ''
   stolenBasesOdds: string
   projectedStolenBases: number | ''
+  earnedRuns: string | ''
+  earnedRunsOdds: string
+  projectedEarnedRuns: number | ''
+  outsRecorded: string | ''
+  outsRecordedOdds: string
+  projectedOutsRecorded: number | ''
+  strikeouts: string | ''
+  strikeoutsOdds: string
+  projectedStrikeouts: number | ''
+  wins: string | ''
+  winsOdds: string
+  projectedWins: number | ''
+  qualityStartProbability: string | ''
   fantasyPoints: number | ''
   salary: number | ''
   value: number | ''
 }
 
 const NAME_SUFFIXES = new Set(['jr', 'sr', 'ii', 'iii', 'iv', 'v'])
+
+type Column = {
+  key: keyof Row
+  label: string
+}
 
 function normalizePlayerName(name: string): string {
   const cleaned = name
@@ -231,6 +338,25 @@ function poissonPAtLeastK(lambda: number, k: number): number {
   return survival
 }
 
+function poissonCdfAtMostK(lambda: number, k: number): number {
+  if (!Number.isFinite(lambda) || lambda < 0) return 0
+  if (!Number.isFinite(k)) return 0
+  if (k < 0) return 0
+
+  // P(X <= k) = sum_{i=0}^{k} e^{-lambda} * lambda^i / i!
+  let pmf = Math.exp(-lambda) // i = 0
+  let cdf = pmf
+
+  for (let i = 1; i <= k; i++) {
+    pmf = (pmf * lambda) / i
+    cdf += pmf
+  }
+
+  if (cdf <= 0) return 0
+  if (cdf >= 1) return 1
+  return cdf
+}
+
 function invertPoissonMeanFromAtLeastK(pAtLeastK: number, k: number): number | null {
   if (!Number.isFinite(pAtLeastK) || !Number.isFinite(k) || k <= 0) return null
 
@@ -262,15 +388,6 @@ function round3(n: number): number {
 
 function round6(n: number): number {
   return Math.round(n * 1_000_000) / 1_000_000
-}
-
-function parseFantasyPoints(value: string | number | undefined): number | null {
-  if (typeof value === 'number') return Number.isFinite(value) ? value : null
-  if (typeof value !== 'string') return null
-  const trimmed = value.trim()
-  if (!trimmed) return null
-  const n = Number(trimmed)
-  return Number.isFinite(n) ? n : null
 }
 
 function computeHitterFantasyPoints(params: {
@@ -645,6 +762,372 @@ function buildStolenBasesMap(): Map<string, StolenBasesInfo> {
   return map
 }
 
+function buildEarnedRunsMap(): Map<string, EarnedRunsInfo> {
+  const selections = getMergedSelectionsForStatPrefix<EarnedRunsSelection>('earnedruns')
+  type Group = {
+    line: number
+    overOdds: string
+    underOdds: string
+    hasOver: boolean
+    hasUnder: boolean
+    isMain: boolean
+    pOverRaw: number
+  }
+
+  const byPlayer = new Map<string, Map<number, Group>>()
+
+  for (const selection of selections) {
+    const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
+    const outcomeNorm = outcome.trim().toLowerCase()
+    if (outcomeNorm !== 'over' && outcomeNorm !== 'under') continue
+
+    const line = typeof selection?.points === 'number' ? selection.points : null
+    if (line === null || !Number.isFinite(line) || line < 0) continue
+
+    const participant = selection?.participants?.[0]
+    const participantName =
+      (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+    if (!participantName) continue
+
+    const odds = selection?.displayOdds?.american?.trim() ?? ''
+    const parsed = odds ? parseAmericanOdds(odds) : null
+    if (!odds || parsed === null) continue
+
+    const key = normalizePlayerName(participantName)
+    if (!key) continue
+
+    const isMain = selection?.tags?.includes('MainPointLine') || false
+    const pRaw = impliedProbabilityFromAmericanOdds(parsed)
+
+    if (!byPlayer.has(key)) byPlayer.set(key, new Map())
+    const byLine = byPlayer.get(key)!
+
+    const existing = byLine.get(line)
+    const group: Group = existing ?? {
+      line,
+      overOdds: '',
+      underOdds: '',
+      hasOver: false,
+      hasUnder: false,
+      isMain: false,
+      pOverRaw: 0.5,
+    }
+
+    group.isMain = group.isMain || isMain
+
+    if (outcomeNorm === 'over') {
+      group.overOdds = odds
+      group.hasOver = true
+      group.pOverRaw = pRaw
+    } else {
+      group.underOdds = odds
+      group.hasUnder = true
+    }
+
+    byLine.set(line, group)
+  }
+
+  const result = new Map<string, EarnedRunsInfo>()
+
+  for (const [playerKey, byLine] of byPlayer.entries()) {
+    const candidates = Array.from(byLine.values()).filter((g) => g.hasOver && g.hasUnder)
+    if (candidates.length === 0) continue
+
+    const mainCandidates = candidates.filter((c) => c.isMain)
+    const pool = mainCandidates.length > 0 ? mainCandidates : candidates
+
+    pool.sort((a, b) => {
+      const aBalance = Math.abs(a.pOverRaw - 0.5)
+      const bBalance = Math.abs(b.pOverRaw - 0.5)
+      if (aBalance !== bBalance) return aBalance - bBalance
+      return a.line - b.line
+    })
+
+    const best = pool[0]
+    result.set(playerKey, {
+      line: best.line,
+      overOdds: best.overOdds,
+      underOdds: best.underOdds,
+      odds: `O ${best.overOdds} / U ${best.underOdds}`,
+    })
+  }
+
+  return result
+}
+
+function buildOutsRecordedMap(): Map<string, OutsRecordedInfo> {
+  const selections = getMergedSelectionsForStatPrefix<OutsRecordedSelection>('outsrecorded')
+  type Group = {
+    line: number
+    overOdds: string
+    underOdds: string
+    hasOver: boolean
+    hasUnder: boolean
+    isMain: boolean
+    pOverRaw: number
+  }
+
+  const byPlayer = new Map<string, Map<number, Group>>()
+
+  for (const selection of selections) {
+    const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
+    const outcomeNorm = outcome.trim().toLowerCase()
+    if (outcomeNorm !== 'over' && outcomeNorm !== 'under') continue
+
+    const line = typeof selection?.points === 'number' ? selection.points : null
+    if (line === null || !Number.isFinite(line) || line < 0) continue
+
+    const participant = selection?.participants?.[0]
+    const participantName =
+      (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+    if (!participantName) continue
+
+    const odds = selection?.displayOdds?.american?.trim() ?? ''
+    const parsed = odds ? parseAmericanOdds(odds) : null
+    if (!odds || parsed === null) continue
+
+    const key = normalizePlayerName(participantName)
+    if (!key) continue
+
+    const isMain = selection?.tags?.includes('MainPointLine') || false
+    const pRaw = impliedProbabilityFromAmericanOdds(parsed)
+
+    if (!byPlayer.has(key)) byPlayer.set(key, new Map())
+    const byLine = byPlayer.get(key)!
+
+    const existing = byLine.get(line)
+    const group: Group = existing ?? {
+      line,
+      overOdds: '',
+      underOdds: '',
+      hasOver: false,
+      hasUnder: false,
+      isMain: false,
+      pOverRaw: 0.5,
+    }
+
+    group.isMain = group.isMain || isMain
+
+    if (outcomeNorm === 'over') {
+      group.overOdds = odds
+      group.hasOver = true
+      group.pOverRaw = pRaw
+    } else {
+      group.underOdds = odds
+      group.hasUnder = true
+    }
+
+    byLine.set(line, group)
+  }
+
+  const result = new Map<string, OutsRecordedInfo>()
+
+  for (const [playerKey, byLine] of byPlayer.entries()) {
+    const candidates = Array.from(byLine.values()).filter((g) => g.hasOver && g.hasUnder)
+    if (candidates.length === 0) continue
+
+    const mainCandidates = candidates.filter((c) => c.isMain)
+    const pool = mainCandidates.length > 0 ? mainCandidates : candidates
+
+    pool.sort((a, b) => {
+      const aBalance = Math.abs(a.pOverRaw - 0.5)
+      const bBalance = Math.abs(b.pOverRaw - 0.5)
+      if (aBalance !== bBalance) return aBalance - bBalance
+      return a.line - b.line
+    })
+
+    const best = pool[0]
+    result.set(playerKey, {
+      line: best.line,
+      overOdds: best.overOdds,
+      underOdds: best.underOdds,
+      odds: `O ${best.overOdds} / U ${best.underOdds}`,
+    })
+  }
+
+  return result
+}
+
+function buildStrikeoutsMap(): Map<string, StrikeoutsInfo> {
+  const selections = getMergedSelectionsForStatPrefix<StrikeoutsSelection>('strikeouts')
+  type Group = {
+    line: number
+    overOdds: string
+    underOdds: string
+    hasOver: boolean
+    hasUnder: boolean
+    isMain: boolean
+    pOverRaw: number
+  }
+
+  const byPlayer = new Map<string, Map<number, Group>>()
+
+  for (const selection of selections) {
+    const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
+    const outcomeNorm = outcome.trim().toLowerCase()
+    if (outcomeNorm !== 'over' && outcomeNorm !== 'under') continue
+
+    const line = typeof selection?.points === 'number' ? selection.points : null
+    if (line === null || !Number.isFinite(line) || line < 0) continue
+
+    const participant = selection?.participants?.[0]
+    const participantName =
+      (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+    if (!participantName) continue
+
+    const odds = selection?.displayOdds?.american?.trim() ?? ''
+    const parsed = odds ? parseAmericanOdds(odds) : null
+    if (!odds || parsed === null) continue
+
+    const key = normalizePlayerName(participantName)
+    if (!key) continue
+
+    const isMain = selection?.tags?.includes('MainPointLine') || false
+    const pRaw = impliedProbabilityFromAmericanOdds(parsed)
+
+    if (!byPlayer.has(key)) byPlayer.set(key, new Map())
+    const byLine = byPlayer.get(key)!
+
+    const existing = byLine.get(line)
+    const group: Group = existing ?? {
+      line,
+      overOdds: '',
+      underOdds: '',
+      hasOver: false,
+      hasUnder: false,
+      isMain: false,
+      pOverRaw: 0.5,
+    }
+
+    group.isMain = group.isMain || isMain
+
+    if (outcomeNorm === 'over') {
+      group.overOdds = odds
+      group.hasOver = true
+      group.pOverRaw = pRaw
+    } else {
+      group.underOdds = odds
+      group.hasUnder = true
+    }
+
+    byLine.set(line, group)
+  }
+
+  const result = new Map<string, StrikeoutsInfo>()
+
+  for (const [playerKey, byLine] of byPlayer.entries()) {
+    const candidates = Array.from(byLine.values()).filter((g) => g.hasOver && g.hasUnder)
+    if (candidates.length === 0) continue
+
+    const mainCandidates = candidates.filter((c) => c.isMain)
+    const pool = mainCandidates.length > 0 ? mainCandidates : candidates
+
+    pool.sort((a, b) => {
+      const aBalance = Math.abs(a.pOverRaw - 0.5)
+      const bBalance = Math.abs(b.pOverRaw - 0.5)
+      if (aBalance !== bBalance) return aBalance - bBalance
+      return a.line - b.line
+    })
+
+    const best = pool[0]
+    result.set(playerKey, {
+      line: best.line,
+      overOdds: best.overOdds,
+      underOdds: best.underOdds,
+      odds: `O ${best.overOdds} / U ${best.underOdds}`,
+    })
+  }
+
+  return result
+}
+
+function buildWinsMap(): Map<string, WinsInfo> {
+  const selections = getMergedSelectionsForStatPrefix<WinsSelection>('wins')
+  type Group = {
+    yesOdds: string
+    noOdds: string
+    hasYes: boolean
+    hasNo: boolean
+    pYesRaw: number
+    pNoRaw: number
+  }
+
+  const byPlayer = new Map<string, Map<string, Group>>()
+
+  for (const selection of selections) {
+    const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
+    const outcomeNorm = outcome.trim().toLowerCase()
+    if (outcomeNorm !== 'yes' && outcomeNorm !== 'no') continue
+
+    const participant = selection?.participants?.[0]
+    const participantName =
+      (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+    if (!participantName) continue
+
+    const odds = selection?.displayOdds?.american?.trim() ?? ''
+    const parsed = odds ? parseAmericanOdds(odds) : null
+    if (!odds || parsed === null) continue
+
+    const key = normalizePlayerName(participantName)
+    if (!key) continue
+
+    const marketId = typeof (selection as any)?.marketId === 'string' ? (selection as any).marketId : 'default'
+
+    if (!byPlayer.has(key)) byPlayer.set(key, new Map())
+    const byMarket = byPlayer.get(key)!
+
+    const existing = byMarket.get(marketId)
+    const group: Group = existing ?? {
+      yesOdds: '',
+      noOdds: '',
+      hasYes: false,
+      hasNo: false,
+      pYesRaw: 0.5,
+      pNoRaw: 0.5,
+    }
+
+    const pRaw = impliedProbabilityFromAmericanOdds(parsed)
+
+    if (outcomeNorm === 'yes') {
+      group.yesOdds = odds
+      group.hasYes = true
+      group.pYesRaw = pRaw
+    } else {
+      group.noOdds = odds
+      group.hasNo = true
+      group.pNoRaw = pRaw
+    }
+
+    byMarket.set(marketId, group)
+  }
+
+  const result = new Map<string, WinsInfo>()
+
+  for (const [playerKey, byMarket] of byPlayer.entries()) {
+    const candidates = Array.from(byMarket.values()).filter((g) => g.hasYes && g.hasNo)
+    if (candidates.length === 0) continue
+
+    candidates.sort((a, b) => {
+      const aOverround = a.pYesRaw + a.pNoRaw
+      const bOverround = b.pYesRaw + b.pNoRaw
+      if (aOverround !== bOverround) return aOverround - bOverround
+      return Math.abs(a.pYesRaw - 0.5) - Math.abs(b.pYesRaw - 0.5)
+    })
+
+    const best = candidates[0]
+    const sum = best.pYesRaw + best.pNoRaw
+    const yesProbabilityFair = sum > 0 ? best.pYesRaw / sum : 0.5
+
+    result.set(playerKey, {
+      yesOdds: best.yesOdds,
+      noOdds: best.noOdds,
+      yesProbabilityFair,
+    })
+  }
+
+  return result
+}
+
 function buildRows(): Row[] {
   const salaryEntries = Array.isArray(salariesJson)
     ? (salariesJson as SalaryEntry[])
@@ -655,6 +1138,10 @@ function buildRows(): Row[] {
   const runsByName = buildRunsMap()
   const rbisByName = buildRbisMap()
   const stolenBasesByName = buildStolenBasesMap()
+  const earnedRunsByName = buildEarnedRunsMap()
+  const outsRecordedByName = buildOutsRecordedMap()
+  const strikeoutsByName = buildStrikeoutsMap()
+  const winsByName = buildWinsMap()
 
   const rows: Row[] = []
 
@@ -666,7 +1153,6 @@ function buildRows(): Row[] {
 
     const position = typeof entry?.Position === 'string' ? entry.Position : ''
     const salary = typeof entry?.Salary === 'number' ? entry.Salary : null
-    const salaryFantasyPointsRaw = parseFantasyPoints(entry?.FPPG)
 
     const totalBasesInfo = totalBasesByName.get(normalizePlayerName(name))
     const totalBases = totalBasesInfo?.line ?? ''
@@ -714,27 +1200,96 @@ function buildRows(): Row[] {
     const projectedStolenBases =
       projectedStolenBasesRaw !== null ? round3(projectedStolenBasesRaw) : ''
 
+    const earnedRunsInfo = earnedRunsByName.get(normalizePlayerName(name))
+    const earnedRuns = earnedRunsInfo !== undefined ? String(earnedRunsInfo.line) : ''
+    const projectedEarnedRunsRaw =
+      earnedRunsInfo !== undefined
+        ? projectMeanPoissonFromOverUnder({
+            line: earnedRunsInfo.line,
+            overAmericanOdds: earnedRunsInfo.overOdds,
+            underAmericanOdds: earnedRunsInfo.underOdds,
+          })
+        : null
+    const projectedEarnedRuns = projectedEarnedRunsRaw !== null ? round3(projectedEarnedRunsRaw) : ''
+
+    const outsRecordedInfo = outsRecordedByName.get(normalizePlayerName(name))
+    const outsRecorded = outsRecordedInfo !== undefined ? String(outsRecordedInfo.line) : ''
+    const projectedOutsRecordedRaw =
+      outsRecordedInfo !== undefined
+        ? projectMeanPoissonFromOverUnder({
+            line: outsRecordedInfo.line,
+            overAmericanOdds: outsRecordedInfo.overOdds,
+            underAmericanOdds: outsRecordedInfo.underOdds,
+          })
+        : null
+    const projectedOutsRecorded =
+      projectedOutsRecordedRaw !== null ? round3(projectedOutsRecordedRaw) : ''
+
+    const strikeoutsInfo = strikeoutsByName.get(normalizePlayerName(name))
+    const strikeouts = strikeoutsInfo !== undefined ? String(strikeoutsInfo.line) : ''
+    const projectedStrikeoutsRaw =
+      strikeoutsInfo !== undefined
+        ? projectMeanPoissonFromOverUnder({
+            line: strikeoutsInfo.line,
+            overAmericanOdds: strikeoutsInfo.overOdds,
+            underAmericanOdds: strikeoutsInfo.underOdds,
+          })
+        : null
+    const projectedStrikeouts =
+      projectedStrikeoutsRaw !== null ? round3(projectedStrikeoutsRaw) : ''
+
+    const winsInfo = winsByName.get(normalizePlayerName(name))
+    const wins = winsInfo !== undefined ? 'Yes' : ''
+    const winsOdds = winsInfo?.yesOdds ?? ''
+    const projectedWins =
+      winsInfo !== undefined ? round3(clampProbability(winsInfo.yesProbabilityFair)) : ''
+
     const isPitcher = position === 'P'
 
-    const fantasyPoints = isPitcher
-      ? salaryFantasyPointsRaw !== null
-        ? round3(salaryFantasyPointsRaw)
-        : ''
-      : typeof projectedTotalBases === 'number' &&
-          typeof projectedWalks === 'number' &&
-          typeof projectedRuns === 'number' &&
-          typeof projectedRbis === 'number' &&
-          typeof projectedStolenBases === 'number'
-        ? round3(
-            computeHitterFantasyPoints({
-              projectedTotalBases,
-              projectedWalks,
-              projectedRuns,
-              projectedRbis,
-              projectedStolenBases,
-            }),
+    const qualityStartProbabilityRaw =
+      isPitcher &&
+      typeof projectedOutsRecorded === 'number' &&
+      typeof projectedEarnedRuns === 'number'
+        ? clampProbability(
+            poissonPAtLeastK(projectedOutsRecorded, 18) *
+              poissonCdfAtMostK(projectedEarnedRuns, 3),
           )
+        : 0
+
+    const qualityStartProbability =
+      isPitcher &&
+      typeof projectedOutsRecorded === 'number' &&
+      typeof projectedEarnedRuns === 'number'
+        ? `${round3(qualityStartProbabilityRaw * 100)}%`
         : ''
+
+    const projectedOutsRecordedValue =
+      typeof projectedOutsRecorded === 'number' ? projectedOutsRecorded : 0
+    const projectedEarnedRunsValue =
+      typeof projectedEarnedRuns === 'number' ? projectedEarnedRuns : 0
+    const projectedStrikeoutsValue =
+      typeof projectedStrikeouts === 'number' ? projectedStrikeouts : 0
+    const projectedWinsValue = typeof projectedWins === 'number' ? projectedWins : 0
+
+    const fantasyPoints = isPitcher
+      ? round3(
+          projectedOutsRecordedValue * 1 -
+            projectedEarnedRunsValue * 3 +
+            qualityStartProbabilityRaw * 4 +
+            projectedStrikeoutsValue * 1 +
+            projectedWinsValue * 6,
+        )
+      : round3(
+          computeHitterFantasyPoints({
+            projectedTotalBases:
+              typeof projectedTotalBases === 'number' ? projectedTotalBases : 0,
+            projectedWalks: typeof projectedWalks === 'number' ? projectedWalks : 0,
+            projectedRuns: typeof projectedRuns === 'number' ? projectedRuns : 0,
+            projectedRbis: typeof projectedRbis === 'number' ? projectedRbis : 0,
+            projectedStolenBases:
+              typeof projectedStolenBases === 'number' ? projectedStolenBases : 0,
+          }),
+        )
 
     const value =
       typeof salary === 'number' && salary > 0 && typeof fantasyPoints === 'number'
@@ -760,6 +1315,19 @@ function buildRows(): Row[] {
       stolenBases,
       stolenBasesOdds: stolenBasesInfo?.odds ?? '',
       projectedStolenBases,
+      earnedRuns,
+      earnedRunsOdds: earnedRunsInfo?.odds ?? '',
+      projectedEarnedRuns,
+      outsRecorded,
+      outsRecordedOdds: outsRecordedInfo?.odds ?? '',
+      projectedOutsRecorded,
+      strikeouts,
+      strikeoutsOdds: strikeoutsInfo?.odds ?? '',
+      projectedStrikeouts,
+      wins,
+      winsOdds,
+      projectedWins,
+      qualityStartProbability,
       fantasyPoints,
       salary: typeof salary === 'number' ? salary : '',
       value,
@@ -779,7 +1347,7 @@ function buildRows(): Row[] {
   })
 }
 
-const columns = [
+const HITTER_COLUMNS: Column[] = [
   { key: 'name', label: 'Name' },
   { key: 'position', label: 'Position' },
   { key: 'totalBases', label: 'Total Bases' },
@@ -800,9 +1368,35 @@ const columns = [
   { key: 'fantasyPoints', label: 'Fantasy Points' },
   { key: 'salary', label: 'Salary' },
   { key: 'value', label: 'Value' },
-] as const
+]
 
-function DataTable({ rows }: { rows: Row[] }) {
+const PITCHER_COLUMNS: Column[] = [
+  { key: 'name', label: 'Name' },
+  { key: 'position', label: 'Position' },
+  { key: 'earnedRuns', label: 'Earned Runs' },
+  { key: 'earnedRunsOdds', label: 'Odds' },
+  { key: 'projectedEarnedRuns', label: 'Projected Earned Runs' },
+  { key: 'outsRecorded', label: 'Outs Recorded' },
+  { key: 'outsRecordedOdds', label: 'Odds' },
+  { key: 'projectedOutsRecorded', label: 'Projected Outs Recorded' },
+  { key: 'strikeouts', label: 'Strikeouts' },
+  { key: 'strikeoutsOdds', label: 'Odds' },
+  { key: 'projectedStrikeouts', label: 'Projected Strikeouts' },
+  { key: 'wins', label: 'Wins' },
+  { key: 'winsOdds', label: 'Odds' },
+  { key: 'projectedWins', label: 'Projected Wins' },
+  { key: 'qualityStartProbability', label: 'Quality Start Probability' },
+  { key: 'fantasyPoints', label: 'Fantasy Points' },
+  { key: 'salary', label: 'Salary' },
+  { key: 'value', label: 'Value' },
+]
+
+function DataTable({ rows, columns }: { rows: Row[]; columns: Column[] }) {
+  function cellValue(row: Row, key: keyof Row): string | number {
+    const value = row[key] as unknown
+    return typeof value === 'number' || typeof value === 'string' ? value : ''
+  }
+
   return (
     <div className="tableWrap">
       <table className="dataTable">
@@ -818,56 +1412,15 @@ function DataTable({ rows }: { rows: Row[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.key}>
-              <td>{row.name}</td>
-              <td>{row.position}</td>
-              <td className={row.totalBases === '' ? 'emptyCell' : undefined}>
-                {row.totalBases === '' ? '' : row.totalBases}
-              </td>
-              <td className={row.totalBasesOdds ? undefined : 'emptyCell'}>
-                {row.totalBasesOdds}
-              </td>
-              <td className={row.projectedTotalBases === '' ? 'emptyCell' : undefined}>
-                {row.projectedTotalBases === '' ? '' : row.projectedTotalBases}
-              </td>
-              <td className={row.walks === '' ? 'emptyCell' : undefined}>
-                {row.walks === '' ? '' : row.walks}
-              </td>
-              <td className={row.walksOdds ? undefined : 'emptyCell'}>{row.walksOdds}</td>
-              <td className={row.projectedWalks === '' ? 'emptyCell' : undefined}>
-                {row.projectedWalks === '' ? '' : row.projectedWalks}
-              </td>
-              <td className={row.runs === '' ? 'emptyCell' : undefined}>
-                {row.runs === '' ? '' : row.runs}
-              </td>
-              <td className={row.runsOdds ? undefined : 'emptyCell'}>{row.runsOdds}</td>
-              <td className={row.projectedRuns === '' ? 'emptyCell' : undefined}>
-                {row.projectedRuns === '' ? '' : row.projectedRuns}
-              </td>
-              <td className={row.rbis === '' ? 'emptyCell' : undefined}>
-                {row.rbis === '' ? '' : row.rbis}
-              </td>
-              <td className={row.rbisOdds ? undefined : 'emptyCell'}>{row.rbisOdds}</td>
-              <td className={row.projectedRbis === '' ? 'emptyCell' : undefined}>
-                {row.projectedRbis === '' ? '' : row.projectedRbis}
-              </td>
-              <td className={row.stolenBases === '' ? 'emptyCell' : undefined}>
-                {row.stolenBases === '' ? '' : row.stolenBases}
-              </td>
-              <td className={row.stolenBasesOdds ? undefined : 'emptyCell'}>
-                {row.stolenBasesOdds}
-              </td>
-              <td className={row.projectedStolenBases === '' ? 'emptyCell' : undefined}>
-                {row.projectedStolenBases === '' ? '' : row.projectedStolenBases}
-              </td>
-              <td className={row.fantasyPoints === '' ? 'emptyCell' : undefined}>
-                {row.fantasyPoints === '' ? '' : row.fantasyPoints}
-              </td>
-              <td className={row.salary === '' ? 'emptyCell' : undefined}>
-                {row.salary === '' ? '' : row.salary}
-              </td>
-              <td className={row.value === '' ? 'emptyCell' : undefined}>
-                {row.value === '' ? '' : row.value}
-              </td>
+              {columns.map((c) => {
+                const v = cellValue(row, c.key)
+                const empty = v === ''
+                return (
+                  <td key={String(c.key)} className={empty ? 'emptyCell' : undefined}>
+                    {empty ? '' : v}
+                  </td>
+                )
+              })}
             </tr>
           ))}
         </tbody>
@@ -876,10 +1429,84 @@ function DataTable({ rows }: { rows: Row[] }) {
   )
 }
 
+function parseEligiblePositions(position: string): string[] {
+  return position
+    .split('/')
+    .map((p) => p.trim())
+    .filter(Boolean)
+}
+
 export default function MlbFullRoster() {
-  const rows = buildRows()
+  const rows = useMemo(() => buildRows(), [])
   const pitchers = rows.filter((r) => r.position === 'P')
   const hitters = rows.filter((r) => r.position !== 'P')
+
+  const optimizerPlayers: MlbLineupPlayer[] = useMemo(() => {
+    return rows
+      .map((r) => {
+        if (typeof r.salary !== 'number' || r.salary <= 0) return null
+        if (typeof r.fantasyPoints !== 'number') return null
+        return {
+          id: r.key,
+          name: r.name,
+          positions: parseEligiblePositions(r.position),
+          salary: r.salary,
+          fantasyPoints: r.fantasyPoints,
+        } satisfies MlbLineupPlayer
+      })
+      .filter(Boolean) as MlbLineupPlayer[]
+  }, [rows])
+
+  const [optimalLineup, setOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+  const [lineupStatus, setLineupStatus] = useState<'idle' | 'solving' | 'done' | 'error'>('idle')
+  const [lineupError, setLineupError] = useState<string>('')
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function solve() {
+      setLineupStatus('solving')
+      setLineupError('')
+      setOptimalLineup(null)
+
+      try {
+        const result = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 35_000,
+          slots: MLB_DK_SLOTS,
+        })
+
+        if (cancelled) return
+
+        if (!result) {
+          setLineupStatus('error')
+          setLineupError('No feasible lineup found.')
+          return
+        }
+
+        setOptimalLineup(result)
+        setLineupStatus('done')
+      } catch (err) {
+        if (cancelled) return
+        setLineupStatus('error')
+        setLineupError(err instanceof Error ? err.message : 'Failed to solve lineup.')
+      }
+    }
+
+    if (optimizerPlayers.length === 0) {
+      setLineupStatus('error')
+      setLineupError('No players have projections + salary available for optimization.')
+      return () => {
+        cancelled = true
+      }
+    }
+
+    solve()
+
+    return () => {
+      cancelled = true
+    }
+  }, [optimizerPlayers])
 
   return (
     <div>
@@ -891,10 +1518,49 @@ export default function MlbFullRoster() {
       </header>
 
       <h2 className="sectionTitle">Hitters</h2>
-      <DataTable rows={hitters} />
+      <DataTable rows={hitters} columns={HITTER_COLUMNS} />
 
       <h2 className="sectionTitle">Pitchers</h2>
-      <DataTable rows={pitchers} />
+      <DataTable rows={pitchers} columns={PITCHER_COLUMNS} />
+
+      <h2 className="sectionTitle">Optimal Lineup</h2>
+      <p>Salary cap: $35,000</p>
+      {lineupStatus === 'solving' ? (
+        <p>Solving...</p>
+      ) : lineupStatus === 'error' ? (
+        <p>{lineupError}</p>
+      ) : optimalLineup ? (
+        <div className="tableWrap">
+          <table className="dataTable">
+            <thead>
+              <tr>
+                <th scope="col">Slot</th>
+                <th scope="col">Name</th>
+                <th scope="col">Salary</th>
+                <th scope="col">Fantasy Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {MLB_DK_SLOTS.map((slot) => {
+                const p = optimalLineup.playersBySlot[slot.key]
+                return (
+                  <tr key={slot.key}>
+                    <td>{slot.label}</td>
+                    <td>{p.name}</td>
+                    <td>{p.salary}</td>
+                    <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                  </tr>
+                )
+              })}
+              <tr>
+                <td colSpan={2}>Total</td>
+                <td>{optimalLineup.totalSalary}</td>
+                <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      ) : null}
     </div>
   )
 }

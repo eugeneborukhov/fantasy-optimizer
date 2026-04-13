@@ -33,3 +33,20 @@
 .emptyCell {
     text-align: center;
 }
+
+.excludeGamesWrap {
+    padding: 0 16px 16px;
+}
+
+.excludeGamesList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 18px;
+}
+
+.excludeGameItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}

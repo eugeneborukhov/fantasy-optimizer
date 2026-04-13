@@ -197,7 +197,11 @@ export async function optimizeMlbLineup<Key extends string>(params: {
 
     const binaries = vars.map((v) => v.name)
 
-    const subjectTo: any[] = []
+    type GlpkLinearVar = { name: string; coef: number }
+    type GlpkBounds = { type: number; lb: number; ub: number }
+    type GlpkConstraint = { name: string; vars: GlpkLinearVar[]; bnds: GlpkBounds }
+
+    const subjectTo: GlpkConstraint[] = []
 
     // Slot fill constraints
     for (let si = 0; si < slots.length; si++) {
@@ -313,9 +317,20 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     // In the non-worker build it can be sync; `await` works for both.
     const raw = await glpk.solve(lp, { msglev: glpk.GLP_MSG_OFF })
 
-    const solution = ((raw as any)?.result ?? raw) as any
-    const status: unknown = solution?.status
-    const values: Record<string, number> = (solution?.vars ?? {}) as Record<string, number>
+    type GlpkSolvePayload = {
+        status?: unknown
+        vars?: Record<string, number>
+    }
+
+    const rawObject = raw as unknown
+    const rawWithResult =
+        typeof rawObject === 'object' && rawObject !== null && 'result' in rawObject
+            ? (rawObject as { result?: unknown }).result
+            : undefined
+
+    const solution = (rawWithResult ?? rawObject) as GlpkSolvePayload
+    const status: unknown = solution.status
+    const values: Record<string, number> = solution.vars ?? {}
 
     // If we can detect an infeasible status, report it clearly.
     const statusNumber = typeof status === 'number' ? status : null
@@ -327,7 +342,7 @@ export async function optimizeMlbLineup<Key extends string>(params: {
         throw new Error(`Lineup solve failed (status ${statusNumber}).`)
     }
 
-    const picks: Record<Key, MlbLineupPlayer> = {} as any
+    const picks: Partial<Record<Key, MlbLineupPlayer>> = {}
 
     for (const v of vars) {
         const val = values[v.name]
@@ -346,13 +361,13 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     let totalSalary = 0
     let totalFantasyPoints = 0
     for (const slot of slots) {
-        const p = picks[slot.key]
+        const p = picks[slot.key]!
         totalSalary += p.salary * (slot.salaryMultiplier ?? 1)
         totalFantasyPoints += p.fantasyPoints * (slot.fantasyPointsMultiplier ?? 1)
     }
 
     return {
-        playersBySlot: picks,
+        playersBySlot: picks as Record<Key, MlbLineupPlayer>,
         totalSalary,
         totalFantasyPoints,
     }

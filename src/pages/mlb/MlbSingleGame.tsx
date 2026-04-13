@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './MlbFullRoster.css'
 import singleGameSalariesJson from '../../sport/mlb/Type/single-game/salaries.json'
-import { buildRows, HITTER_COLUMNS, type Row } from './MlbFullRoster'
+import { buildRows, HITTER_COLUMNS, type Row } from './mlbRows'
 import {
     optimizeMlbLineup,
     type LineupSlot,
@@ -82,7 +82,7 @@ const MLB_SINGLE_GAME_SLOTS: LineupSlot<SingleGameSlotKey>[] = [
 
 export default function MlbSingleGame() {
     const rows = useMemo(() => buildRows(singleGameSalariesJson), [])
-    const hitters = rows.filter((r) => r.position !== 'P')
+    const hitters = useMemo(() => rows.filter((r) => r.position !== 'P'), [rows])
 
     const optimizerPlayers: MlbLineupPlayer[] = useMemo(() => {
         // Single Game page is hitters-only, and the optimizer should match.
@@ -105,18 +105,23 @@ export default function MlbSingleGame() {
     const [optimalLineup, setOptimalLineup] = useState<OptimizedLineup<SingleGameSlotKey> | null>(
         null,
     )
+    const [secondOptimalLineup, setSecondOptimalLineup] = useState<
+        OptimizedLineup<SingleGameSlotKey> | null
+    >(null)
     const [lineupStatus, setLineupStatus] = useState<'idle' | 'solving' | 'done' | 'error'>(
         'idle',
     )
     const [lineupError, setLineupError] = useState<string>('')
 
     useEffect(() => {
+        if (optimizerPlayers.length === 0) return
         let cancelled = false
 
         async function solve() {
             setLineupStatus('solving')
             setLineupError('')
             setOptimalLineup(null)
+            setSecondOptimalLineup(null)
 
             try {
                 const result = await optimizeMlbLineup({
@@ -133,20 +138,54 @@ export default function MlbSingleGame() {
                     return
                 }
 
+                const missingSlots = MLB_SINGLE_GAME_SLOTS.filter(
+                    (slot) => result.playersBySlot[slot.key] === undefined,
+                )
+                if (missingSlots.length > 0) {
+                    setLineupStatus('error')
+                    setLineupError(
+                        `Solver returned an incomplete lineup (missing: ${missingSlots
+                            .map((s) => s.key)
+                            .join(', ')}).`,
+                    )
+                    return
+                }
+
+                const bestPlayerIds = Array.from(
+                    new Set(MLB_SINGLE_GAME_SLOTS.map((s) => result.playersBySlot[s.key].id)),
+                )
+
+                const second = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 60_000,
+                    slots: MLB_SINGLE_GAME_SLOTS,
+                    excludeLineupsByPlayerIds: [bestPlayerIds],
+                })
+
+                if (cancelled) return
+
+                if (second) {
+                    const missingSecondSlots = MLB_SINGLE_GAME_SLOTS.filter(
+                        (slot) => second.playersBySlot[slot.key] === undefined,
+                    )
+                    if (missingSecondSlots.length > 0) {
+                        setLineupStatus('error')
+                        setLineupError(
+                            `Solver returned an incomplete 2nd-best lineup (missing: ${missingSecondSlots
+                                .map((s) => s.key)
+                                .join(', ')}).`,
+                        )
+                        return
+                    }
+                }
+
                 setOptimalLineup(result)
+                setSecondOptimalLineup(second)
                 setLineupStatus('done')
             } catch (err) {
                 if (cancelled) return
                 setLineupStatus('error')
                 setLineupError(err instanceof Error ? err.message : 'Failed to solve lineup.')
-            }
-        }
-
-        if (optimizerPlayers.length === 0) {
-            setLineupStatus('error')
-            setLineupError('No hitters have projections + salary available for optimization.')
-            return () => {
-                cancelled = true
             }
         }
 
@@ -171,44 +210,119 @@ export default function MlbSingleGame() {
 
             <h2 className="sectionTitle">Optimal Lineup</h2>
             <p>Salary cap: $60,000 (MVP uses 1.5x salary and 1.5x fantasy points)</p>
-            {lineupStatus === 'solving' ? (
+            {optimizerPlayers.length === 0 ? (
+                <p>No hitters available for optimization.</p>
+            ) : lineupStatus === 'solving' ? (
                 <p>Solving...</p>
             ) : lineupStatus === 'error' ? (
                 <p>{lineupError}</p>
             ) : optimalLineup ? (
-                <div className="tableWrap">
-                    <table className="dataTable">
-                        <thead>
-                            <tr>
-                                <th scope="col">Slot</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Salary</th>
-                                <th scope="col">Fantasy Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {MLB_SINGLE_GAME_SLOTS.map((slot) => {
-                                const p = optimalLineup.playersBySlot[slot.key]
-                                const salaryMult = slot.salaryMultiplier ?? 1
-                                const pointsMult = slot.fantasyPointsMultiplier ?? 1
+                <>
+                    <div className="tableWrap">
+                        <table className="dataTable">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Slot</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Salary</th>
+                                    <th scope="col">Fantasy Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {MLB_SINGLE_GAME_SLOTS.map((slot) => {
+                                    const p = optimalLineup.playersBySlot[slot.key]
+                                    const salaryMult = slot.salaryMultiplier ?? 1
+                                    const pointsMult = slot.fantasyPointsMultiplier ?? 1
 
-                                return (
-                                    <tr key={slot.key}>
-                                        <td>{slot.label}</td>
-                                        <td>{p.name}</td>
-                                        <td>{Math.round(p.salary * salaryMult)}</td>
-                                        <td>{Math.round(p.fantasyPoints * pointsMult * 1000) / 1000}</td>
+                                    if (!p) {
+                                        return (
+                                            <tr key={slot.key}>
+                                                <td>{slot.label}</td>
+                                                <td />
+                                                <td />
+                                                <td />
+                                            </tr>
+                                        )
+                                    }
+
+                                    return (
+                                        <tr key={slot.key}>
+                                            <td>{slot.label}</td>
+                                            <td>{p.name}</td>
+                                            <td>{Math.round(p.salary * salaryMult)}</td>
+                                            <td>
+                                                {Math.round(p.fantasyPoints * pointsMult * 1000) /
+                                                    1000}
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                                <tr>
+                                    <td colSpan={2}>Total</td>
+                                    <td>{Math.round(optimalLineup.totalSalary)}</td>
+                                    <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2 className="sectionTitle">2nd Optimal Lineup</h2>
+                    {secondOptimalLineup ? (
+                        <div className="tableWrap">
+                            <table className="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Slot</th>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Salary</th>
+                                        <th scope="col">Fantasy Points</th>
                                     </tr>
-                                )
-                            })}
-                            <tr>
-                                <td colSpan={2}>Total</td>
-                                <td>{Math.round(optimalLineup.totalSalary)}</td>
-                                <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                                </thead>
+                                <tbody>
+                                    {MLB_SINGLE_GAME_SLOTS.map((slot) => {
+                                        const p = secondOptimalLineup.playersBySlot[slot.key]
+                                        const salaryMult = slot.salaryMultiplier ?? 1
+                                        const pointsMult = slot.fantasyPointsMultiplier ?? 1
+
+                                        if (!p) {
+                                            return (
+                                                <tr key={slot.key}>
+                                                    <td>{slot.label}</td>
+                                                    <td />
+                                                    <td />
+                                                    <td />
+                                                </tr>
+                                            )
+                                        }
+
+                                        return (
+                                            <tr key={slot.key}>
+                                                <td>{slot.label}</td>
+                                                <td>{p.name}</td>
+                                                <td>{Math.round(p.salary * salaryMult)}</td>
+                                                <td>
+                                                    {Math.round(
+                                                        p.fantasyPoints * pointsMult * 1000,
+                                                    ) / 1000}
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                    <tr>
+                                        <td colSpan={2}>Total</td>
+                                        <td>{Math.round(secondOptimalLineup.totalSalary)}</td>
+                                        <td>
+                                            {Math.round(secondOptimalLineup.totalFantasyPoints * 1000) /
+                                                1000}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <p>No 2nd-best distinct lineup found.</p>
+                    )}
+                </>
             ) : null}
         </div>
     )

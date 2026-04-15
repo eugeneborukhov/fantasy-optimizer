@@ -1,0 +1,290 @@
+{
+    "markets": [
+        {
+            "id": "325618053",
+            "eventId": "33972075",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Donovan Clingan Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--1640228741",
+            "sortOrder": 1,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33972075|12195|2:161138",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325618160",
+            "eventId": "33972075",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Mark Williams Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--1640228741",
+            "sortOrder": 2,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33972075|12195|2:153773",
+            "dynamicMetadata": {}
+        }
+    ],
+    "selections": [
+        {
+            "id": "0QA325618053#564378597_13L42648Q11130272651Q20",
+            "marketId": "325618053",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212551",
+                "decimal": "1.18",
+                "fractional": "100/551"
+            },
+            "trueOdds": 1.18148821,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 11897,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325618053#564378617_13L42648Q1160400555Q20",
+            "marketId": "325618053",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u2212116",
+                "decimal": "1.86",
+                "fractional": "25/29"
+            },
+            "trueOdds": 1.86206897,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 18617,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325618053#564378631_13L42648Q1663323674Q20",
+            "marketId": "325618053",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u002B267",
+                "decimal": "3.67",
+                "fractional": "267/100"
+            },
+            "trueOdds": 3.67,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 36731,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        },
+        {
+            "id": "0QA325618053#564378641_13L42648Q1-1401945444Q20",
+            "marketId": "325618053",
+            "label": "4\u002B",
+            "displayOdds": {
+                "american": "\u002B710",
+                "decimal": "8.10",
+                "fractional": "71/10"
+            },
+            "trueOdds": 8.1,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 81041,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 4
+        },
+        {
+            "id": "0QA325618160#564378860_13L42648Q11130272651Q20",
+            "marketId": "325618160",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212329",
+                "decimal": "1.30",
+                "fractional": "100/329"
+            },
+            "trueOdds": 1.30395137,
+            "participants": [
+                {
+                    "id": "649564",
+                    "name": "Mark Williams",
+                    "type": "Player",
+                    "seoIdentifier": "Mark Williams",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 13060,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325618160#564378924_13L42648Q1160400555Q20",
+            "marketId": "325618160",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B139",
+                "decimal": "2.39",
+                "fractional": "139/100"
+            },
+            "trueOdds": 2.39,
+            "participants": [
+                {
+                    "id": "649564",
+                    "name": "Mark Williams",
+                    "type": "Player",
+                    "seoIdentifier": "Mark Williams",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 23924,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325618160#564378993_13L42648Q1663323674Q20",
+            "marketId": "325618160",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u002B441",
+                "decimal": "5.41",
+                "fractional": "441/100"
+            },
+            "trueOdds": 5.41,
+            "participants": [
+                {
+                    "id": "649564",
+                    "name": "Mark Williams",
+                    "type": "Player",
+                    "seoIdentifier": "Mark Williams",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 54193,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        }
+    ],
+    "subscriptionPartials": {
+        "markets--1640228741": {
+            "entity": "markets",
+            "query": "$filter=eventId eq \u002733972075\u0027 AND clientMetadata/subCategoryId eq \u002716484\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027)",
+            "locale": "en"
+        }
+    }
+}

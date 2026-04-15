@@ -1,0 +1,1669 @@
+{
+    "markets": [
+        {
+            "id": "325879497",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Ronald Acuna Jr. Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 1,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109122",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879909",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Drake Baldwin Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 2,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:198613",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879849",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Matt Olson Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 3,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109479",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879817",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Jakob Marsee Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 4,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:204897",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879863",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Austin Riley Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 5,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109116",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879542",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Xavier Edwards Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 6,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:108254",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879476",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Agustin Ramirez Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 7,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:178994",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879741",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Ozzie Albies Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 8,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109111",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879633",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Michael Harris Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 9,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:105842",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879535",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Mike Yastrzemski Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 10,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109570",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879783",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Otto Lopez Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 11,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:120760",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879573",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Liam Hicks Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 12,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:197288",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879657",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Dominic Smith Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 13,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:108202",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879957",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Connor Norby Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 14,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:180225",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "326152186",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Javier Sanoja Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 15,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:184549",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879955",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Mauricio Dubon Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 16,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:109587",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879740",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Owen Caissie Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 17,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:197318",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "325879523",
+            "eventId": "33984826",
+            "sportId": "7",
+            "leagueId": "84240",
+            "name": "Graham Pauley Runs",
+            "subcategoryId": "17844",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "14463",
+                "betOfferTypeId": 0,
+                "name": "Runs (Batter) Milestones"
+            },
+            "subscriptionKey": "markets-1299254425",
+            "sortOrder": 18,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "PlayerProps"
+            ],
+            "correlatedId": "33984826|14463|2:178728",
+            "dynamicMetadata": {}
+        }
+    ],
+    "selections": [
+        {
+            "id": "0QA325879476#565659153_13L84240Q11236389728Q20",
+            "marketId": "325879476",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B130",
+                "decimal": "2.30",
+                "fractional": "13/10"
+            },
+            "trueOdds": 2.3,
+            "participants": [
+                {
+                    "id": "698901",
+                    "name": "Agustin Ramirez",
+                    "type": "Player",
+                    "seoIdentifier": "Agustin Ramirez",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 23053,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879476#565659163_13L84240Q1355474852Q20",
+            "marketId": "325879476",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B780",
+                "decimal": "8.80",
+                "fractional": "39/5"
+            },
+            "trueOdds": 8.8,
+            "participants": [
+                {
+                    "id": "698901",
+                    "name": "Agustin Ramirez",
+                    "type": "Player",
+                    "seoIdentifier": "Agustin Ramirez",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 88063,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879497#565659152_13L84240Q11236389728Q20",
+            "marketId": "325879497",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212139",
+                "decimal": "1.71",
+                "fractional": "100/139"
+            },
+            "trueOdds": 1.71942447,
+            "participants": [
+                {
+                    "id": "32266",
+                    "name": "Ronald Acuna Jr.",
+                    "type": "Player",
+                    "seoIdentifier": "Ronald Acuna Jr.",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 5
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 17152,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879497#565659162_13L84240Q1355474852Q20",
+            "marketId": "325879497",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B408",
+                "decimal": "5.08",
+                "fractional": "102/25"
+            },
+            "trueOdds": 5.08,
+            "participants": [
+                {
+                    "id": "32266",
+                    "name": "Ronald Acuna Jr.",
+                    "type": "Player",
+                    "seoIdentifier": "Ronald Acuna Jr.",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 5
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 50862,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879523#565659252_13L84240Q11236389728Q20",
+            "marketId": "325879523",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B181",
+                "decimal": "2.81",
+                "fractional": "181/100"
+            },
+            "trueOdds": 2.81,
+            "participants": [
+                {
+                    "id": "724395",
+                    "name": "Graham Pauley",
+                    "type": "Player",
+                    "seoIdentifier": "Graham Pauley",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 4
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 28152,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879523#565659288_13L84240Q1355474852Q20",
+            "marketId": "325879523",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1140",
+                "decimal": "12.40",
+                "fractional": "57/5"
+            },
+            "trueOdds": 12.4,
+            "participants": [
+                {
+                    "id": "724395",
+                    "name": "Graham Pauley",
+                    "type": "Player",
+                    "seoIdentifier": "Graham Pauley",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 4
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 124088,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879535#565659215_13L84240Q11236389728Q20",
+            "marketId": "325879535",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B138",
+                "decimal": "2.38",
+                "fractional": "69/50"
+            },
+            "trueOdds": 2.38,
+            "participants": [
+                {
+                    "id": "32717",
+                    "name": "Mike Yastrzemski",
+                    "type": "Player",
+                    "seoIdentifier": "Mike Yastrzemski",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 6
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 23815,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879535#565659243_13L84240Q1355474852Q20",
+            "marketId": "325879535",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B890",
+                "decimal": "9.90",
+                "fractional": "89/10"
+            },
+            "trueOdds": 9.9,
+            "participants": [
+                {
+                    "id": "32717",
+                    "name": "Mike Yastrzemski",
+                    "type": "Player",
+                    "seoIdentifier": "Mike Yastrzemski",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 6
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 99043,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879542#565659561_13L84240Q11236389728Q20",
+            "marketId": "325879542",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B116",
+                "decimal": "2.16",
+                "fractional": "29/25"
+            },
+            "trueOdds": 2.16,
+            "participants": [
+                {
+                    "id": "112364",
+                    "name": "Xavier Edwards",
+                    "type": "Player",
+                    "seoIdentifier": "Xavier Edwards",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 14
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 21661,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879542#565659697_13L84240Q1355474852Q20",
+            "marketId": "325879542",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B690",
+                "decimal": "7.90",
+                "fractional": "69/10"
+            },
+            "trueOdds": 7.9,
+            "participants": [
+                {
+                    "id": "112364",
+                    "name": "Xavier Edwards",
+                    "type": "Player",
+                    "seoIdentifier": "Xavier Edwards",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 14
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 79097,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879573#565659584_13L84240Q11236389728Q20",
+            "marketId": "325879573",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B156",
+                "decimal": "2.56",
+                "fractional": "39/25"
+            },
+            "trueOdds": 2.56,
+            "participants": [
+                {
+                    "id": "779864",
+                    "name": "Liam Hicks",
+                    "type": "Player",
+                    "seoIdentifier": "Liam Hicks",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 25684,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879573#565659632_13L84240Q1355474852Q20",
+            "marketId": "325879573",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1000",
+                "decimal": "11.00",
+                "fractional": "10/1"
+            },
+            "trueOdds": 11,
+            "participants": [
+                {
+                    "id": "779864",
+                    "name": "Liam Hicks",
+                    "type": "Player",
+                    "seoIdentifier": "Liam Hicks",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 110032,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879633#565659397_13L84240Q11236389728Q20",
+            "marketId": "325879633",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B134",
+                "decimal": "2.34",
+                "fractional": "67/50"
+            },
+            "trueOdds": 2.34,
+            "participants": [
+                {
+                    "id": "459716",
+                    "name": "Michael Harris",
+                    "type": "Player",
+                    "seoIdentifier": "Michael Harris II",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 5
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 23497,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879633#565659467_13L84240Q1355474852Q20",
+            "marketId": "325879633",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B890",
+                "decimal": "9.90",
+                "fractional": "89/10"
+            },
+            "trueOdds": 9.9,
+            "participants": [
+                {
+                    "id": "459716",
+                    "name": "Michael Harris",
+                    "type": "Player",
+                    "seoIdentifier": "Michael Harris II",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 5
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 99067,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879657#565660128_13L84240Q11236389728Q20",
+            "marketId": "325879657",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B151",
+                "decimal": "2.51",
+                "fractional": "151/100"
+            },
+            "trueOdds": 2.51,
+            "participants": [
+                {
+                    "id": "31724",
+                    "name": "Dominic Smith",
+                    "type": "Player",
+                    "seoIdentifier": "Dominic Smith",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 25127,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879657#565660274_13L84240Q1355474852Q20",
+            "marketId": "325879657",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1040",
+                "decimal": "11.40",
+                "fractional": "52/5"
+            },
+            "trueOdds": 11.4,
+            "participants": [
+                {
+                    "id": "31724",
+                    "name": "Dominic Smith",
+                    "type": "Player",
+                    "seoIdentifier": "Dominic Smith",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 114074,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879740#565659804_13L84240Q11236389728Q20",
+            "marketId": "325879740",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B166",
+                "decimal": "2.66",
+                "fractional": "83/50"
+            },
+            "trueOdds": 2.66,
+            "participants": [
+                {
+                    "id": "498087",
+                    "name": "Owen Caissie",
+                    "type": "Player",
+                    "seoIdentifier": "Owen Caissie",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 6
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 26604,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879740#565659901_13L84240Q1355474852Q20",
+            "marketId": "325879740",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1100",
+                "decimal": "12.00",
+                "fractional": "11/1"
+            },
+            "trueOdds": 12,
+            "participants": [
+                {
+                    "id": "498087",
+                    "name": "Owen Caissie",
+                    "type": "Player",
+                    "seoIdentifier": "Owen Caissie",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 6
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 120001,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879741#565660634_13L84240Q11236389728Q20",
+            "marketId": "325879741",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B133",
+                "decimal": "2.33",
+                "fractional": "133/100"
+            },
+            "trueOdds": 2.33,
+            "participants": [
+                {
+                    "id": "32255",
+                    "name": "Ozzie Albies",
+                    "type": "Player",
+                    "seoIdentifier": "Ozzie Albies",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 23334,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879741#565660680_13L84240Q1355474852Q20",
+            "marketId": "325879741",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B880",
+                "decimal": "9.80",
+                "fractional": "44/5"
+            },
+            "trueOdds": 9.8,
+            "participants": [
+                {
+                    "id": "32255",
+                    "name": "Ozzie Albies",
+                    "type": "Player",
+                    "seoIdentifier": "Ozzie Albies",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 98080,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879783#565660793_13L84240Q11236389728Q20",
+            "marketId": "325879783",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B143",
+                "decimal": "2.43",
+                "fractional": "143/100"
+            },
+            "trueOdds": 2.43,
+            "participants": [
+                {
+                    "id": "459933",
+                    "name": "Otto Lopez",
+                    "type": "Player",
+                    "seoIdentifier": "Otto Lopez",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 24393,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879783#565660835_13L84240Q1355474852Q20",
+            "marketId": "325879783",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B900",
+                "decimal": "10.00",
+                "fractional": "9/1"
+            },
+            "trueOdds": 10,
+            "participants": [
+                {
+                    "id": "459933",
+                    "name": "Otto Lopez",
+                    "type": "Player",
+                    "seoIdentifier": "Otto Lopez",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 100035,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879817#565660138_13L84240Q11236389728Q20",
+            "marketId": "325879817",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B107",
+                "decimal": "2.07",
+                "fractional": "107/100"
+            },
+            "trueOdds": 2.07,
+            "participants": [
+                {
+                    "id": "700627",
+                    "name": "Jakob Marsee",
+                    "type": "Player",
+                    "seoIdentifier": "Jakob Marsee",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 12
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 20738,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879817#565660196_13L84240Q1355474852Q20",
+            "marketId": "325879817",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B600",
+                "decimal": "7.00",
+                "fractional": "6/1"
+            },
+            "trueOdds": 7,
+            "participants": [
+                {
+                    "id": "700627",
+                    "name": "Jakob Marsee",
+                    "type": "Player",
+                    "seoIdentifier": "Jakob Marsee",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 12
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 70096,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879849#565661158_13L84240Q11236389728Q20",
+            "marketId": "325879849",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212106",
+                "decimal": "1.94",
+                "fractional": "50/53"
+            },
+            "trueOdds": 1.94339623,
+            "participants": [
+                {
+                    "id": "32624",
+                    "name": "Matt Olson",
+                    "type": "Player",
+                    "seoIdentifier": "Matt Olson",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 14
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 19458,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879849#565661163_13L84240Q1355474852Q20",
+            "marketId": "325879849",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B551",
+                "decimal": "6.51",
+                "fractional": "551/100"
+            },
+            "trueOdds": 6.51,
+            "participants": [
+                {
+                    "id": "32624",
+                    "name": "Matt Olson",
+                    "type": "Player",
+                    "seoIdentifier": "Matt Olson",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 14
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 65163,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879863#565660049_13L84240Q11236389728Q20",
+            "marketId": "325879863",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B111",
+                "decimal": "2.11",
+                "fractional": "111/100"
+            },
+            "trueOdds": 2.11,
+            "participants": [
+                {
+                    "id": "32260",
+                    "name": "Austin Riley",
+                    "type": "Player",
+                    "seoIdentifier": "Austin Riley",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 21149,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879863#565660114_13L84240Q1355474852Q20",
+            "marketId": "325879863",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B670",
+                "decimal": "7.70",
+                "fractional": "67/10"
+            },
+            "trueOdds": 7.7,
+            "participants": [
+                {
+                    "id": "32260",
+                    "name": "Austin Riley",
+                    "type": "Player",
+                    "seoIdentifier": "Austin Riley",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 77014,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879909#565661227_13L84240Q11236389728Q20",
+            "marketId": "325879909",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212109",
+                "decimal": "1.91",
+                "fractional": "100/109"
+            },
+            "trueOdds": 1.9174312,
+            "participants": [
+                {
+                    "id": "686715",
+                    "name": "Drake Baldwin",
+                    "type": "Player",
+                    "seoIdentifier": "Drake Baldwin",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 16
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 19127,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879909#565661228_13L84240Q1355474852Q20",
+            "marketId": "325879909",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B547",
+                "decimal": "6.47",
+                "fractional": "547/100"
+            },
+            "trueOdds": 6.47,
+            "participants": [
+                {
+                    "id": "686715",
+                    "name": "Drake Baldwin",
+                    "type": "Player",
+                    "seoIdentifier": "Drake Baldwin",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 16
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 64728,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879955#565660629_13L84240Q11236389728Q20",
+            "marketId": "325879955",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B156",
+                "decimal": "2.56",
+                "fractional": "39/25"
+            },
+            "trueOdds": 2.56,
+            "participants": [
+                {
+                    "id": "32735",
+                    "name": "Mauricio Dubon",
+                    "type": "Player",
+                    "seoIdentifier": "Mauricio Dubon",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 25629,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879955#565660676_13L84240Q1355474852Q20",
+            "marketId": "325879955",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1060",
+                "decimal": "11.60",
+                "fractional": "53/5"
+            },
+            "trueOdds": 11.6,
+            "participants": [
+                {
+                    "id": "32735",
+                    "name": "Mauricio Dubon",
+                    "type": "Player",
+                    "seoIdentifier": "Mauricio Dubon",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 10
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 116076,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA325879957#565660638_13L84240Q11236389728Q20",
+            "marketId": "325879957",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B162",
+                "decimal": "2.62",
+                "fractional": "81/50"
+            },
+            "trueOdds": 2.62,
+            "participants": [
+                {
+                    "id": "582164",
+                    "name": "Connor Norby",
+                    "type": "Player",
+                    "seoIdentifier": "Connor Norby",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 4
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 26238,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA325879957#565660684_13L84240Q1355474852Q20",
+            "marketId": "325879957",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1060",
+                "decimal": "11.60",
+                "fractional": "53/5"
+            },
+            "trueOdds": 11.6,
+            "participants": [
+                {
+                    "id": "582164",
+                    "name": "Connor Norby",
+                    "type": "Player",
+                    "seoIdentifier": "Connor Norby",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 4
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 116084,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA326152186#566680556_13L84240Q11236389728Q20",
+            "marketId": "326152186",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B166",
+                "decimal": "2.66",
+                "fractional": "83/50"
+            },
+            "trueOdds": 2.66,
+            "participants": [
+                {
+                    "id": "658793",
+                    "name": "Javier Sanoja",
+                    "type": "Player",
+                    "seoIdentifier": "Javier Sanoja",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 1
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 26656,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA326152186#566680558_13L84240Q1355474852Q20",
+            "marketId": "326152186",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1060",
+                "decimal": "11.60",
+                "fractional": "53/5"
+            },
+            "trueOdds": 11.6,
+            "participants": [
+                {
+                    "id": "658793",
+                    "name": "Javier Sanoja",
+                    "type": "Player",
+                    "seoIdentifier": "Javier Sanoja",
+                    "statistic": {
+                        "prefix": "R",
+                        "value": 1
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 116058,
+            "tags": [
+                "SGP"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        }
+    ],
+    "subscriptionPartials": {
+        "markets-1299254425": {
+            "entity": "markets",
+            "query": "$filter=eventId eq \u002733984826\u0027 AND clientMetadata/subCategoryId eq \u002717844\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027)",
+            "locale": "en"
+        }
+    }
+}

@@ -1,13 +1,14 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./NbaFullRoster.css";
 import pointsJson from "../../sport/nba/type/stats/points.json";
 import reboundsJson from "../../sport/nba/type/stats/rebounds.json";
 import assistsJson from "../../sport/nba/type/stats/assists.json";
-import stealsJson from "../../sport/nba/type/stats/steals.json";
-import blocksJson from "../../sport/nba/type/stats/blocks.json";
 import salariesJson from "../../sport/nba/type/full-roster/salaries.json";
 import { projectMeanPoissonFromOverUnder } from "../../lib/poissonProjection";
 import { projectMeanTunedLogNormalFromOverUnder } from "../../lib/pointsProjection";
+import { optimizeMlbLineup, type LineupSlot, type MlbLineupPlayer } from "../../lib/mlbLineupOptimizer";
+import { getMergedSelectionsForStatPrefix } from "./nbaStatSelections";
 
 const STAT_GROUPS = [
   "Points",
@@ -106,11 +107,13 @@ type SalaryEntry = {
   Nickname?: string;
   Salary?: number;
   Position?: string;
+  Team?: string;
 };
 
 type SalaryInfo = {
   salary: number;
   position: string;
+  team: string;
 };
 
 const NAME_SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
@@ -153,10 +156,12 @@ function buildSalaryMap(): Map<string, SalaryInfo> {
     if (!nickname || salary === null) continue;
 
     const position = typeof entry?.Position === "string" ? entry.Position : "";
+    const teamRaw = typeof entry?.Team === "string" ? entry.Team : "";
+    const team = teamRaw.trim().toUpperCase();
 
     const key = normalizePlayerName(nickname);
     if (!key) continue;
-    if (!map.has(key)) map.set(key, { salary, position });
+    if (!map.has(key)) map.set(key, { salary, position, team });
   }
 
   return map;
@@ -299,10 +304,12 @@ function buildRows(): Array<Record<string, string | number>> {
     (reboundsJson as { selections?: StatSelection[] }).selections ?? [];
   const assistsSelections =
     (assistsJson as { selections?: StatSelection[] }).selections ?? [];
-  const stealsSelections =
-    (stealsJson as { selections?: StatSelection[] }).selections ?? [];
-  const blocksSelections =
-    (blocksJson as { selections?: StatSelection[] }).selections ?? [];
+  const stealsSelections = getMergedSelectionsForStatPrefix<StatSelection>(
+    "steals",
+  );
+  const blocksSelections = getMergedSelectionsForStatPrefix<StatSelection>(
+    "blocks",
+  );
 
   const projectRebounds = (params: {
     line: number;
@@ -388,6 +395,7 @@ function buildRows(): Array<Record<string, string | number>> {
       const salaryInfo = salaryByName.get(normalizePlayerName(p.name));
       const salary = salaryInfo?.salary;
       const position = salaryInfo?.position ?? "";
+      const team = salaryInfo?.team ?? "";
 
       const valueNumber =
         typeof fantasyPoints === "number" &&
@@ -397,6 +405,7 @@ function buildRows(): Array<Record<string, string | number>> {
           : null;
 
       const row: Record<string, string | number> = {
+        team,
         position,
         salary: salary ?? "",
         value: valueNumber ?? "",
@@ -469,15 +478,6 @@ function parseEligiblePositions(position: string): RosterPosition[] {
   return eligible;
 }
 
-function pickSalaryScale(salaries: number[]): number {
-  if (salaries.length === 0) return 100;
-  const allDivisibleBy = (n: number) => salaries.every((s) => s % n === 0);
-  if (allDivisibleBy(100)) return 100;
-  if (allDivisibleBy(50)) return 50;
-  if (allDivisibleBy(10)) return 10;
-  return 1;
-}
-
 function orderLineupByRosterSlots(
   lineup: OptimalLineupRow[],
 ): OptimalLineupRow[] {
@@ -516,45 +516,9 @@ function orderLineupByRosterSlots(
   return ordered;
 }
 
-function encodeRosterState(
-  pg: number,
-  sg: number,
-  sf: number,
-  pf: number,
-  c: number,
-): number {
-  return (((pg * 3 + sg) * 3 + sf) * 3 + pf) * 2 + c;
-}
-
-function decodeRosterState(state: number): {
-  pg: number;
-  sg: number;
-  sf: number;
-  pf: number;
-  c: number;
-} {
-  let x = state;
-  const c = x % 2;
-  x = (x - c) / 2;
-  const pf = x % 3;
-  x = (x - pf) / 3;
-  const sf = x % 3;
-  x = (x - sf) / 3;
-  const sg = x % 3;
-  const pg = (x - sg) / 3;
-  return { pg, sg, sf, pf, c };
-}
-
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
-
-type Candidate = {
-  name: string;
-  eligible: RosterPosition[];
-  salary: number;
-  fantasyPoints: number;
-};
 
 type LineupResult = {
   rows: OptimalLineupRow[];
@@ -591,296 +555,204 @@ function finalizeLineup(lineup: OptimalLineupRow[]): LineupResult {
   };
 }
 
-function buildTopTwoLineups(rows: Array<Record<string, string | number>>): {
-  best: LineupResult;
-  second: LineupResult;
-} {
-  const salaryCap = 60000;
+type FullRosterSlotKey =
+  | "PG1"
+  | "PG2"
+  | "SG1"
+  | "SG2"
+  | "SF1"
+  | "SF2"
+  | "PF1"
+  | "PF2"
+  | "C";
 
-  const rawCandidates: Candidate[] = rows
-    .map((r) => {
+const NBA_FULL_ROSTER_SLOTS: Array<LineupSlot<FullRosterSlotKey>> = [
+  {
+    key: "PG1",
+    label: "PG",
+    isEligible: (p) => p.positions.includes("PG"),
+  },
+  {
+    key: "PG2",
+    label: "PG",
+    isEligible: (p) => p.positions.includes("PG"),
+  },
+  {
+    key: "SG1",
+    label: "SG",
+    isEligible: (p) => p.positions.includes("SG"),
+  },
+  {
+    key: "SG2",
+    label: "SG",
+    isEligible: (p) => p.positions.includes("SG"),
+  },
+  {
+    key: "SF1",
+    label: "SF",
+    isEligible: (p) => p.positions.includes("SF"),
+  },
+  {
+    key: "SF2",
+    label: "SF",
+    isEligible: (p) => p.positions.includes("SF"),
+  },
+  {
+    key: "PF1",
+    label: "PF",
+    isEligible: (p) => p.positions.includes("PF"),
+  },
+  {
+    key: "PF2",
+    label: "PF",
+    isEligible: (p) => p.positions.includes("PF"),
+  },
+  {
+    key: "C",
+    label: "C",
+    isEligible: (p) => p.positions.includes("C"),
+  },
+];
+
+function lineupFromOptimized(
+  optimized: { playersBySlot: Record<string, MlbLineupPlayer> } | null,
+  slots: Array<{ key: string; label: string; salaryMultiplier?: number; fantasyPointsMultiplier?: number }>,
+): LineupResult {
+  if (!optimized) return finalizeLineup([]);
+
+  const lineup: OptimalLineupRow[] = slots.map((slot) => {
+    const player = optimized.playersBySlot[slot.key];
+    const salaryMultiplier = slot.salaryMultiplier ?? 1;
+    const fantasyPointsMultiplier = slot.fantasyPointsMultiplier ?? 1;
+
+    const effectiveSalary = round2(player.salary * salaryMultiplier);
+    const effectiveFantasyPoints = round2(player.fantasyPoints * fantasyPointsMultiplier);
+    const value =
+      effectiveSalary > 0
+        ? round2((effectiveFantasyPoints * 1000) / effectiveSalary)
+        : ("" as const);
+
+    return {
+      name: player.name,
+      position: slot.label,
+      salary: effectiveSalary,
+      fantasyPoints: effectiveFantasyPoints,
+      value: typeof value === "number" ? value : ("" as const),
+    };
+  });
+
+  return finalizeLineup(lineup);
+}
+
+export default function NbaFullRoster() {
+  const optimizerPlayers = useMemo((): MlbLineupPlayer[] => {
+    const salaryCap = 60000;
+
+    const byId = new Map<string, MlbLineupPlayer>();
+    for (const r of rows) {
       const name = typeof r.name === "string" ? r.name : "";
+      const key = normalizePlayerName(name);
+      if (!key) continue;
+
       const salary = typeof r.salary === "number" ? r.salary : null;
       const fantasyPoints =
         typeof r.fantasyPoints === "number" ? r.fantasyPoints : null;
       const position = typeof r.position === "string" ? r.position : "";
+      const team = typeof r.team === "string" ? r.team : "";
+
+      if (!name || salary === null || fantasyPoints === null) continue;
+      if (salary <= 0 || salary > salaryCap) continue;
+
       const eligible = parseEligiblePositions(position);
+      if (eligible.length === 0) continue;
 
-      if (!name || salary === null || fantasyPoints === null) return null;
-      if (salary <= 0 || salary > salaryCap) return null;
-      if (eligible.length === 0) return null;
+      const existing = byId.get(key);
+      const next: MlbLineupPlayer = {
+        id: key,
+        name,
+        positions: eligible,
+        salary,
+        fantasyPoints,
+        team: team.trim().toUpperCase(),
+      };
 
-      return { name, eligible, salary, fantasyPoints };
-    })
-    .filter((x): x is Candidate => x !== null);
-
-  // Enforce: same player cannot be used more than once in a lineup.
-  // (Some slates/feeds can contain duplicate rows for the same player.)
-  const candidatesByName = new Map<string, Candidate>();
-  for (const c of rawCandidates) {
-    const key = normalizePlayerName(c.name);
-    if (!key) continue;
-
-    const existing = candidatesByName.get(key);
-    if (!existing) {
-      candidatesByName.set(key, c);
-      continue;
-    }
-
-    const mergedEligible = [...new Set([...existing.eligible, ...c.eligible])];
-    const isBetter =
-      c.fantasyPoints > existing.fantasyPoints ||
-      (c.fantasyPoints === existing.fantasyPoints &&
-        c.salary < existing.salary);
-
-    if (isBetter) {
-      candidatesByName.set(key, { ...c, eligible: mergedEligible });
-    } else {
-      candidatesByName.set(key, { ...existing, eligible: mergedEligible });
-    }
-  }
-
-  const candidates = [...candidatesByName.values()];
-
-  const scale = pickSalaryScale(candidates.map((c) => c.salary));
-  const capScaled = Math.floor(salaryCap / scale);
-
-  const stateCount = 3 * 3 * 3 * 3 * 2;
-  const targetState = encodeRosterState(
-    ROSTER_REQUIREMENTS.PG,
-    ROSTER_REQUIREMENTS.SG,
-    ROSTER_REQUIREMENTS.SF,
-    ROSTER_REQUIREMENTS.PF,
-    ROSTER_REQUIREMENTS.C,
-  );
-
-  const capPlusOne = capScaled + 1;
-  const cellCount = stateCount * capPlusOne;
-  const NEG_INF = -2147483648;
-
-  const bestScore = new Int32Array(cellCount);
-  const secondScore = new Int32Array(cellCount);
-
-  const bestPrev = new Int32Array(cellCount);
-  const secondPrev = new Int32Array(cellCount);
-
-  const bestPrevRank = new Int8Array(cellCount);
-  const secondPrevRank = new Int8Array(cellCount);
-
-  const bestChosenPlayer = new Int32Array(cellCount);
-  const secondChosenPlayer = new Int32Array(cellCount);
-
-  const bestChosenPos = new Int8Array(cellCount);
-  const secondChosenPos = new Int8Array(cellCount);
-
-  bestScore.fill(NEG_INF);
-  secondScore.fill(NEG_INF);
-  bestPrev.fill(-1);
-  secondPrev.fill(-1);
-  bestPrevRank.fill(-1);
-  secondPrevRank.fill(-1);
-  bestChosenPlayer.fill(-1);
-  secondChosenPlayer.fill(-1);
-  bestChosenPos.fill(-1);
-  secondChosenPos.fill(-1);
-
-  bestScore[0] = 0;
-
-  const tryInsert = (
-    cell: number,
-    score: number,
-    prevCell: number,
-    prevRank: 0 | 1,
-    playerIdx: number,
-    posIdx: number,
-  ) => {
-    const b = bestScore[cell];
-    const s = secondScore[cell];
-
-    if (score > b) {
-      if (b > s) {
-        secondScore[cell] = b;
-        secondPrev[cell] = bestPrev[cell];
-        secondPrevRank[cell] = bestPrevRank[cell];
-        secondChosenPlayer[cell] = bestChosenPlayer[cell];
-        secondChosenPos[cell] = bestChosenPos[cell];
+      if (!existing) {
+        byId.set(key, next);
+        continue;
       }
 
-      bestScore[cell] = score;
-      bestPrev[cell] = prevCell;
-      bestPrevRank[cell] = prevRank;
-      bestChosenPlayer[cell] = playerIdx;
-      bestChosenPos[cell] = posIdx;
-      return;
-    }
+      const mergedPositions = [...new Set([...existing.positions, ...next.positions])];
+      const isBetter =
+        next.fantasyPoints > existing.fantasyPoints ||
+        (next.fantasyPoints === existing.fantasyPoints &&
+          next.salary < existing.salary);
 
-    if (score < b && score > s) {
-      secondScore[cell] = score;
-      secondPrev[cell] = prevCell;
-      secondPrevRank[cell] = prevRank;
-      secondChosenPlayer[cell] = playerIdx;
-      secondChosenPos[cell] = posIdx;
-    }
-  };
-
-  const nextStateByPos = new Int16Array(stateCount * ROSTER_POSITIONS.length);
-  nextStateByPos.fill(-1);
-
-  for (let state = 0; state < stateCount; state++) {
-    const decoded = decodeRosterState(state);
-    for (let posIdx = 0; posIdx < ROSTER_POSITIONS.length; posIdx++) {
-      const pos = ROSTER_POSITIONS[posIdx];
-      let { pg, sg, sf, pf, c } = decoded;
-      if (pos === "PG") {
-        if (pg >= ROSTER_REQUIREMENTS.PG) continue;
-        pg += 1;
-      } else if (pos === "SG") {
-        if (sg >= ROSTER_REQUIREMENTS.SG) continue;
-        sg += 1;
-      } else if (pos === "SF") {
-        if (sf >= ROSTER_REQUIREMENTS.SF) continue;
-        sf += 1;
-      } else if (pos === "PF") {
-        if (pf >= ROSTER_REQUIREMENTS.PF) continue;
-        pf += 1;
-      } else if (pos === "C") {
-        if (c >= ROSTER_REQUIREMENTS.C) continue;
-        c += 1;
-      }
-      const nextState = encodeRosterState(pg, sg, sf, pf, c);
-      nextStateByPos[state * ROSTER_POSITIONS.length + posIdx] = nextState;
-    }
-  }
-
-  for (let playerIdx = 0; playerIdx < candidates.length; playerIdx++) {
-    const candidate = candidates[playerIdx];
-    const cost = Math.round(candidate.salary / scale);
-    if (cost <= 0 || cost > capScaled) continue;
-
-    const fpUnits = Math.round(candidate.fantasyPoints * 100);
-    if (!Number.isFinite(fpUnits)) continue;
-
-    const eligiblePosIdxs = candidate.eligible
-      .map((p) => ROSTER_POSITIONS.indexOf(p))
-      .filter((idx) => idx >= 0);
-
-    for (let used = capScaled - cost; used >= 0; used--) {
-      for (let state = stateCount - 1; state >= 0; state--) {
-        const baseIdx = state * capPlusOne + used;
-        const newUsed = used + cost;
-        const baseOffset = state * ROSTER_POSITIONS.length;
-
-        for (let rank = 0 as 0 | 1; rank <= 1; rank = (rank + 1) as 0 | 1) {
-          const baseScoreValue =
-            rank === 0 ? bestScore[baseIdx] : secondScore[baseIdx];
-          if (baseScoreValue === NEG_INF) continue;
-
-          for (const posIdx of eligiblePosIdxs) {
-            const nextState = nextStateByPos[baseOffset + posIdx];
-            if (nextState < 0) continue;
-
-            const nextIdx = nextState * capPlusOne + newUsed;
-            const nextScore = baseScoreValue + fpUnits;
-            tryInsert(nextIdx, nextScore, baseIdx, rank, playerIdx, posIdx);
-          }
-        }
-      }
-    }
-  }
-
-  const bestPick = { score: NEG_INF, cell: -1, rank: 0 as 0 | 1 };
-  const secondPick = { score: NEG_INF, cell: -1, rank: 0 as 0 | 1 };
-
-  for (let used = 0; used <= capScaled; used++) {
-    const cell = targetState * capPlusOne + used;
-    const scores: Array<{ score: number; rank: 0 | 1 }> = [
-      { score: bestScore[cell], rank: 0 },
-      { score: secondScore[cell], rank: 1 },
-    ];
-
-    for (const candidateScore of scores) {
-      const score = candidateScore.score;
-      const rank = candidateScore.rank;
-      if (score === NEG_INF) continue;
-
-      if (score > bestPick.score) {
-        if (score !== bestPick.score) {
-          secondPick.score = bestPick.score;
-          secondPick.cell = bestPick.cell;
-          secondPick.rank = bestPick.rank;
-        }
-        bestPick.score = score;
-        bestPick.cell = cell;
-        bestPick.rank = rank;
-      } else if (score < bestPick.score && score > secondPick.score) {
-        secondPick.score = score;
-        secondPick.cell = cell;
-        secondPick.rank = rank;
-      }
-    }
-  }
-
-  const reconstruct = (cell: number, rank: 0 | 1): OptimalLineupRow[] => {
-    const lineup: OptimalLineupRow[] = [];
-    if (cell < 0) return lineup;
-
-    let cursor = cell;
-    let cursorRank: 0 | 1 = rank;
-
-    while (cursor !== 0 && cursor >= 0) {
-      const pIdx =
-        cursorRank === 0
-          ? bestChosenPlayer[cursor]
-          : secondChosenPlayer[cursor];
-      const posIdx =
-        cursorRank === 0 ? bestChosenPos[cursor] : secondChosenPos[cursor];
-      if (pIdx < 0 || posIdx < 0) break;
-
-      const prevCell = cursorRank === 0 ? bestPrev[cursor] : secondPrev[cursor];
-      const prevRankValue =
-        cursorRank === 0 ? bestPrevRank[cursor] : secondPrevRank[cursor];
-      const prevRank = (prevRankValue === 1 ? 1 : 0) as 0 | 1;
-
-      const c = candidates[pIdx];
-      const assigned = ROSTER_POSITIONS[posIdx];
-      const value =
-        c.salary > 0
-          ? round2((c.fantasyPoints * 1000) / c.salary)
-          : ("" as const);
-
-      lineup.push({
-        name: c.name,
-        position: assigned,
-        salary: c.salary,
-        fantasyPoints: round2(c.fantasyPoints),
-        value: typeof value === "number" ? value : ("" as const),
+      byId.set(key, {
+        ...(isBetter ? next : existing),
+        positions: mergedPositions,
+        team: (existing.team || next.team || "").trim().toUpperCase(),
       });
-
-      cursor = prevCell;
-      cursorRank = prevRank;
     }
 
-    lineup.reverse();
-    return lineup;
-  };
+    return [...byId.values()];
+  }, []);
 
-  const bestLineup =
-    bestPick.score === NEG_INF ? [] : reconstruct(bestPick.cell, bestPick.rank);
-  const secondLineup =
-    secondPick.score === NEG_INF
-      ? []
-      : reconstruct(secondPick.cell, secondPick.rank);
+  const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
+  const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
+  const [lineupError, setLineupError] = useState<string>("");
 
-  return {
-    best: finalizeLineup(bestLineup),
-    second: finalizeLineup(secondLineup),
-  };
-}
+  useEffect(() => {
+    let cancelled = false;
 
-export default function NbaFullRoster() {
-  const lineups = buildTopTwoLineups(rows);
-  const optimal = lineups.best;
-  const secondBest = lineups.second;
+    const run = async () => {
+      try {
+        setLineupStatus("solving");
+        setLineupError("");
+
+        const best = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_FULL_ROSTER_SLOTS,
+          maxPlayersPerTeamByPositions: {
+            maxPlayersPerTeam: 4,
+            positions: ["PG", "SG", "SF", "PF", "C"],
+          },
+        });
+
+        const bestIds = best
+          ? Object.values(best.playersBySlot).map((p) => p.id)
+          : [];
+
+        const second = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_FULL_ROSTER_SLOTS,
+          maxPlayersPerTeamByPositions: {
+            maxPlayersPerTeam: 4,
+            positions: ["PG", "SG", "SF", "PF", "C"],
+          },
+          excludeLineupsByPlayerIds: bestIds.length > 0 ? [bestIds] : [],
+        });
+
+        if (cancelled) return;
+        setOptimal(lineupFromOptimized(best, NBA_FULL_ROSTER_SLOTS));
+        setSecondBest(lineupFromOptimized(second, NBA_FULL_ROSTER_SLOTS));
+        setLineupStatus("done");
+      } catch (e) {
+        if (cancelled) return;
+        setOptimal(finalizeLineup([]));
+        setSecondBest(finalizeLineup([]));
+        setLineupStatus("error");
+        setLineupError(e instanceof Error ? e.message : String(e));
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [optimizerPlayers]);
 
   return (
     <div className="page">
@@ -923,6 +795,11 @@ export default function NbaFullRoster() {
           <div className="lineupsRow">
             <div className="lineupPanel">
               <h2 className="sectionTitle">Optimal Lineup</h2>
+              {lineupStatus === "error" ? (
+                <div className="emptyCell">{lineupError || "Lineup solve failed"}</div>
+              ) : lineupStatus === "solving" ? (
+                <div className="emptyCell">Solving…</div>
+              ) : null}
               <table className="dataTable">
                 <thead>
                   <tr>

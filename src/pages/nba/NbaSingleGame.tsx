@@ -1,13 +1,18 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./NbaFullRoster.css";
 import pointsJson from "../../sport/nba/type/stats/points.json";
 import reboundsJson from "../../sport/nba/type/stats/rebounds.json";
 import assistsJson from "../../sport/nba/type/stats/assists.json";
-import stealsJson from "../../sport/nba/type/stats/steals.json";
-import blocksJson from "../../sport/nba/type/stats/blocks.json";
 import salariesJson from "../../sport/nba/type/single-game/salaries.json";
 import { projectMeanPoissonFromOverUnder } from "../../lib/poissonProjection";
 import { projectMeanTunedLogNormalFromOverUnder } from "../../lib/pointsProjection";
+import {
+  optimizeMlbLineup,
+  type LineupSlot,
+  type MlbLineupPlayer,
+} from "../../lib/mlbLineupOptimizer";
+import { getMergedSelectionsForStatPrefix } from "./nbaStatSelections";
 
 const STAT_GROUPS = [
   "Points",
@@ -106,11 +111,13 @@ type SalaryEntry = {
   Nickname?: string;
   Salary?: number;
   Position?: string;
+  Team?: string;
 };
 
 type SalaryInfo = {
   salary: number;
   position: string;
+  team: string;
 };
 
 const NAME_SUFFIXES = new Set(["jr", "sr", "ii", "iii", "iv", "v"]);
@@ -153,16 +160,34 @@ function buildSalaryMap(): Map<string, SalaryInfo> {
     if (!nickname || salary === null) continue;
 
     const position = typeof entry?.Position === "string" ? entry.Position : "";
+    const teamRaw = typeof entry?.Team === "string" ? entry.Team : "";
+    const team = teamRaw.trim().toUpperCase();
 
     const key = normalizePlayerName(nickname);
     if (!key) continue;
-    if (!map.has(key)) map.set(key, { salary, position });
+    if (!map.has(key)) map.set(key, { salary, position, team });
   }
 
   return map;
 }
 
 const salaryByName = buildSalaryMap();
+
+type RosterPosition = "PG" | "SG" | "SF" | "PF" | "C";
+const ROSTER_POSITIONS: RosterPosition[] = ["PG", "SG", "SF", "PF", "C"];
+
+function parseEligiblePositions(position: string): RosterPosition[] {
+  const normalized = position.trim().toUpperCase();
+  if (!normalized) return [];
+
+  const parts = normalized.split("/").map((p) => p.trim());
+  const eligible: RosterPosition[] = [];
+  for (const part of parts) {
+    if (ROSTER_POSITIONS.includes(part as RosterPosition))
+      eligible.push(part as RosterPosition);
+  }
+  return eligible;
+}
 
 type PlayerAccumulator = {
   name: string;
@@ -299,10 +324,12 @@ function buildRows(): Array<Record<string, string | number>> {
     (reboundsJson as { selections?: StatSelection[] }).selections ?? [];
   const assistsSelections =
     (assistsJson as { selections?: StatSelection[] }).selections ?? [];
-  const stealsSelections =
-    (stealsJson as { selections?: StatSelection[] }).selections ?? [];
-  const blocksSelections =
-    (blocksJson as { selections?: StatSelection[] }).selections ?? [];
+  const stealsSelections = getMergedSelectionsForStatPrefix<StatSelection>(
+    "steals",
+  );
+  const blocksSelections = getMergedSelectionsForStatPrefix<StatSelection>(
+    "blocks",
+  );
 
   const projectRebounds = (params: {
     line: number;
@@ -387,8 +414,9 @@ function buildRows(): Array<Record<string, string | number>> {
       const fantasyPoints = computeFantasyPoints(p);
       const salaryInfo = salaryByName.get(normalizePlayerName(p.name));
       if (!salaryInfo) return null;
-      const salary = salaryInfo?.salary;
-      const position = salaryInfo?.position ?? "";
+      const salary = salaryInfo.salary;
+      const position = salaryInfo.position ?? "";
+      const team = salaryInfo.team ?? "";
 
       const valueNumber =
         typeof fantasyPoints === "number" &&
@@ -398,6 +426,7 @@ function buildRows(): Array<Record<string, string | number>> {
           : null;
 
       const row: Record<string, string | number> = {
+        team,
         position,
         salary: salary ?? "",
         value: valueNumber ?? "",
@@ -452,12 +481,6 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-type Candidate = {
-  name: string;
-  salary: number;
-  fantasyPoints: number;
-};
-
 type LineupResult = {
   rows: OptimalLineupRow[];
   totals: OptimalLineupRow;
@@ -465,19 +488,6 @@ type LineupResult = {
 
 const SINGLE_GAME_ROSTER_SIZE = 6;
 const MVP_MULTIPLIER = 1.5;
-
-function pickSalaryUnitForMvp(salaries: number[]): number {
-  if (salaries.length === 0) return 1;
-
-  const works = (unit: number) =>
-    salaries.every((s) => s % unit === 0 && (s * 3) % (2 * unit) === 0);
-
-  for (const unit of [100, 50, 25, 10, 5, 1]) {
-    if (works(unit)) return unit;
-  }
-
-  return 1;
-}
 
 function orderSingleGameLineup(lineup: OptimalLineupRow[]): OptimalLineupRow[] {
   const copy = [...lineup];
@@ -530,316 +540,164 @@ function finalizeLineup(lineup: OptimalLineupRow[]): LineupResult {
   };
 }
 
-function buildTopTwoLineups(rows: Array<Record<string, string | number>>): {
-  best: LineupResult;
-  second: LineupResult;
-} {
-  const salaryCap = 60000;
+type SingleGameSlotKey = "MVP" | "U1" | "U2" | "U3" | "U4" | "U5";
 
-  const rawCandidates: Candidate[] = rows
-    .map((r) => {
+const NBA_SINGLE_GAME_SLOTS: Array<LineupSlot<SingleGameSlotKey>> = [
+  {
+    key: "MVP",
+    label: "MVP",
+    isEligible: () => true,
+    salaryMultiplier: MVP_MULTIPLIER,
+    fantasyPointsMultiplier: MVP_MULTIPLIER,
+  },
+  { key: "U1", label: "", isEligible: () => true },
+  { key: "U2", label: "", isEligible: () => true },
+  { key: "U3", label: "", isEligible: () => true },
+  { key: "U4", label: "", isEligible: () => true },
+  { key: "U5", label: "", isEligible: () => true },
+];
+
+function lineupFromOptimizedSingleGame(
+  optimized: { playersBySlot: Record<string, MlbLineupPlayer> } | null,
+): LineupResult {
+  if (!optimized) return finalizeLineup([]);
+
+  const lineup: OptimalLineupRow[] = NBA_SINGLE_GAME_SLOTS.map((slot) => {
+    const player = optimized.playersBySlot[slot.key];
+    const salaryMultiplier = slot.salaryMultiplier ?? 1;
+    const fantasyPointsMultiplier = slot.fantasyPointsMultiplier ?? 1;
+    const effectiveSalary = round2(player.salary * salaryMultiplier);
+    const effectiveFantasyPoints = round2(
+      player.fantasyPoints * fantasyPointsMultiplier,
+    );
+
+    const value =
+      effectiveSalary > 0
+        ? round2((effectiveFantasyPoints * 1000) / effectiveSalary)
+        : ("" as const);
+
+    return {
+      name: player.name,
+      position: slot.label,
+      salary: effectiveSalary,
+      fantasyPoints: effectiveFantasyPoints,
+      value: typeof value === "number" ? value : ("" as const),
+    };
+  });
+
+  return finalizeLineup(lineup);
+}
+
+export default function NbaSingleGame() {
+  const optimizerPlayers = useMemo((): MlbLineupPlayer[] => {
+    const salaryCap = 60000;
+    const byId = new Map<string, MlbLineupPlayer>();
+
+    for (const r of rows) {
       const name = typeof r.name === "string" ? r.name : "";
+      const key = normalizePlayerName(name);
+      if (!key) continue;
+
       const salary = typeof r.salary === "number" ? r.salary : null;
       const fantasyPoints =
         typeof r.fantasyPoints === "number" ? r.fantasyPoints : null;
+      const position = typeof r.position === "string" ? r.position : "";
+      const team = typeof r.team === "string" ? r.team : "";
 
-      if (!name || salary === null || fantasyPoints === null) return null;
-      if (salary <= 0 || salary > salaryCap) return null;
+      if (!name || salary === null || fantasyPoints === null) continue;
+      if (salary <= 0 || salary > salaryCap) continue;
 
-      return { name, salary, fantasyPoints };
-    })
-    .filter((x): x is Candidate => x !== null);
+      const eligible = parseEligiblePositions(position);
+      if (eligible.length === 0) continue;
 
-  // Enforce: same player cannot be used more than once in a lineup.
-  // (Some slates/feeds can contain duplicate rows for the same player.)
-  const candidatesByName = new Map<string, Candidate>();
-  for (const c of rawCandidates) {
-    const key = normalizePlayerName(c.name);
-    if (!key) continue;
+      const existing = byId.get(key);
+      const next: MlbLineupPlayer = {
+        id: key,
+        name,
+        positions: eligible,
+        salary,
+        fantasyPoints,
+        team: team.trim().toUpperCase(),
+      };
 
-    const existing = candidatesByName.get(key);
-    if (!existing) {
-      candidatesByName.set(key, c);
-      continue;
-    }
-
-    const isBetter =
-      c.fantasyPoints > existing.fantasyPoints ||
-      (c.fantasyPoints === existing.fantasyPoints &&
-        c.salary < existing.salary);
-
-    if (isBetter) candidatesByName.set(key, c);
-  }
-
-  const candidates = [...candidatesByName.values()];
-
-  const unit = pickSalaryUnitForMvp(candidates.map((c) => c.salary));
-  const capScaled = Math.floor(salaryCap / unit);
-
-  const encodeState = (count: number, mvpUsed: 0 | 1) => count * 2 + mvpUsed;
-  const stateCount = (SINGLE_GAME_ROSTER_SIZE + 1) * 2;
-  const targetState = encodeState(SINGLE_GAME_ROSTER_SIZE, 1);
-
-  const capPlusOne = capScaled + 1;
-  const cellCount = stateCount * capPlusOne;
-  const NEG_INF = -2147483648;
-
-  const bestScore = new Int32Array(cellCount);
-  const secondScore = new Int32Array(cellCount);
-
-  const bestPrev = new Int32Array(cellCount);
-  const secondPrev = new Int32Array(cellCount);
-
-  const bestPrevRank = new Int8Array(cellCount);
-  const secondPrevRank = new Int8Array(cellCount);
-
-  const bestChosenPlayer = new Int32Array(cellCount);
-  const secondChosenPlayer = new Int32Array(cellCount);
-
-  const bestChosenVariant = new Int8Array(cellCount);
-  const secondChosenVariant = new Int8Array(cellCount);
-
-  bestScore.fill(NEG_INF);
-  secondScore.fill(NEG_INF);
-  bestPrev.fill(-1);
-  secondPrev.fill(-1);
-  bestPrevRank.fill(-1);
-  secondPrevRank.fill(-1);
-  bestChosenPlayer.fill(-1);
-  secondChosenPlayer.fill(-1);
-  bestChosenVariant.fill(-1);
-  secondChosenVariant.fill(-1);
-
-  bestScore[encodeState(0, 0) * capPlusOne + 0] = 0;
-
-  const tryInsert = (
-    cell: number,
-    score: number,
-    prevCell: number,
-    prevRank: 0 | 1,
-    playerIdx: number,
-    variant: 0 | 1,
-  ) => {
-    const b = bestScore[cell];
-    const s = secondScore[cell];
-
-    if (score > b) {
-      if (b > s) {
-        secondScore[cell] = b;
-        secondPrev[cell] = bestPrev[cell];
-        secondPrevRank[cell] = bestPrevRank[cell];
-        secondChosenPlayer[cell] = bestChosenPlayer[cell];
-        secondChosenVariant[cell] = bestChosenVariant[cell];
+      if (!existing) {
+        byId.set(key, next);
+        continue;
       }
 
-      bestScore[cell] = score;
-      bestPrev[cell] = prevCell;
-      bestPrevRank[cell] = prevRank;
-      bestChosenPlayer[cell] = playerIdx;
-      bestChosenVariant[cell] = variant;
-      return;
-    }
+      const mergedPositions = [...new Set([...existing.positions, ...next.positions])];
+      const isBetter =
+        next.fantasyPoints > existing.fantasyPoints ||
+        (next.fantasyPoints === existing.fantasyPoints &&
+          next.salary < existing.salary);
 
-    if (score < b && score > s) {
-      secondScore[cell] = score;
-      secondPrev[cell] = prevCell;
-      secondPrevRank[cell] = prevRank;
-      secondChosenPlayer[cell] = playerIdx;
-      secondChosenVariant[cell] = variant;
-    }
-  };
-
-  for (let playerIdx = 0; playerIdx < candidates.length; playerIdx++) {
-    const candidate = candidates[playerIdx];
-    const normalCost = Math.round(candidate.salary / unit);
-    const mvpCost = Math.round((candidate.salary * 3) / (2 * unit));
-    if (normalCost <= 0) continue;
-    if (normalCost > capScaled) continue;
-
-    const fpUnits = Math.round(candidate.fantasyPoints * 100);
-    if (!Number.isFinite(fpUnits)) continue;
-
-    const normalAdd = fpUnits * 2;
-    const mvpAdd = fpUnits * 3;
-
-    for (let used = capScaled; used >= 0; used--) {
-      for (let count = SINGLE_GAME_ROSTER_SIZE - 1; count >= 0; count--) {
-        for (
-          let mvpUsed = 1 as 0 | 1;
-          mvpUsed >= 0;
-          mvpUsed = (mvpUsed - 1) as 0 | 1
-        ) {
-          const baseState = encodeState(count, mvpUsed);
-          const baseIdx = baseState * capPlusOne + used;
-
-          for (let rank = 0 as 0 | 1; rank <= 1; rank = (rank + 1) as 0 | 1) {
-            const baseScoreValue =
-              rank === 0 ? bestScore[baseIdx] : secondScore[baseIdx];
-            if (baseScoreValue === NEG_INF) continue;
-
-            // Normal pick
-            if (used + normalCost <= capScaled) {
-              const nextState = encodeState(count + 1, mvpUsed);
-              const nextIdx = nextState * capPlusOne + (used + normalCost);
-              tryInsert(
-                nextIdx,
-                baseScoreValue + normalAdd,
-                baseIdx,
-                rank,
-                playerIdx,
-                0,
-              );
-            }
-
-            // MVP pick (only if MVP not used yet)
-            if (mvpUsed === 0 && used + mvpCost <= capScaled) {
-              const nextState = encodeState(count + 1, 1);
-              const nextIdx = nextState * capPlusOne + (used + mvpCost);
-              tryInsert(
-                nextIdx,
-                baseScoreValue + mvpAdd,
-                baseIdx,
-                rank,
-                playerIdx,
-                1,
-              );
-            }
-          }
-        }
-      }
-    }
-  }
-  const reconstruct = (cell: number, rank: 0 | 1): OptimalLineupRow[] => {
-    const lineup: OptimalLineupRow[] = [];
-    if (cell < 0) return lineup;
-
-    let cursor = cell;
-    let cursorRank: 0 | 1 = rank;
-
-    while (cursor !== 0 && cursor >= 0) {
-      const pIdx =
-        cursorRank === 0
-          ? bestChosenPlayer[cursor]
-          : secondChosenPlayer[cursor];
-      const variant =
-        cursorRank === 0
-          ? bestChosenVariant[cursor]
-          : secondChosenVariant[cursor];
-      if (pIdx < 0 || variant < 0) break;
-
-      const prevCell = cursorRank === 0 ? bestPrev[cursor] : secondPrev[cursor];
-      const prevRankValue =
-        cursorRank === 0 ? bestPrevRank[cursor] : secondPrevRank[cursor];
-      const prevRank = (prevRankValue === 1 ? 1 : 0) as 0 | 1;
-
-      const c = candidates[pIdx];
-      const isMvp = variant === 1;
-      const effectiveSalary = isMvp ? c.salary * MVP_MULTIPLIER : c.salary;
-      const effectiveFantasyPoints = isMvp
-        ? c.fantasyPoints * MVP_MULTIPLIER
-        : c.fantasyPoints;
-      const value =
-        effectiveSalary > 0
-          ? round2((effectiveFantasyPoints * 1000) / effectiveSalary)
-          : ("" as const);
-
-      lineup.push({
-        name: c.name,
-        position: isMvp ? "MVP" : "",
-        salary: round2(effectiveSalary),
-        fantasyPoints: round2(effectiveFantasyPoints),
-        value: typeof value === "number" ? value : ("" as const),
+      byId.set(key, {
+        ...(isBetter ? next : existing),
+        positions: mergedPositions,
+        team: (existing.team || next.team || "").trim().toUpperCase(),
       });
-
-      cursor = prevCell;
-      cursorRank = prevRank;
     }
 
-    lineup.reverse();
-    return lineup;
-  };
+    return [...byId.values()];
+  }, []);
 
-  const isValidSingleGameLineup = (lineup: OptimalLineupRow[]): boolean => {
-    if (lineup.length !== SINGLE_GAME_ROSTER_SIZE) return false;
+  const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
+  const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
+  const [lineupError, setLineupError] = useState<string>("");
 
-    let mvpCount = 0;
-    const seen = new Set<string>();
+  useEffect(() => {
+    let cancelled = false;
 
-    for (const row of lineup) {
-      const key = normalizePlayerName(row.name);
-      if (!key) return false;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      if (row.position === "MVP") mvpCount += 1;
-    }
+    const run = async () => {
+      try {
+        setLineupStatus("solving");
+        setLineupError("");
 
-    return mvpCount === 1;
-  };
+        const best = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_SINGLE_GAME_SLOTS,
+          maxPlayersPerTeamByPositions: {
+            maxPlayersPerTeam: 4,
+            positions: ["PG", "SG", "SF", "PF", "C"],
+          },
+        });
 
-  const makeSingleGameLineupKey = (lineup: OptimalLineupRow[]): string => {
-    let mvp = "";
-    const others: string[] = [];
+        const bestIds = best
+          ? Object.values(best.playersBySlot).map((p) => p.id)
+          : [];
 
-    for (const row of lineup) {
-      const key = normalizePlayerName(row.name);
-      if (!key) continue;
-      if (row.position === "MVP") mvp = key;
-      else others.push(key);
-    }
+        const second = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_SINGLE_GAME_SLOTS,
+          maxPlayersPerTeamByPositions: {
+            maxPlayersPerTeam: 4,
+            positions: ["PG", "SG", "SF", "PF", "C"],
+          },
+          excludeLineupsByPlayerIds: bestIds.length > 0 ? [bestIds] : [],
+        });
 
-    others.sort();
-    return `mvp:${mvp}|u:${others.join(",")}`;
-  };
+        if (cancelled) return;
+        setOptimal(lineupFromOptimizedSingleGame(best));
+        setSecondBest(lineupFromOptimizedSingleGame(second));
+        setLineupStatus("done");
+      } catch (e) {
+        if (cancelled) return;
+        setOptimal(finalizeLineup([]));
+        setSecondBest(finalizeLineup([]));
+        setLineupStatus("error");
+        setLineupError(e instanceof Error ? e.message : String(e));
+      }
+    };
 
-  type Pick = { score: number; cell: number; rank: 0 | 1; key: string };
-  let bestPick: Pick = { score: NEG_INF, cell: -1, rank: 0, key: "" };
-  let secondPick: Pick = { score: NEG_INF, cell: -1, rank: 0, key: "" };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [optimizerPlayers]);
 
-  const considerPick = (cell: number, rank: 0 | 1, score: number) => {
-    if (score === NEG_INF) return;
-
-    const lineup = reconstruct(cell, rank);
-    if (!isValidSingleGameLineup(lineup)) return;
-    const key = makeSingleGameLineupKey(lineup);
-    if (!key) return;
-
-    if (key === bestPick.key || key === secondPick.key) return;
-
-    if (score > bestPick.score) {
-      secondPick = bestPick;
-      bestPick = { score, cell, rank, key };
-      return;
-    }
-
-    if (score > secondPick.score) {
-      secondPick = { score, cell, rank, key };
-    }
-  };
-
-  for (let used = 0; used <= capScaled; used++) {
-    const cell = targetState * capPlusOne + used;
-    considerPick(cell, 0, bestScore[cell]);
-    considerPick(cell, 1, secondScore[cell]);
-  }
-
-  const bestLineup =
-    bestPick.score === NEG_INF ? [] : reconstruct(bestPick.cell, bestPick.rank);
-  const secondLineup =
-    secondPick.score === NEG_INF
-      ? []
-      : reconstruct(secondPick.cell, secondPick.rank);
-
-  return {
-    best: finalizeLineup(bestLineup),
-    second: finalizeLineup(secondLineup),
-  };
-}
-
-const lineups = buildTopTwoLineups(rows);
-const optimal = lineups.best;
-const secondBest = lineups.second;
-
-export default function NbaSingleGame() {
   return (
     <div className="page">
       <header className="pageHeader">
@@ -881,6 +739,11 @@ export default function NbaSingleGame() {
           <div className="lineupsRow">
             <div className="lineupPanel">
               <h2 className="sectionTitle">Optimal Lineup</h2>
+              {lineupStatus === "error" ? (
+                <div className="emptyCell">{lineupError || "Lineup solve failed"}</div>
+              ) : lineupStatus === "solving" ? (
+                <div className="emptyCell">Solving…</div>
+              ) : null}
               <table className="dataTable">
                 <thead>
                   <tr>

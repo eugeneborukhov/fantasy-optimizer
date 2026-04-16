@@ -420,8 +420,8 @@ function buildRows(): Array<Record<string, string | number>> {
 
       const valueNumber =
         typeof fantasyPoints === "number" &&
-        typeof salary === "number" &&
-        salary > 0
+          typeof salary === "number" &&
+          salary > 0
           ? Math.round(((fantasyPoints * 1000) / salary) * 100) / 100
           : null;
 

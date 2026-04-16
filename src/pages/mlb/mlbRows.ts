@@ -436,10 +436,10 @@ function buildTotalBasesMap(): Map<string, TotalBasesInfo> {
             milestone !== null
                 ? milestone
                 : (() => {
-                      const m = line.match(/(\d+)/)
-                      const n = m ? Number(m[1]) : NaN
-                      return Number.isFinite(n) ? n : NaN
-                  })()
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
 
         if (!Number.isFinite(threshold) || threshold <= 0) continue
 
@@ -507,10 +507,10 @@ function buildWalksMap(): Map<string, WalksInfo> {
             milestone !== null
                 ? milestone
                 : (() => {
-                      const m = line.match(/(\d+)/)
-                      const n = m ? Number(m[1]) : NaN
-                      return Number.isFinite(n) ? n : NaN
-                  })()
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
 
         if (!Number.isFinite(threshold) || threshold <= 0) continue
 
@@ -576,10 +576,10 @@ function buildRunsMap(): Map<string, RunsInfo> {
             milestone !== null
                 ? milestone
                 : (() => {
-                      const m = line.match(/(\d+)/)
-                      const n = m ? Number(m[1]) : NaN
-                      return Number.isFinite(n) ? n : NaN
-                  })()
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
 
         if (!Number.isFinite(threshold) || threshold <= 0) continue
 
@@ -645,10 +645,10 @@ function buildRbisMap(): Map<string, RbisInfo> {
             milestone !== null
                 ? milestone
                 : (() => {
-                      const m = line.match(/(\d+)/)
-                      const n = m ? Number(m[1]) : NaN
-                      return Number.isFinite(n) ? n : NaN
-                  })()
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
 
         if (!Number.isFinite(threshold) || threshold <= 0) continue
 
@@ -714,10 +714,10 @@ function buildStolenBasesMap(): Map<string, StolenBasesInfo> {
             milestone !== null
                 ? milestone
                 : (() => {
-                      const m = line.match(/(\d+)/)
-                      const n = m ? Number(m[1]) : NaN
-                      return Number.isFinite(n) ? n : NaN
-                  })()
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
 
         if (!Number.isFinite(threshold) || threshold <= 0) continue
 
@@ -1158,9 +1158,9 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedTotalBasesRaw =
             totalBasesInfo !== undefined
                 ? invertPoissonMeanFromAtLeastK(
-                      totalBasesInfo.probabilityRaw,
-                      totalBasesInfo.threshold,
-                  )
+                    totalBasesInfo.probabilityRaw,
+                    totalBasesInfo.threshold,
+                )
                 : null
         const projectedTotalBases = projectedTotalBasesRaw !== null ? round3(projectedTotalBasesRaw) : ''
 
@@ -1193,9 +1193,9 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedStolenBasesRaw =
             stolenBasesInfo !== undefined
                 ? invertPoissonMeanFromAtLeastK(
-                      stolenBasesInfo.probabilityRaw,
-                      stolenBasesInfo.threshold,
-                  )
+                    stolenBasesInfo.probabilityRaw,
+                    stolenBasesInfo.threshold,
+                )
                 : null
         const projectedStolenBases =
             projectedStolenBasesRaw !== null ? round3(projectedStolenBasesRaw) : ''
@@ -1205,10 +1205,10 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedEarnedRunsRaw =
             earnedRunsInfo !== undefined
                 ? projectMeanPoissonFromOverUnder({
-                      line: earnedRunsInfo.line,
-                      overAmericanOdds: earnedRunsInfo.overOdds,
-                      underAmericanOdds: earnedRunsInfo.underOdds,
-                  })
+                    line: earnedRunsInfo.line,
+                    overAmericanOdds: earnedRunsInfo.overOdds,
+                    underAmericanOdds: earnedRunsInfo.underOdds,
+                })
                 : null
         const projectedEarnedRuns =
             projectedEarnedRunsRaw !== null ? round3(projectedEarnedRunsRaw) : ''
@@ -1218,10 +1218,10 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedOutsRecordedRaw =
             outsRecordedInfo !== undefined
                 ? projectMeanPoissonFromOverUnder({
-                      line: outsRecordedInfo.line,
-                      overAmericanOdds: outsRecordedInfo.overOdds,
-                      underAmericanOdds: outsRecordedInfo.underOdds,
-                  })
+                    line: outsRecordedInfo.line,
+                    overAmericanOdds: outsRecordedInfo.overOdds,
+                    underAmericanOdds: outsRecordedInfo.underOdds,
+                })
                 : null
         const projectedOutsRecorded =
             projectedOutsRecordedRaw !== null ? round3(projectedOutsRecordedRaw) : ''
@@ -1231,10 +1231,10 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedStrikeoutsRaw =
             strikeoutsInfo !== undefined
                 ? projectMeanPoissonFromOverUnder({
-                      line: strikeoutsInfo.line,
-                      overAmericanOdds: strikeoutsInfo.overOdds,
-                      underAmericanOdds: strikeoutsInfo.underOdds,
-                  })
+                    line: strikeoutsInfo.line,
+                    overAmericanOdds: strikeoutsInfo.overOdds,
+                    underAmericanOdds: strikeoutsInfo.underOdds,
+                })
                 : null
         const projectedStrikeouts =
             projectedStrikeoutsRaw !== null ? round3(projectedStrikeoutsRaw) : ''
@@ -1249,18 +1249,18 @@ export function buildRows(salariesSource: unknown): Row[] {
 
         const qualityStartProbabilityRaw =
             isPitcher &&
-            typeof projectedOutsRecorded === 'number' &&
-            typeof projectedEarnedRuns === 'number'
+                typeof projectedOutsRecorded === 'number' &&
+                typeof projectedEarnedRuns === 'number'
                 ? clampProbability(
-                      poissonPAtLeastK(projectedOutsRecorded, 18) *
-                          poissonCdfAtMostK(projectedEarnedRuns, 3),
-                  )
+                    poissonPAtLeastK(projectedOutsRecorded, 18) *
+                    poissonCdfAtMostK(projectedEarnedRuns, 3),
+                )
                 : 0
 
         const qualityStartProbability =
             isPitcher &&
-            typeof projectedOutsRecorded === 'number' &&
-            typeof projectedEarnedRuns === 'number'
+                typeof projectedOutsRecorded === 'number' &&
+                typeof projectedEarnedRuns === 'number'
                 ? `${round3(qualityStartProbabilityRaw * 100)}%`
                 : ''
 
@@ -1274,23 +1274,23 @@ export function buildRows(salariesSource: unknown): Row[] {
 
         const fantasyPoints = isPitcher
             ? round3(
-                  projectedOutsRecordedValue * 1 -
-                      projectedEarnedRunsValue * 3 +
-                      qualityStartProbabilityRaw * 4 +
-                      projectedStrikeoutsValue * 1 +
-                      projectedWinsValue * 6,
-              )
+                projectedOutsRecordedValue * 1 -
+                projectedEarnedRunsValue * 3 +
+                qualityStartProbabilityRaw * 4 +
+                projectedStrikeoutsValue * 3 +
+                projectedWinsValue * 6,
+            )
             : round3(
-                  computeHitterFantasyPoints({
-                      projectedTotalBases:
-                          typeof projectedTotalBases === 'number' ? projectedTotalBases : 0,
-                      projectedWalks: typeof projectedWalks === 'number' ? projectedWalks : 0,
-                      projectedRuns: typeof projectedRuns === 'number' ? projectedRuns : 0,
-                      projectedRbis: typeof projectedRbis === 'number' ? projectedRbis : 0,
-                      projectedStolenBases:
-                          typeof projectedStolenBases === 'number' ? projectedStolenBases : 0,
-                  }),
-              )
+                computeHitterFantasyPoints({
+                    projectedTotalBases:
+                        typeof projectedTotalBases === 'number' ? projectedTotalBases : 0,
+                    projectedWalks: typeof projectedWalks === 'number' ? projectedWalks : 0,
+                    projectedRuns: typeof projectedRuns === 'number' ? projectedRuns : 0,
+                    projectedRbis: typeof projectedRbis === 'number' ? projectedRbis : 0,
+                    projectedStolenBases:
+                        typeof projectedStolenBases === 'number' ? projectedStolenBases : 0,
+                }),
+            )
 
         const value =
             typeof salary === 'number' && salary > 0 && typeof fantasyPoints === 'number'

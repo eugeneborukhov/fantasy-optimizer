@@ -643,6 +643,7 @@ export default function NbaSingleGame() {
 
   const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
   const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [thirdBest, setThirdBest] = useState<LineupResult>(() => finalizeLineup([]));
   const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
   const [lineupError, setLineupError] = useState<string>("");
 
@@ -665,7 +666,7 @@ export default function NbaSingleGame() {
         });
 
         const bestIds = best
-          ? Object.values(best.playersBySlot).map((p) => p.id)
+          ? Array.from(new Set(Object.values(best.playersBySlot).map((p) => p.id)))
           : [];
 
         const second = await optimizeMlbLineup({
@@ -679,14 +680,34 @@ export default function NbaSingleGame() {
           excludeLineupsByPlayerIds: bestIds.length > 0 ? [bestIds] : [],
         });
 
+        const secondIds = second
+          ? Array.from(new Set(Object.values(second.playersBySlot).map((p) => p.id)))
+          : [];
+
+        const third =
+          bestIds.length > 0 && secondIds.length > 0
+            ? await optimizeMlbLineup({
+                players: optimizerPlayers,
+                salaryCap: 60000,
+                slots: NBA_SINGLE_GAME_SLOTS,
+                maxPlayersPerTeamByPositions: {
+                  maxPlayersPerTeam: 4,
+                  positions: ["PG", "SG", "SF", "PF", "C"],
+                },
+                excludeLineupsByPlayerIds: [bestIds, secondIds],
+              })
+            : null;
+
         if (cancelled) return;
         setOptimal(lineupFromOptimizedSingleGame(best));
         setSecondBest(lineupFromOptimizedSingleGame(second));
+        setThirdBest(lineupFromOptimizedSingleGame(third));
         setLineupStatus("done");
       } catch (e) {
         if (cancelled) return;
         setOptimal(finalizeLineup([]));
         setSecondBest(finalizeLineup([]));
+        setThirdBest(finalizeLineup([]));
         setLineupStatus("error");
         setLineupError(e instanceof Error ? e.message : String(e));
       }
@@ -811,6 +832,43 @@ export default function NbaSingleGame() {
                         : secondBest.totals.fantasyPoints}
                     </td>
                     <td>{secondBest.totals.value}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="lineupPanel">
+              <h2 className="sectionTitle">Third Best Lineup</h2>
+              <table className="dataTable">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Salary</th>
+                    <th scope="col">Fantasy Points</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {thirdBest.rows.map((r, idx) => (
+                    <tr key={idx}>
+                      <td>{r.name}</td>
+                      <td>{r.position}</td>
+                      <td>{r.salary}</td>
+                      <td>{r.fantasyPoints}</td>
+                      <td>{r.value}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td>{thirdBest.totals.name}</td>
+                    <td>{thirdBest.totals.position}</td>
+                    <td>{thirdBest.totals.salary}</td>
+                    <td>
+                      {typeof thirdBest.totals.fantasyPoints === "number"
+                        ? thirdBest.totals.fantasyPoints.toFixed(2)
+                        : thirdBest.totals.fantasyPoints}
+                    </td>
+                    <td>{thirdBest.totals.value}</td>
                   </tr>
                 </tbody>
               </table>

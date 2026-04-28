@@ -100,6 +100,11 @@ export async function optimizeMlbLineup(params: {
     salaryCap: number
     slots?: MlbLineupSlot[]
     /**
+     * Optional restriction: require selecting at least one player from each of these teams.
+     * Team codes are compared case-insensitively after trimming.
+     */
+    requireAtLeastOneFromTeams?: string[]
+    /**
      * Optional restriction: for each team, count selected players whose eligible positions intersect `positions`
      * and constrain that count to be <= `maxPlayersPerTeam`.
      */
@@ -115,6 +120,11 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     salaryCap: number
     slots: LineupSlot<Key>[]
     /**
+     * Optional restriction: require selecting at least one player from each of these teams.
+     * Team codes are compared case-insensitively after trimming.
+     */
+    requireAtLeastOneFromTeams?: string[]
+    /**
      * Optional restriction: for each team, count selected players whose eligible positions intersect `positions`
      * and constrain that count to be <= `maxPlayersPerTeam`.
      */
@@ -129,11 +139,13 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     players: MlbLineupPlayer[]
     salaryCap: number
     slots?: LineupSlot<Key>[]
+    requireAtLeastOneFromTeams?: string[]
     maxPlayersPerTeamByPositions?: { maxPlayersPerTeam: number; positions: string[] }
     excludeLineupsByPlayerIds?: string[][]
 }): Promise<OptimizedLineup<Key> | null> {
     const { players, salaryCap } = params
     const slots = (params.slots ?? (MLB_DK_SLOTS as unknown as LineupSlot<Key>[]))
+    const requireAtLeastOneFromTeams = params.requireAtLeastOneFromTeams
     const maxPlayersPerTeamByPositions = params.maxPlayersPerTeamByPositions
     const excludeLineupsByPlayerIds = params.excludeLineupsByPlayerIds ?? []
 
@@ -243,6 +255,39 @@ export async function optimizeMlbLineup<Key extends string>(params: {
         })),
         bnds: { type: glpk.GLP_UP, lb: 0, ub: salaryCap },
     })
+
+    // Require at least one player from each specified team
+    if (Array.isArray(requireAtLeastOneFromTeams) && requireAtLeastOneFromTeams.length > 0) {
+        const normalizedTeams = Array.from(
+            new Set(
+                requireAtLeastOneFromTeams
+                    .map((t) => (typeof t === 'string' ? t.trim().toUpperCase() : ''))
+                    .filter(Boolean),
+            ),
+        )
+
+        let teamConstraintIdx = 0
+        for (const team of normalizedTeams) {
+            const playerIndexes: number[] = []
+            for (let pi = 0; pi < usablePlayers.length; pi++) {
+                const teamRaw = usablePlayers[pi].team
+                const playerTeam = typeof teamRaw === 'string' ? teamRaw.trim().toUpperCase() : ''
+                if (!playerTeam || playerTeam !== team) continue
+                playerIndexes.push(pi)
+            }
+
+            const constraintVars = playerIndexes.flatMap((pi) => varsByPlayerIndex.get(pi) ?? [])
+            if (constraintVars.length === 0) {
+                throw new Error(`No eligible players found for required team ${team}.`)
+            }
+
+            subjectTo.push({
+                name: `team_min_${sanitizeConstraintName(team)}_${teamConstraintIdx++}`,
+                vars: constraintVars,
+                bnds: { type: glpk.GLP_LO, lb: 1, ub: 0 },
+            })
+        }
+    }
 
     // Per-team max constraint for a set of positions
     if (

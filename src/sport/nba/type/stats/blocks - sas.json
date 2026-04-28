@@ -1,0 +1,458 @@
+{
+    "markets": [
+        {
+            "id": "329076801",
+            "eventId": "34046485",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Victor Wembanyama Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--50088731",
+            "sortOrder": 1,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34046485|12195|2:163818",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "329076403",
+            "eventId": "34046485",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Donovan Clingan Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--50088731",
+            "sortOrder": 2,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34046485|12195|2:161138",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "329076501",
+            "eventId": "34046485",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Deni Avdija Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--50088731",
+            "sortOrder": 3,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34046485|12195|2:117161",
+            "dynamicMetadata": {}
+        }
+    ],
+    "selections": [
+        {
+            "id": "0QA329076403#578545833_13L42648Q11130272651Q20",
+            "marketId": "329076403",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212373",
+                "decimal": "1.26",
+                "fractional": "100/373"
+            },
+            "trueOdds": 1.26809652,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 12633,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA329076403#578545958_13L42648Q1160400555Q20",
+            "marketId": "329076403",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B122",
+                "decimal": "2.22",
+                "fractional": "61/50"
+            },
+            "trueOdds": 2.22,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 22258,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA329076403#578545985_13L42648Q1663323674Q20",
+            "marketId": "329076403",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u002B390",
+                "decimal": "4.90",
+                "fractional": "39/10"
+            },
+            "trueOdds": 4.9,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 49085,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        },
+        {
+            "id": "0QA329076403#578546100_13L42648Q1-1401945444Q20",
+            "marketId": "329076403",
+            "label": "4\u002B",
+            "displayOdds": {
+                "american": "\u002B1040",
+                "decimal": "11.40",
+                "fractional": "52/5"
+            },
+            "trueOdds": 11.4,
+            "participants": [
+                {
+                    "id": "800354",
+                    "name": "Donovan Clingan",
+                    "type": "Player",
+                    "seoIdentifier": "Donovan Clingan",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.7
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 114000,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 4
+        },
+        {
+            "id": "0QA329076501#578545745_13L42648Q11130272651Q20",
+            "marketId": "329076501",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212114",
+                "decimal": "1.87",
+                "fractional": "50/57"
+            },
+            "trueOdds": 1.87719299,
+            "participants": [
+                {
+                    "id": "527254",
+                    "name": "Deni Avdija",
+                    "type": "Player",
+                    "seoIdentifier": "Deni Avdija",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.6
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 18745,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA329076501#578545818_13L42648Q1160400555Q20",
+            "marketId": "329076501",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B419",
+                "decimal": "5.19",
+                "fractional": "419/100"
+            },
+            "trueOdds": 5.19,
+            "participants": [
+                {
+                    "id": "527254",
+                    "name": "Deni Avdija",
+                    "type": "Player",
+                    "seoIdentifier": "Deni Avdija",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.6
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 51918,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA329076801#578547011_13L42648Q1160400555Q20",
+            "marketId": "329076801",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u2212660",
+                "decimal": "1.15",
+                "fractional": "5/33"
+            },
+            "trueOdds": 1.15151516,
+            "participants": [
+                {
+                    "id": "713754",
+                    "name": "Victor Wembanyama",
+                    "type": "Player",
+                    "seoIdentifier": "Victor Wembanyama",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 3
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 11511,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA329076801#578547017_13L42648Q1663323674Q20",
+            "marketId": "329076801",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u2212199",
+                "decimal": "1.50",
+                "fractional": "100/199"
+            },
+            "trueOdds": 1.50251257,
+            "participants": [
+                {
+                    "id": "713754",
+                    "name": "Victor Wembanyama",
+                    "type": "Player",
+                    "seoIdentifier": "Victor Wembanyama",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 3
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 15017,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        },
+        {
+            "id": "0QA329076801#578547024_13L42648Q1-1401945444Q20",
+            "marketId": "329076801",
+            "label": "4\u002B",
+            "displayOdds": {
+                "american": "\u002B124",
+                "decimal": "2.24",
+                "fractional": "31/25"
+            },
+            "trueOdds": 2.24,
+            "participants": [
+                {
+                    "id": "713754",
+                    "name": "Victor Wembanyama",
+                    "type": "Player",
+                    "seoIdentifier": "Victor Wembanyama",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 3
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 22424,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 4
+        },
+        {
+            "id": "0QA329076801#578547033_13L42648Q1-946933226Q20",
+            "marketId": "329076801",
+            "label": "5\u002B",
+            "displayOdds": {
+                "american": "\u002B274",
+                "decimal": "3.74",
+                "fractional": "137/50"
+            },
+            "trueOdds": 3.74,
+            "participants": [
+                {
+                    "id": "713754",
+                    "name": "Victor Wembanyama",
+                    "type": "Player",
+                    "seoIdentifier": "Victor Wembanyama",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 3
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 37433,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 5
+        },
+        {
+            "id": "0QA329076801#578547044_13L42648Q1-257692155Q20",
+            "marketId": "329076801",
+            "label": "6\u002B",
+            "displayOdds": {
+                "american": "\u002B587",
+                "decimal": "6.87",
+                "fractional": "587/100"
+            },
+            "trueOdds": 6.87,
+            "participants": [
+                {
+                    "id": "713754",
+                    "name": "Victor Wembanyama",
+                    "type": "Player",
+                    "seoIdentifier": "Victor Wembanyama",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 3
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false
+                }
+            ],
+            "sortOrder": 68744,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 6
+        }
+    ],
+    "subscriptionPartials": {
+        "markets--50088731": {
+            "entity": "markets",
+            "query": "$filter=eventId eq \u002734046485\u0027 AND clientMetadata/subCategoryId eq \u002716484\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027)",
+            "locale": "en"
+        }
+    }
+}

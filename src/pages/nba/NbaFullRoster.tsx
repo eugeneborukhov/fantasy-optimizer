@@ -697,8 +697,19 @@ export default function NbaFullRoster() {
     return [...byId.values()];
   }, []);
 
+  const [maxPlayersPerTeam, setMaxPlayersPerTeam] = useState<number | null>(3);
+
+  const maxPlayersPerTeamByPositions = useMemo(() => {
+    if (maxPlayersPerTeam === null) return undefined;
+    return {
+      maxPlayersPerTeam,
+      positions: ["PG", "SG", "SF", "PF", "C"],
+    };
+  }, [maxPlayersPerTeam]);
+
   const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
   const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [thirdBest, setThirdBest] = useState<LineupResult>(() => finalizeLineup([]));
   const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
   const [lineupError, setLineupError] = useState<string>("");
 
@@ -714,10 +725,7 @@ export default function NbaFullRoster() {
           players: optimizerPlayers,
           salaryCap: 60000,
           slots: NBA_FULL_ROSTER_SLOTS,
-          maxPlayersPerTeamByPositions: {
-            maxPlayersPerTeam: 4,
-            positions: ["PG", "SG", "SF", "PF", "C"],
-          },
+          maxPlayersPerTeamByPositions,
         });
 
         const bestIds = best
@@ -728,21 +736,36 @@ export default function NbaFullRoster() {
           players: optimizerPlayers,
           salaryCap: 60000,
           slots: NBA_FULL_ROSTER_SLOTS,
-          maxPlayersPerTeamByPositions: {
-            maxPlayersPerTeam: 4,
-            positions: ["PG", "SG", "SF", "PF", "C"],
-          },
+          maxPlayersPerTeamByPositions,
           excludeLineupsByPlayerIds: bestIds.length > 0 ? [bestIds] : [],
+        });
+
+        const secondIds = second
+          ? Object.values(second.playersBySlot).map((p) => p.id)
+          : [];
+
+        const excludeLineupsByPlayerIds: string[][] = [];
+        if (bestIds.length > 0) excludeLineupsByPlayerIds.push(bestIds);
+        if (secondIds.length > 0) excludeLineupsByPlayerIds.push(secondIds);
+
+        const third = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_FULL_ROSTER_SLOTS,
+          maxPlayersPerTeamByPositions,
+          excludeLineupsByPlayerIds,
         });
 
         if (cancelled) return;
         setOptimal(lineupFromOptimized(best, NBA_FULL_ROSTER_SLOTS));
         setSecondBest(lineupFromOptimized(second, NBA_FULL_ROSTER_SLOTS));
+        setThirdBest(lineupFromOptimized(third, NBA_FULL_ROSTER_SLOTS));
         setLineupStatus("done");
       } catch (e) {
         if (cancelled) return;
         setOptimal(finalizeLineup([]));
         setSecondBest(finalizeLineup([]));
+        setThirdBest(finalizeLineup([]));
         setLineupStatus("error");
         setLineupError(e instanceof Error ? e.message : String(e));
       }
@@ -752,7 +775,7 @@ export default function NbaFullRoster() {
     return () => {
       cancelled = true;
     };
-  }, [optimizerPlayers]);
+  }, [optimizerPlayers, maxPlayersPerTeamByPositions]);
 
   return (
     <div className="page">
@@ -791,6 +814,42 @@ export default function NbaFullRoster() {
               )}
             </tbody>
           </table>
+
+          <div className="restrictPanel">
+            <h2 className="sectionTitle">Restrict</h2>
+            <div className="radioRow" role="radiogroup" aria-label="Restrict max players from one team">
+              <label>
+                <input
+                  type="radio"
+                  name="restrict"
+                  value="none"
+                  checked={maxPlayersPerTeam === null}
+                  onChange={() => setMaxPlayersPerTeam(null)}
+                />
+                None
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="restrict"
+                  value="2"
+                  checked={maxPlayersPerTeam === 2}
+                  onChange={() => setMaxPlayersPerTeam(2)}
+                />
+                2
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="restrict"
+                  value="3"
+                  checked={maxPlayersPerTeam === 3}
+                  onChange={() => setMaxPlayersPerTeam(3)}
+                />
+                3
+              </label>
+            </div>
+          </div>
 
           <div className="lineupsRow">
             <div className="lineupPanel">
@@ -867,6 +926,43 @@ export default function NbaFullRoster() {
                         : secondBest.totals.fantasyPoints}
                     </td>
                     <td>{secondBest.totals.value}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="lineupPanel">
+              <h2 className="sectionTitle">Third Best Lineup</h2>
+              <table className="dataTable">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Position</th>
+                    <th scope="col">Salary</th>
+                    <th scope="col">Fantasy Points</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {thirdBest.rows.map((r, idx) => (
+                    <tr key={idx}>
+                      <td>{r.name}</td>
+                      <td>{r.position}</td>
+                      <td>{r.salary}</td>
+                      <td>{r.fantasyPoints}</td>
+                      <td>{r.value}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td>{thirdBest.totals.name}</td>
+                    <td>{thirdBest.totals.position}</td>
+                    <td>{thirdBest.totals.salary}</td>
+                    <td>
+                      {typeof thirdBest.totals.fantasyPoints === "number"
+                        ? thirdBest.totals.fantasyPoints.toFixed(2)
+                        : thirdBest.totals.fantasyPoints}
+                    </td>
+                    <td>{thirdBest.totals.value}</td>
                   </tr>
                 </tbody>
               </table>

@@ -1,0 +1,724 @@
+{
+    "markets": [
+        {
+            "id": "330471412",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Chet Holmgren Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 1,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:153763",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "330470862",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Deandre Ayton Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 2,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:55231",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "330471180",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Isaiah Hartenstein Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 3,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:101739",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "330471167",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Shai Gilgeous-Alexander Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 4,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:55210",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "330471148",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Luguentz Dort Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 5,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:101128",
+            "dynamicMetadata": {}
+        },
+        {
+            "id": "330471181",
+            "eventId": "34074632",
+            "sportId": "2",
+            "leagueId": "42648",
+            "name": "Ajay Mitchell Blocks",
+            "subcategoryId": "16484",
+            "componentMapping": {
+                "primary": 331,
+                "fallback": 0
+            },
+            "marketType": {
+                "id": "12195",
+                "betOfferTypeId": 0,
+                "name": "Blocks Milestones"
+            },
+            "subscriptionKey": "markets--774599950",
+            "sortOrder": 6,
+            "tags": [
+                "SGP",
+                "YourBetEligible",
+                "Cashout",
+                "IgnoreSortOrderOnPush",
+                "OSB",
+                "PlayerProps"
+            ],
+            "correlatedId": "34074632|12195|2:133518",
+            "dynamicMetadata": {}
+        }
+    ],
+    "selections": [
+        {
+            "id": "0QA330470862#584335912_13L42648Q11130272651Q20",
+            "marketId": "330470862",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212259",
+                "decimal": "1.38",
+                "fractional": "100/259"
+            },
+            "trueOdds": 1.38610039,
+            "participants": [
+                {
+                    "id": "33312",
+                    "name": "Deandre Ayton",
+                    "type": "Player",
+                    "seoIdentifier": "Deandre Ayton",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "55231"
+                    }
+                }
+            ],
+            "sortOrder": 13811,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330470862#584335971_13L42648Q1160400555Q20",
+            "marketId": "330470862",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B178",
+                "decimal": "2.78",
+                "fractional": "89/50"
+            },
+            "trueOdds": 2.78,
+            "participants": [
+                {
+                    "id": "33312",
+                    "name": "Deandre Ayton",
+                    "type": "Player",
+                    "seoIdentifier": "Deandre Ayton",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "55231"
+                    }
+                }
+            ],
+            "sortOrder": 27870,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA330470862#584335994_13L42648Q1663323674Q20",
+            "marketId": "330470862",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u002B594",
+                "decimal": "6.94",
+                "fractional": "297/50"
+            },
+            "trueOdds": 6.94,
+            "participants": [
+                {
+                    "id": "33312",
+                    "name": "Deandre Ayton",
+                    "type": "Player",
+                    "seoIdentifier": "Deandre Ayton",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1
+                    },
+                    "venueRole": "AwayPlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "55231"
+                    }
+                }
+            ],
+            "sortOrder": 69494,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        },
+        {
+            "id": "0QA330471148#584335690_13L42648Q11130272651Q20",
+            "marketId": "330471148",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B204",
+                "decimal": "3.04",
+                "fractional": "51/25"
+            },
+            "trueOdds": 3.04,
+            "participants": [
+                {
+                    "id": "33263",
+                    "name": "Luguentz Dort",
+                    "type": "Player",
+                    "seoIdentifier": "Luguentz Dort",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.4
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "101128"
+                    }
+                }
+            ],
+            "sortOrder": 30490,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330471148#584335714_13L42648Q1160400555Q20",
+            "marketId": "330471148",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B1120",
+                "decimal": "12.20",
+                "fractional": "56/5"
+            },
+            "trueOdds": 12.2,
+            "participants": [
+                {
+                    "id": "33263",
+                    "name": "Luguentz Dort",
+                    "type": "Player",
+                    "seoIdentifier": "Luguentz Dort",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.4
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "101128"
+                    }
+                }
+            ],
+            "sortOrder": 122014,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA330471167#584336889_13L42648Q11130272651Q20",
+            "marketId": "330471167",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212122",
+                "decimal": "1.81",
+                "fractional": "50/61"
+            },
+            "trueOdds": 1.81967214,
+            "participants": [
+                {
+                    "id": "33258",
+                    "name": "Shai Gilgeous-Alexander",
+                    "type": "Player",
+                    "seoIdentifier": "Shai Gilgeous-Alexander",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.8
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "55210"
+                    }
+                }
+            ],
+            "sortOrder": 18189,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330471167#584336922_13L42648Q1160400555Q20",
+            "marketId": "330471167",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B398",
+                "decimal": "4.98",
+                "fractional": "199/50"
+            },
+            "trueOdds": 4.98,
+            "participants": [
+                {
+                    "id": "33258",
+                    "name": "Shai Gilgeous-Alexander",
+                    "type": "Player",
+                    "seoIdentifier": "Shai Gilgeous-Alexander",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.8
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "55210"
+                    }
+                }
+            ],
+            "sortOrder": 49822,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA330471180#584337327_13L42648Q11130272651Q20",
+            "marketId": "330471180",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212127",
+                "decimal": "1.78",
+                "fractional": "100/127"
+            },
+            "trueOdds": 1.78740158,
+            "participants": [
+                {
+                    "id": "33079",
+                    "name": "Isaiah Hartenstein",
+                    "type": "Player",
+                    "seoIdentifier": "Isaiah Hartenstein",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.8
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "101739"
+                    }
+                }
+            ],
+            "sortOrder": 17827,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330471180#584337361_13L42648Q1160400555Q20",
+            "marketId": "330471180",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u002B373",
+                "decimal": "4.73",
+                "fractional": "373/100"
+            },
+            "trueOdds": 4.73,
+            "participants": [
+                {
+                    "id": "33079",
+                    "name": "Isaiah Hartenstein",
+                    "type": "Player",
+                    "seoIdentifier": "Isaiah Hartenstein",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.8
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "101739"
+                    }
+                }
+            ],
+            "sortOrder": 47361,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA330471181#584335835_13L42648Q11130272651Q20",
+            "marketId": "330471181",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u002B268",
+                "decimal": "3.68",
+                "fractional": "67/25"
+            },
+            "trueOdds": 3.68,
+            "participants": [
+                {
+                    "id": "800653",
+                    "name": "Ajay Mitchell",
+                    "type": "Player",
+                    "seoIdentifier": "Ajay Mitchell",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 0.3
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "133518"
+                    }
+                }
+            ],
+            "sortOrder": 36835,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330471412#584336721_13L42648Q11130272651Q20",
+            "marketId": "330471412",
+            "label": "1\u002B",
+            "displayOdds": {
+                "american": "\u2212840",
+                "decimal": "1.11",
+                "fractional": "5/42"
+            },
+            "trueOdds": 1.11904762,
+            "participants": [
+                {
+                    "id": "649545",
+                    "name": "Chet Holmgren",
+                    "type": "Player",
+                    "seoIdentifier": "Chet Holmgren",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "153763"
+                    }
+                }
+            ],
+            "sortOrder": 11121,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 1
+        },
+        {
+            "id": "0QA330471412#584336732_13L42648Q1160400555Q20",
+            "marketId": "330471412",
+            "label": "2\u002B",
+            "displayOdds": {
+                "american": "\u2212163",
+                "decimal": "1.61",
+                "fractional": "100/163"
+            },
+            "trueOdds": 1.61349694,
+            "participants": [
+                {
+                    "id": "649545",
+                    "name": "Chet Holmgren",
+                    "type": "Player",
+                    "seoIdentifier": "Chet Holmgren",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "153763"
+                    }
+                }
+            ],
+            "sortOrder": 16132,
+            "tags": [
+                "MostBalancedOdds",
+                "SGP",
+                "MostBalancedGlobalProbability",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 2
+        },
+        {
+            "id": "0QA330471412#584336872_13L42648Q1663323674Q20",
+            "marketId": "330471412",
+            "label": "3\u002B",
+            "displayOdds": {
+                "american": "\u002B181",
+                "decimal": "2.81",
+                "fractional": "181/100"
+            },
+            "trueOdds": 2.81,
+            "participants": [
+                {
+                    "id": "649545",
+                    "name": "Chet Holmgren",
+                    "type": "Player",
+                    "seoIdentifier": "Chet Holmgren",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "153763"
+                    }
+                }
+            ],
+            "sortOrder": 28172,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 3
+        },
+        {
+            "id": "0QA330471412#584336921_13L42648Q1-1401945444Q20",
+            "marketId": "330471412",
+            "label": "4\u002B",
+            "displayOdds": {
+                "american": "\u002B473",
+                "decimal": "5.73",
+                "fractional": "473/100"
+            },
+            "trueOdds": 5.73,
+            "participants": [
+                {
+                    "id": "649545",
+                    "name": "Chet Holmgren",
+                    "type": "Player",
+                    "seoIdentifier": "Chet Holmgren",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "153763"
+                    }
+                }
+            ],
+            "sortOrder": 57321,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 4
+        },
+        {
+            "id": "0QA330471412#584347918_13L42648Q1-946933226Q20",
+            "marketId": "330471412",
+            "label": "5\u002B",
+            "displayOdds": {
+                "american": "\u002B1100",
+                "decimal": "12.00",
+                "fractional": "11/1"
+            },
+            "trueOdds": 12,
+            "participants": [
+                {
+                    "id": "649545",
+                    "name": "Chet Holmgren",
+                    "type": "Player",
+                    "seoIdentifier": "Chet Holmgren",
+                    "statistic": {
+                        "prefix": "BLKPG",
+                        "value": 1.9
+                    },
+                    "venueRole": "HomePlayer",
+                    "isNationalTeam": false,
+                    "metadata": {
+                        "sdid": "153763"
+                    }
+                }
+            ],
+            "sortOrder": 120018,
+            "tags": [
+                "SGP",
+                "OSB"
+            ],
+            "metadata": {},
+            "milestoneValue": 5
+        }
+    ],
+    "subscriptionPartials": {
+        "markets--774599950": {
+            "entity": "markets",
+            "query": "$filter=eventId eq \u002734074632\u0027 AND clientMetadata/subCategoryId eq \u002716484\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027)",
+            "locale": "en"
+        }
+    }
+}

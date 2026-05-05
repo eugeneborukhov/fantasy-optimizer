@@ -45,3 +45,22 @@
 .emptyCell {
   text-align: center;
 }
+
+.restrictPanel {
+  width: max-content;
+  margin: 0 auto;
+}
+
+.radioRow {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.radioRow label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}

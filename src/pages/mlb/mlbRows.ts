@@ -286,6 +286,31 @@ function normalizePlayerName(name: string): string {
     return tokens.join(' ')
 }
 
+function normalizeTeamAbbreviation(team: string | null | undefined): string {
+    const raw = typeof team === 'string' ? team.trim().toUpperCase() : ''
+    const match = raw.match(/^[A-Z]{2,4}$/)
+    return match ? match[0] : ''
+}
+
+function extractNameAndTeamFromParticipantName(raw: string): { baseName: string; team: string | null } {
+    const trimmed = raw.trim()
+    if (!trimmed) return { baseName: '', team: null }
+
+    // Common sportsbook format: "Player Name (TEAM)"
+    const m = trimmed.match(/^(.+?)\s*\(([^)]+)\)\s*$/)
+    if (!m) return { baseName: trimmed, team: null }
+
+    const baseName = m[1]?.trim() ?? trimmed
+    const team = normalizeTeamAbbreviation(m[2])
+    return { baseName, team: team || null }
+}
+
+function makePlayerKey(baseName: string, team: string | null | undefined): string {
+    const nameKey = normalizePlayerName(baseName)
+    const teamKey = normalizeTeamAbbreviation(team)
+    return teamKey ? `${nameKey}|${teamKey}` : nameKey
+}
+
 function parseAmericanOdds(value: string): number | null {
     const trimmed = value.trim()
     if (!trimmed) return null
@@ -442,8 +467,10 @@ function buildTotalBasesMap(): Map<string, TotalBasesInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -473,7 +500,7 @@ function buildTotalBasesMap(): Map<string, TotalBasesInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = map.get(key)
@@ -513,8 +540,10 @@ function buildWalksMap(): Map<string, WalksInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -544,7 +573,7 @@ function buildWalksMap(): Map<string, WalksInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = map.get(key)
@@ -582,8 +611,10 @@ function buildRunsMap(): Map<string, RunsInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -613,7 +644,7 @@ function buildRunsMap(): Map<string, RunsInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = map.get(key)
@@ -651,8 +682,10 @@ function buildRbisMap(): Map<string, RbisInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -682,7 +715,7 @@ function buildRbisMap(): Map<string, RbisInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = map.get(key)
@@ -720,8 +753,10 @@ function buildStolenBasesMap(): Map<string, StolenBasesInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -751,7 +786,7 @@ function buildStolenBasesMap(): Map<string, StolenBasesInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = map.get(key)
@@ -789,8 +824,10 @@ function buildEarnedRunsMap(): Map<string, EarnedRunsInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -820,7 +857,7 @@ function buildEarnedRunsMap(): Map<string, EarnedRunsInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = result.get(key)
@@ -875,15 +912,17 @@ function buildOutsRecordedMap(): Map<string, OutsRecordedInfo> {
         if (line === null || !Number.isFinite(line) || line < 0) continue
 
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
         const parsed = odds ? parseAmericanOdds(odds) : null
         if (!odds || parsed === null) continue
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const isMain = selection?.tags?.includes('MainPointLine') || false
@@ -951,8 +990,10 @@ function buildStrikeoutsMap(): Map<string, StrikeoutsInfo> {
 
     for (const selection of selections) {
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
@@ -983,7 +1024,7 @@ function buildStrikeoutsMap(): Map<string, StrikeoutsInfo> {
             selection?.tags?.includes('MostBalancedGlobalProbability') ||
             false
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const existing = result.get(key)
@@ -1034,15 +1075,17 @@ function buildWinsMap(): Map<string, WinsInfo> {
         if (outcomeNorm !== 'yes' && outcomeNorm !== 'no') continue
 
         const participant = selection?.participants?.[0]
-        const participantName =
-            (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
+        const rawParticipantName = participant?.name?.trim() ?? ''
+        const seoName = participant?.seoIdentifier?.trim() ?? ''
+        const { baseName, team } = extractNameAndTeamFromParticipantName(rawParticipantName)
+        const participantName = baseName || seoName || rawParticipantName
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
         const parsed = odds ? parseAmericanOdds(odds) : null
         if (!odds || parsed === null) continue
 
-        const key = normalizePlayerName(participantName)
+        const key = makePlayerKey(participantName, team)
         if (!key) continue
 
         const marketId = typeof selection?.marketId === 'string' ? selection.marketId : 'default'
@@ -1130,7 +1173,11 @@ export function buildRows(salariesSource: unknown): Row[] {
         const salary = typeof entry?.Salary === 'number' ? entry.Salary : null
         const game = typeof entry?.Game === 'string' ? entry.Game.trim() : ''
 
-        const totalBasesInfo = totalBasesByName.get(normalizePlayerName(name))
+        const playerKeyWithTeam = makePlayerKey(name, team)
+        const playerKeyNameOnly = normalizePlayerName(name)
+
+        const totalBasesInfo =
+            totalBasesByName.get(playerKeyWithTeam) ?? totalBasesByName.get(playerKeyNameOnly)
         const totalBases = totalBasesInfo?.line ?? ''
 
         const projectedTotalBasesRaw =
@@ -1142,7 +1189,7 @@ export function buildRows(salariesSource: unknown): Row[] {
                 : null
         const projectedTotalBases = projectedTotalBasesRaw !== null ? round3(projectedTotalBasesRaw) : ''
 
-        const walksInfo = walksByName.get(normalizePlayerName(name))
+        const walksInfo = walksByName.get(playerKeyWithTeam) ?? walksByName.get(playerKeyNameOnly)
         const walks = walksInfo?.line ?? ''
         const projectedWalksRaw =
             walksInfo !== undefined
@@ -1150,7 +1197,7 @@ export function buildRows(salariesSource: unknown): Row[] {
                 : null
         const projectedWalks = projectedWalksRaw !== null ? round3(projectedWalksRaw) : ''
 
-        const runsInfo = runsByName.get(normalizePlayerName(name))
+        const runsInfo = runsByName.get(playerKeyWithTeam) ?? runsByName.get(playerKeyNameOnly)
         const runs = runsInfo?.line ?? ''
         const projectedRunsRaw =
             runsInfo !== undefined
@@ -1158,7 +1205,7 @@ export function buildRows(salariesSource: unknown): Row[] {
                 : null
         const projectedRuns = projectedRunsRaw !== null ? round3(projectedRunsRaw) : ''
 
-        const rbisInfo = rbisByName.get(normalizePlayerName(name))
+        const rbisInfo = rbisByName.get(playerKeyWithTeam) ?? rbisByName.get(playerKeyNameOnly)
         const rbis = rbisInfo?.line ?? ''
         const projectedRbisRaw =
             rbisInfo !== undefined
@@ -1166,7 +1213,8 @@ export function buildRows(salariesSource: unknown): Row[] {
                 : null
         const projectedRbis = projectedRbisRaw !== null ? round3(projectedRbisRaw) : ''
 
-        const stolenBasesInfo = stolenBasesByName.get(normalizePlayerName(name))
+        const stolenBasesInfo =
+            stolenBasesByName.get(playerKeyWithTeam) ?? stolenBasesByName.get(playerKeyNameOnly)
         const stolenBases = stolenBasesInfo?.line ?? ''
         const projectedStolenBasesRaw =
             stolenBasesInfo !== undefined
@@ -1178,7 +1226,8 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedStolenBases =
             projectedStolenBasesRaw !== null ? round3(projectedStolenBasesRaw) : ''
 
-        const earnedRunsInfo = earnedRunsByName.get(normalizePlayerName(name))
+        const earnedRunsInfo =
+            earnedRunsByName.get(playerKeyWithTeam) ?? earnedRunsByName.get(playerKeyNameOnly)
         const earnedRuns = earnedRunsInfo?.line ?? ''
         const projectedEarnedRunsRaw =
             earnedRunsInfo !== undefined
@@ -1190,7 +1239,8 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedEarnedRuns =
             projectedEarnedRunsRaw !== null ? round3(projectedEarnedRunsRaw) : ''
 
-        const outsRecordedInfo = outsRecordedByName.get(normalizePlayerName(name))
+        const outsRecordedInfo =
+            outsRecordedByName.get(playerKeyWithTeam) ?? outsRecordedByName.get(playerKeyNameOnly)
         const outsRecorded = outsRecordedInfo !== undefined ? String(outsRecordedInfo.line) : ''
         const projectedOutsRecordedRaw =
             outsRecordedInfo !== undefined
@@ -1203,7 +1253,8 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedOutsRecorded =
             projectedOutsRecordedRaw !== null ? round3(projectedOutsRecordedRaw) : ''
 
-        const strikeoutsInfo = strikeoutsByName.get(normalizePlayerName(name))
+        const strikeoutsInfo =
+            strikeoutsByName.get(playerKeyWithTeam) ?? strikeoutsByName.get(playerKeyNameOnly)
         const strikeouts = strikeoutsInfo?.line ?? ''
         const projectedStrikeoutsRaw =
             strikeoutsInfo !== undefined
@@ -1215,7 +1266,7 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedStrikeouts =
             projectedStrikeoutsRaw !== null ? round3(projectedStrikeoutsRaw) : ''
 
-        const winsInfo = winsByName.get(normalizePlayerName(name))
+        const winsInfo = winsByName.get(playerKeyWithTeam) ?? winsByName.get(playerKeyNameOnly)
         const wins = winsInfo !== undefined ? 'Yes' : ''
         const winsOdds = winsInfo?.yesOdds ?? ''
         const projectedWins =

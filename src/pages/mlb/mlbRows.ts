@@ -144,7 +144,6 @@ type StolenBasesInfo = {
 type EarnedRunsSelection = {
     label?: string
     points?: number
-    outcomeType?: string
     displayOdds?: {
         american?: string
     }
@@ -156,10 +155,11 @@ type EarnedRunsSelection = {
 }
 
 type EarnedRunsInfo = {
-    line: number
-    overOdds: string
-    underOdds: string
+    line: string
+    threshold: number
     odds: string
+    probabilityRaw: number
+    preferred: boolean
 }
 
 type OutsRecordedSelection = {
@@ -185,8 +185,7 @@ type OutsRecordedInfo = {
 
 type StrikeoutsSelection = {
     label?: string
-    points?: number
-    outcomeType?: string
+    milestoneValue?: number
     displayOdds?: {
         american?: string
     }
@@ -198,10 +197,11 @@ type StrikeoutsSelection = {
 }
 
 type StrikeoutsInfo = {
-    line: number
-    overOdds: string
-    underOdds: string
+    line: string
+    threshold: number
     odds: string
+    probabilityRaw: number
+    preferred: boolean
 }
 
 type WinsSelection = {
@@ -352,6 +352,31 @@ function poissonCdfAtMostK(lambda: number, k: number): number {
     if (cdf <= 0) return 0
     if (cdf >= 1) return 1
     return cdf
+}
+
+function invertPoissonMeanFromAtMostK(pAtMostK: number, k: number): number | null {
+    if (!Number.isFinite(pAtMostK) || !Number.isFinite(k) || k < 0) return null
+
+    const p = clampProbability(pAtMostK)
+    let lo = 0
+    let hi = Math.max(1, k + 1)
+
+    // Expand upper bound until it brackets the target probability.
+    // For fixed k, P(X <= k) decreases as lambda increases.
+    for (let i = 0; i < 60 && poissonCdfAtMostK(hi, k) > p; i++) {
+        hi *= 2
+        if (hi > 256) break
+    }
+
+    for (let i = 0; i < 70; i++) {
+        const mid = (lo + hi) / 2
+        const pmid = poissonCdfAtMostK(mid, k)
+        if (pmid > p) lo = mid
+        else hi = mid
+    }
+
+    const lambda = (lo + hi) / 2
+    return Number.isFinite(lambda) ? lambda : null
 }
 
 function invertPoissonMeanFromAtLeastK(pAtLeastK: number, k: number): number | null {
@@ -760,92 +785,68 @@ function buildStolenBasesMap(): Map<string, StolenBasesInfo> {
 
 function buildEarnedRunsMap(): Map<string, EarnedRunsInfo> {
     const selections = getMergedSelectionsForStatPrefix<EarnedRunsSelection>('earnedruns')
-    type Group = {
-        line: number
-        overOdds: string
-        underOdds: string
-        hasOver: boolean
-        hasUnder: boolean
-        isMain: boolean
-        pOverRaw: number
-    }
-
-    const byPlayer = new Map<string, Map<number, Group>>()
+    const result = new Map<string, EarnedRunsInfo>()
 
     for (const selection of selections) {
-        const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
-        const outcomeNorm = outcome.trim().toLowerCase()
-        if (outcomeNorm !== 'over' && outcomeNorm !== 'under') continue
-
-        const line = typeof selection?.points === 'number' ? selection.points : null
-        if (line === null || !Number.isFinite(line) || line < 0) continue
-
         const participant = selection?.participants?.[0]
         const participantName =
             (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
         if (!participantName) continue
 
         const odds = selection?.displayOdds?.american?.trim() ?? ''
-        const parsed = odds ? parseAmericanOdds(odds) : null
-        if (!odds || parsed === null) continue
+        const parsedOdds = odds ? parseAmericanOdds(odds) : null
+        if (!odds || parsedOdds === null) continue
+
+        const probabilityRaw = impliedProbabilityFromAmericanOdds(parsedOdds)
+
+        const label = typeof selection?.label === 'string' ? selection.label.trim() : ''
+        const thresholdRaw =
+            typeof selection?.points === 'number' && Number.isFinite(selection.points)
+                ? selection.points
+                : (() => {
+                    const m = label.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
+
+        if (!Number.isFinite(thresholdRaw) || thresholdRaw < 0) continue
+
+        // Earned runs are discrete; treat "2 or fewer" like P(X <= 2).
+        const threshold = Math.floor(thresholdRaw)
+
+        const line = label || `${threshold} or fewer`
+        const preferred =
+            selection?.tags?.includes('MostBalancedOdds') ||
+            selection?.tags?.includes('MostBalancedGlobalProbability') ||
+            false
 
         const key = normalizePlayerName(participantName)
         if (!key) continue
 
-        const isMain = selection?.tags?.includes('MainPointLine') || false
-        const pRaw = impliedProbabilityFromAmericanOdds(parsed)
-
-        if (!byPlayer.has(key)) byPlayer.set(key, new Map())
-        const byLine = byPlayer.get(key)!
-
-        const existing = byLine.get(line)
-        const group: Group = existing ?? {
-            line,
-            overOdds: '',
-            underOdds: '',
-            hasOver: false,
-            hasUnder: false,
-            isMain: false,
-            pOverRaw: 0.5,
+        const existing = result.get(key)
+        if (!existing) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
         }
 
-        group.isMain = group.isMain || isMain
-
-        if (outcomeNorm === 'over') {
-            group.overOdds = odds
-            group.hasOver = true
-            group.pOverRaw = pRaw
-        } else {
-            group.underOdds = odds
-            group.hasUnder = true
+        if (preferred && !existing.preferred) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
         }
 
-        byLine.set(line, group)
-    }
+        if (!preferred && existing.preferred) continue
 
-    const result = new Map<string, EarnedRunsInfo>()
+        const existingBalance = Math.abs(existing.probabilityRaw - 0.5)
+        const incomingBalance = Math.abs(probabilityRaw - 0.5)
 
-    for (const [playerKey, byLine] of byPlayer.entries()) {
-        const candidates = Array.from(byLine.values()).filter((g) => g.hasOver && g.hasUnder)
-        if (candidates.length === 0) continue
+        if (incomingBalance < existingBalance) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
+        }
 
-        const mainCandidates = candidates.filter((c) => c.isMain)
-        const pool = mainCandidates.length > 0 ? mainCandidates : candidates
-
-        pool.sort((a, b) => {
-            const aBalance = Math.abs(a.pOverRaw - 0.5)
-            const bBalance = Math.abs(b.pOverRaw - 0.5)
-            if (aBalance !== bBalance) return aBalance - bBalance
-            return a.line - b.line
-        })
-
-        const best = pool[0]
-        result.set(playerKey, {
-            line: best.line,
-            overOdds: best.overOdds,
-            underOdds: best.underOdds,
-            odds: `O ${best.overOdds} / U ${best.underOdds}`,
-        })
+        if (incomingBalance === existingBalance && probabilityRaw > existing.probabilityRaw) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+        }
     }
 
     return result
@@ -946,26 +947,9 @@ function buildOutsRecordedMap(): Map<string, OutsRecordedInfo> {
 
 function buildStrikeoutsMap(): Map<string, StrikeoutsInfo> {
     const selections = getMergedSelectionsForStatPrefix<StrikeoutsSelection>('strikeouts')
-    type Group = {
-        line: number
-        overOdds: string
-        underOdds: string
-        hasOver: boolean
-        hasUnder: boolean
-        isMain: boolean
-        pOverRaw: number
-    }
-
-    const byPlayer = new Map<string, Map<number, Group>>()
+    const result = new Map<string, StrikeoutsInfo>()
 
     for (const selection of selections) {
-        const outcome = typeof selection?.outcomeType === 'string' ? selection.outcomeType : ''
-        const outcomeNorm = outcome.trim().toLowerCase()
-        if (outcomeNorm !== 'over' && outcomeNorm !== 'under') continue
-
-        const line = typeof selection?.points === 'number' ? selection.points : null
-        if (line === null || !Number.isFinite(line) || line < 0) continue
-
         const participant = selection?.participants?.[0]
         const participantName =
             (participant?.seoIdentifier?.trim() || participant?.name?.trim()) ?? ''
@@ -975,63 +959,57 @@ function buildStrikeoutsMap(): Map<string, StrikeoutsInfo> {
         const parsed = odds ? parseAmericanOdds(odds) : null
         if (!odds || parsed === null) continue
 
+        const probabilityRaw = impliedProbabilityFromAmericanOdds(parsed)
+
+        const label = typeof selection?.label === 'string' ? selection.label.trim() : ''
+        const milestone =
+            typeof selection?.milestoneValue === 'number' ? selection.milestoneValue : null
+        const line = label || (milestone !== null ? `${milestone}+` : '')
+        if (!line) continue
+
+        const threshold =
+            milestone !== null
+                ? milestone
+                : (() => {
+                    const m = line.match(/(\d+)/)
+                    const n = m ? Number(m[1]) : NaN
+                    return Number.isFinite(n) ? n : NaN
+                })()
+
+        if (!Number.isFinite(threshold) || threshold <= 0) continue
+
+        const preferred =
+            selection?.tags?.includes('MostBalancedOdds') ||
+            selection?.tags?.includes('MostBalancedGlobalProbability') ||
+            false
+
         const key = normalizePlayerName(participantName)
         if (!key) continue
 
-        const isMain = selection?.tags?.includes('MainPointLine') || false
-        const pRaw = impliedProbabilityFromAmericanOdds(parsed)
-
-        if (!byPlayer.has(key)) byPlayer.set(key, new Map())
-        const byLine = byPlayer.get(key)!
-
-        const existing = byLine.get(line)
-        const group: Group = existing ?? {
-            line,
-            overOdds: '',
-            underOdds: '',
-            hasOver: false,
-            hasUnder: false,
-            isMain: false,
-            pOverRaw: 0.5,
+        const existing = result.get(key)
+        if (!existing) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
         }
 
-        group.isMain = group.isMain || isMain
-
-        if (outcomeNorm === 'over') {
-            group.overOdds = odds
-            group.hasOver = true
-            group.pOverRaw = pRaw
-        } else {
-            group.underOdds = odds
-            group.hasUnder = true
+        if (preferred && !existing.preferred) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
         }
 
-        byLine.set(line, group)
-    }
+        if (!preferred && existing.preferred) continue
 
-    const result = new Map<string, StrikeoutsInfo>()
+        const existingBalance = Math.abs(existing.probabilityRaw - 0.5)
+        const incomingBalance = Math.abs(probabilityRaw - 0.5)
 
-    for (const [playerKey, byLine] of byPlayer.entries()) {
-        const candidates = Array.from(byLine.values()).filter((g) => g.hasOver && g.hasUnder)
-        if (candidates.length === 0) continue
+        if (incomingBalance < existingBalance) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+            continue
+        }
 
-        const mainCandidates = candidates.filter((c) => c.isMain)
-        const pool = mainCandidates.length > 0 ? mainCandidates : candidates
-
-        pool.sort((a, b) => {
-            const aBalance = Math.abs(a.pOverRaw - 0.5)
-            const bBalance = Math.abs(b.pOverRaw - 0.5)
-            if (aBalance !== bBalance) return aBalance - bBalance
-            return a.line - b.line
-        })
-
-        const best = pool[0]
-        result.set(playerKey, {
-            line: best.line,
-            overOdds: best.overOdds,
-            underOdds: best.underOdds,
-            odds: `O ${best.overOdds} / U ${best.underOdds}`,
-        })
+        if (incomingBalance === existingBalance && probabilityRaw > existing.probabilityRaw) {
+            result.set(key, { line, threshold, odds, probabilityRaw, preferred })
+        }
     }
 
     return result
@@ -1201,14 +1179,13 @@ export function buildRows(salariesSource: unknown): Row[] {
             projectedStolenBasesRaw !== null ? round3(projectedStolenBasesRaw) : ''
 
         const earnedRunsInfo = earnedRunsByName.get(normalizePlayerName(name))
-        const earnedRuns = earnedRunsInfo !== undefined ? String(earnedRunsInfo.line) : ''
+        const earnedRuns = earnedRunsInfo?.line ?? ''
         const projectedEarnedRunsRaw =
             earnedRunsInfo !== undefined
-                ? projectMeanPoissonFromOverUnder({
-                    line: earnedRunsInfo.line,
-                    overAmericanOdds: earnedRunsInfo.overOdds,
-                    underAmericanOdds: earnedRunsInfo.underOdds,
-                })
+                ? invertPoissonMeanFromAtMostK(
+                    earnedRunsInfo.probabilityRaw,
+                    earnedRunsInfo.threshold,
+                )
                 : null
         const projectedEarnedRuns =
             projectedEarnedRunsRaw !== null ? round3(projectedEarnedRunsRaw) : ''
@@ -1227,14 +1204,13 @@ export function buildRows(salariesSource: unknown): Row[] {
             projectedOutsRecordedRaw !== null ? round3(projectedOutsRecordedRaw) : ''
 
         const strikeoutsInfo = strikeoutsByName.get(normalizePlayerName(name))
-        const strikeouts = strikeoutsInfo !== undefined ? String(strikeoutsInfo.line) : ''
+        const strikeouts = strikeoutsInfo?.line ?? ''
         const projectedStrikeoutsRaw =
             strikeoutsInfo !== undefined
-                ? projectMeanPoissonFromOverUnder({
-                    line: strikeoutsInfo.line,
-                    overAmericanOdds: strikeoutsInfo.overOdds,
-                    underAmericanOdds: strikeoutsInfo.underOdds,
-                })
+                ? invertPoissonMeanFromAtLeastK(
+                    strikeoutsInfo.probabilityRaw,
+                    strikeoutsInfo.threshold,
+                )
                 : null
         const projectedStrikeouts =
             projectedStrikeoutsRaw !== null ? round3(projectedStrikeoutsRaw) : ''

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './PgaFullRoster.css'
 import statsJson from '../../sport/pga/stats.json'
@@ -275,6 +276,11 @@ function insertStateTopK(
   return copy
 }
 
+function countCommonPlayers(lineup1: LineupEntry[], lineup2: LineupEntry[]): number {
+  const names1 = new Set(lineup1.map((e) => e.name))
+  return lineup2.filter((e) => names1.has(e.name)).length
+}
+
 function buildTopLineups(
   allRows: Row[],
   lineupSize: number,
@@ -300,6 +306,9 @@ function buildTopLineups(
   if (candidates.length < lineupSize) return []
 
   // dp[count] = Map<salarySum, topKStates>
+  // Generate more candidates to filter for diversity constraint
+  const candidateMultiplier = 5
+  const dpK = k * candidateMultiplier
   const dp: Array<Map<number, KState[]>> = Array.from(
     { length: lineupSize + 1 },
     () => new Map(),
@@ -325,7 +334,7 @@ function buildTopLineups(
           }
 
           const existingList = dp[count + 1].get(newSalary) ?? []
-          const updated = insertStateTopK(existingList, nextState, k)
+          const updated = insertStateTopK(existingList, nextState, dpK)
           if (updated !== existingList) dp[count + 1].set(newSalary, updated)
           else if (!dp[count + 1].has(newSalary)) dp[count + 1].set(newSalary, existingList)
         }
@@ -361,22 +370,44 @@ function buildTopLineups(
     return b.totalSalary - a.totalSalary
   })
 
+  // Remove exact duplicates
   const unique: LineupResult[] = []
   const seen = new Set<string>()
   for (const r of allResults) {
     if (seen.has(r.key)) continue
     seen.add(r.key)
     unique.push(r)
-    if (unique.length >= k) break
   }
 
-  return unique
+  // Apply diversity constraint: no two lineups should have more than 4 players in common
+  const diverseLineups: LineupResult[] = []
+  const maxCommonPlayers = 4
+
+  for (const candidate of unique) {
+    let violatesConstraint = false
+
+    for (const selected of diverseLineups) {
+      if (countCommonPlayers(candidate.entries, selected.entries) > maxCommonPlayers) {
+        violatesConstraint = true
+        break
+      }
+    }
+
+    if (!violatesConstraint) {
+      diverseLineups.push(candidate)
+      if (diverseLineups.length >= k) break
+    }
+  }
+
+  return diverseLineups
 }
 
 const rows = buildRows()
 const topLineups = buildTopLineups(rows, 6, 60000, 30)
 
 export default function PgaFullRoster() {
+  const [activeTab, setActiveTab] = useState<'golfers' | 'lineups'>('golfers')
+
   return (
     <div>
       <header className="pageHeader">
@@ -386,29 +417,87 @@ export default function PgaFullRoster() {
         </p>
       </header>
 
-      <div className="tableWrap">
-        <h2>Top 30 Lineups (6 golfers, max $60,000)</h2>
-        {topLineups.length > 0 ? (
+      <div className="tabsBar" role="tablist" aria-label="PGA data sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'golfers'}
+          className={`tabButton ${activeTab === 'golfers' ? 'isActive' : ''}`}
+          onClick={() => setActiveTab('golfers')}
+        >
+          Golfers
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'lineups'}
+          className={`tabButton ${activeTab === 'lineups' ? 'isActive' : ''}`}
+          onClick={() => setActiveTab('lineups')}
+        >
+          Lineups
+        </button>
+      </div>
+
+      {activeTab === 'lineups' ? (
+        <div className="tableWrap">
+          <h2>Top 30 Lineups (6 golfers, max $60,000)</h2>
+          {topLineups.length > 0 ? (
+            <table className="dataTable">
+              <thead>
+                <tr>
+                  <th scope="col">Lineup</th>
+                  <th scope="col">Golfers</th>
+                  <th scope="col">Total Probability</th>
+                  <th scope="col">Total Salary</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topLineups.map((l, idx) => (
+                  <tr key={l.key}>
+                    <td>{idx + 1}</td>
+                    <td>{l.entries.map((p) => p.name).join(', ')}</td>
+                    <td>{round4(l.totalProbability)}</td>
+                    <td>{l.totalSalary}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>Unable to compute lineups from the available data.</p>
+          )}
+        </div>
+      ) : (
+        <div className="tableWrap">
           <table className="dataTable">
             <thead>
               <tr>
+<<<<<<< Updated upstream
                 <th scope="col">#</th>
                 <th scope="col">Golfers</th>
                 <th scope="col">Total Probability</th>
                 <th scope="col">Total Salary</th>
+=======
+                <th scope="col">Name</th>
+                <th scope="col">Odds of Finishing Top 10</th>
+                <th scope="col">Probability</th>
+                <th scope="col">Salary</th>
+                <th scope="col">Value</th>
+>>>>>>> Stashed changes
               </tr>
             </thead>
             <tbody>
-              {topLineups.map((l, idx) => (
-                <tr key={l.key}>
-                  <td>{idx + 1}</td>
-                  <td>{l.entries.map((p) => p.name).join(', ')}</td>
-                  <td>{round4(l.totalProbability)}</td>
-                  <td>{l.totalSalary}</td>
+              {rows.map((r) => (
+                <tr key={r.name}>
+                  <td>{r.name}</td>
+                  <td>{r.odds}</td>
+                  <td>{r.probability}</td>
+                  <td>{r.salary}</td>
+                  <td>{r.value}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+<<<<<<< Updated upstream
         ) : (
           <p>Unable to compute lineups from the available data.</p>
         )}
@@ -440,6 +529,10 @@ export default function PgaFullRoster() {
           </tbody>
         </table>
       </div>
+=======
+        </div>
+      )}
+>>>>>>> Stashed changes
     </div>
   )
 }

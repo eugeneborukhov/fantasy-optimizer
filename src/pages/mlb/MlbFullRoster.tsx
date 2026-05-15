@@ -61,6 +61,7 @@ export default function MlbFullRoster() {
     const rows = useMemo(() => buildRows(fullRosterSalariesJson), [])
     const pitchers = rows.filter((r) => r.position === 'P')
     const hitters = rows.filter((r) => r.position !== 'P')
+    const [activeTab, setActiveTab] = useState<'batters' | 'pitchers' | 'lineups'>('batters')
 
     const games = useMemo(() => {
         const set = new Set<string>()
@@ -94,6 +95,7 @@ export default function MlbFullRoster() {
 
     const [optimalLineup, setOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [secondOptimalLineup, setSecondOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [thirdOptimalLineup, setThirdOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [lineupStatus, setLineupStatus] = useState<'idle' | 'solving' | 'done' | 'error'>('idle')
     const [lineupError, setLineupError] = useState<string>('')
 
@@ -106,6 +108,7 @@ export default function MlbFullRoster() {
             setLineupError('')
             setOptimalLineup(null)
             setSecondOptimalLineup(null)
+            setThirdOptimalLineup(null)
 
             try {
                 const result = await optimizeMlbLineup({
@@ -141,8 +144,27 @@ export default function MlbFullRoster() {
                     },
                 })
 
+                const secondPlayerIds = second
+                    ? Array.from(new Set(Object.values(second.playersBySlot).map((p) => p.id)))
+                    : []
+
+                const excludedLineupsByPlayerIds = [bestPlayerIds]
+                if (secondPlayerIds.length > 0) excludedLineupsByPlayerIds.push(secondPlayerIds)
+
+                const third = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
                 setOptimalLineup(result)
                 setSecondOptimalLineup(second)
+                setThirdOptimalLineup(third)
                 setLineupStatus('done')
             } catch (err) {
                 if (cancelled) return
@@ -167,22 +189,39 @@ export default function MlbFullRoster() {
                 </p>
             </header>
 
-            <h2 className="sectionTitle">Hitters</h2>
-            <DataTable rows={hitters} columns={HITTER_COLUMNS} />
+            <div className="tabsBar" role="tablist" aria-label="MLB data sections">
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'batters'}
+                    className={`tabButton ${activeTab === 'batters' ? 'isActive' : ''}`}
+                    onClick={() => setActiveTab('batters')}
+                >
+                    Batters
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'pitchers'}
+                    className={`tabButton ${activeTab === 'pitchers' ? 'isActive' : ''}`}
+                    onClick={() => setActiveTab('pitchers')}
+                >
+                    Pitchers
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === 'lineups'}
+                    className={`tabButton ${activeTab === 'lineups' ? 'isActive' : ''}`}
+                    onClick={() => setActiveTab('lineups')}
+                >
+                    Lineups
+                </button>
+            </div>
 
-            <h2 className="sectionTitle">Pitchers</h2>
-            <DataTable rows={pitchers} columns={PITCHER_COLUMNS} />
-
-            <h2 className="sectionTitle">Optimal Lineup</h2>
-            <p>Salary cap: $35,000</p>
-            {optimizerPlayers.length === 0 ? (
-                <p>No players available for optimization (check exclusions, projections, and salary).</p>
-            ) : lineupStatus === 'solving' ? (
-                <p>Solving...</p>
-            ) : lineupStatus === 'error' ? (
-                <p>{lineupError}</p>
-            ) : optimalLineup ? (
+            {activeTab === 'batters' ? (
                 <>
+<<<<<<< Updated upstream
                     <div className="tableWrap">
                         <table className="dataTable">
                             <thead>
@@ -255,36 +294,174 @@ export default function MlbFullRoster() {
                     ) : (
                         <p>No 2nd-best distinct lineup found.</p>
                     )}
+=======
+                    <h2 className="sectionTitle">Hitters</h2>
+                    <DataTable rows={hitters} columns={HITTER_COLUMNS} />
+>>>>>>> Stashed changes
                 </>
             ) : null}
 
-            <h2 className="sectionTitle">Exclude Game(s)</h2>
-            {games.length === 0 ? (
-                <p>No games found.</p>
-            ) : (
-                <div className="excludeGamesWrap">
-                    <div className="excludeGamesList">
-                        {games.map((game) => (
-                            <label key={game} className="excludeGameItem">
-                                <input
-                                    type="checkbox"
-                                    checked={excludedGamesSet.has(game)}
-                                    onChange={(e) => {
-                                        const checked = e.currentTarget.checked
-                                        setExcludedGames((prev) => {
-                                            const next = new Set(prev)
-                                            if (checked) next.add(game)
-                                            else next.delete(game)
-                                            return Array.from(next)
-                                        })
-                                    }}
-                                />
-                                <span>{game}</span>
-                            </label>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {activeTab === 'pitchers' ? (
+                <>
+                    <h2 className="sectionTitle">Pitchers</h2>
+                    <DataTable rows={pitchers} columns={PITCHER_COLUMNS} />
+                </>
+            ) : null}
+
+            {activeTab === 'lineups' ? (
+                <>
+                    <h2 className="sectionTitle">Optimal Lineup</h2>
+                    {optimizerPlayers.length === 0 ? (
+                        <p>No players available for optimization (check exclusions, projections, and salary).</p>
+                    ) : lineupStatus === 'solving' ? (
+                        <p>Solving...</p>
+                    ) : lineupStatus === 'error' ? (
+                        <p>{lineupError}</p>
+                    ) : optimalLineup ? (
+                        <>
+                            <div className="lineupsRow">
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">Optimal Lineup</h2>
+                                    <div className="tableWrap">
+                                        <table className="dataTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Slot</th>
+                                                    <th scope="col">Name</th>
+                                                    <th scope="col">Salary</th>
+                                                    <th scope="col">Fantasy Points</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {MLB_DK_SLOTS.map((slot) => {
+                                                    const p = optimalLineup.playersBySlot[slot.key]
+                                                    return (
+                                                        <tr key={slot.key}>
+                                                            <td>{slot.label}</td>
+                                                            <td>{p.name}</td>
+                                                            <td>{p.salary}</td>
+                                                            <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                                <tr>
+                                                    <td colSpan={2}>Total</td>
+                                                    <td>{optimalLineup.totalSalary}</td>
+                                                    <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">2nd Optimal Lineup</h2>
+                                    {secondOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = secondOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{secondOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(secondOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 2nd-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">3rd Optimal Lineup</h2>
+                                    {thirdOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = thirdOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{thirdOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(thirdOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 3rd-best distinct lineup found.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </>
+                    ) : null}
+
+                    <h2 className="sectionTitle">Exclude Game(s)</h2>
+                    {games.length === 0 ? (
+                        <p>No games found.</p>
+                    ) : (
+                        <div className="excludeGamesWrap">
+                            <div className="excludeGamesList">
+                                {games.map((game) => (
+                                    <label key={game} className="excludeGameItem">
+                                        <input
+                                            type="checkbox"
+                                            checked={excludedGamesSet.has(game)}
+                                            onChange={(e) => {
+                                                const checked = e.currentTarget.checked
+                                                setExcludedGames((prev) => {
+                                                    const next = new Set(prev)
+                                                    if (checked) next.add(game)
+                                                    else next.delete(game)
+                                                    return Array.from(next)
+                                                })
+                                            }}
+                                        />
+                                        <span>{game}</span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </>
+            ) : null}
         </div>
     )
 }

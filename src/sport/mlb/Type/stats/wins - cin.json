@@ -1,0 +1,167 @@
+{
+  "markets": [
+    {
+      "id": "334317651",
+      "eventId": "34144808",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Chase Burns Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--269231187",
+      "sortOrder": 1,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34144808|14017|2:201974",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334317851",
+      "eventId": "34144808",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Foster Griffin Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--269231187",
+      "sortOrder": 2,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34144808|14017|2:106442",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334317651#2150653666_13L84240Q11581306583Q20",
+      "marketId": "334317651",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B124",
+        "decimal": "2.24",
+        "fractional": "31/25"
+      },
+      "trueOdds": 2.24,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "804441",
+          "name": "Chase Burns",
+          "type": "Player",
+          "seoIdentifier": "Chase Burns",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "201974" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334317651#2150653672_13L84240Q1-1312278408Q20",
+      "marketId": "334317651",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212172",
+        "decimal": "1.58",
+        "fractional": "25/43"
+      },
+      "trueOdds": 1.58139535,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "804441",
+          "name": "Chase Burns",
+          "type": "Player",
+          "seoIdentifier": "Chase Burns",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "201974" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334317851#2150655110_13L84240Q11581306583Q20",
+      "marketId": "334317851",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B234",
+        "decimal": "3.34",
+        "fractional": "117/50"
+      },
+      "trueOdds": 3.34,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "110892",
+          "name": "Foster Griffin",
+          "type": "Player",
+          "seoIdentifier": "Foster Griffin",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106442" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334317851#2150655177_13L84240Q1-1312278408Q20",
+      "marketId": "334317851",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212338",
+        "decimal": "1.29",
+        "fractional": "50/169"
+      },
+      "trueOdds": 1.29585799,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "110892",
+          "name": "Foster Griffin",
+          "type": "Player",
+          "seoIdentifier": "Foster Griffin",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106442" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets--269231187": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734144808\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

@@ -645,6 +645,7 @@ function lineupFromOptimized(
 }
 
 export default function NbaFullRoster() {
+  const [activeTab, setActiveTab] = useState<"players" | "lineups">("players");
   const optimizerPlayers = useMemo((): MlbLineupPlayer[] => {
     const salaryCap = 60000;
 
@@ -784,8 +785,30 @@ export default function NbaFullRoster() {
         <Link to="/">Back to Home</Link>
       </header>
 
+      <div className="tabsBar" role="tablist" aria-label="NBA data sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "players"}
+          className={`tabButton ${activeTab === "players" ? "isActive" : ""}`}
+          onClick={() => setActiveTab("players")}
+        >
+          Players
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "lineups"}
+          className={`tabButton ${activeTab === "lineups" ? "isActive" : ""}`}
+          onClick={() => setActiveTab("lineups")}
+        >
+          Lineups
+        </button>
+      </div>
+
       <main className="pageMain">
         <div className="tableWrap">
+<<<<<<< Updated upstream
           <table className="dataTable">
             <thead>
               <tr>
@@ -892,9 +915,27 @@ export default function NbaFullRoster() {
                       {typeof optimal.totals.fantasyPoints === "number"
                         ? optimal.totals.fantasyPoints.toFixed(2)
                         : optimal.totals.fantasyPoints}
+=======
+          {activeTab === "players" ? (
+            <table className="dataTable">
+              <thead>
+                <tr>
+                  {columns.map((c) => (
+                    <th key={c.key} scope="col">
+                      {c.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td className="emptyCell" colSpan={columns.length}>
+                      No data yet
+>>>>>>> Stashed changes
                     </td>
-                    <td>{optimal.totals.value}</td>
                   </tr>
+<<<<<<< Updated upstream
                 </tbody>
               </table>
             </div>
@@ -979,6 +1020,176 @@ export default function NbaFullRoster() {
               </table>
             </div>
           </div>
+=======
+                ) : (
+                  rows.map((row) => (
+                    <tr key={row.name}>
+                      {columns.map((c) => (
+                        <td key={c.key}>{row[c.key] ?? ""}</td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          ) : (
+            <>
+              <div className="restrictPanel">
+                <h2 className="sectionTitle">Restrict</h2>
+                <div className="radioRow" role="radiogroup" aria-label="Restrict max players from one team">
+                  <label>
+                    <input
+                      type="radio"
+                      name="restrict"
+                      value="none"
+                      checked={maxPlayersPerTeam === null}
+                      onChange={() => setMaxPlayersPerTeam(null)}
+                    />
+                    None
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="restrict"
+                      value="2"
+                      checked={maxPlayersPerTeam === 2}
+                      onChange={() => setMaxPlayersPerTeam(2)}
+                    />
+                    2
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="restrict"
+                      value="3"
+                      checked={maxPlayersPerTeam === 3}
+                      onChange={() => setMaxPlayersPerTeam(3)}
+                    />
+                    3
+                  </label>
+                </div>
+              </div>
+
+              <div className="lineupsRow">
+                <div className="lineupPanel">
+                  <h2 className="sectionTitle">Optimal Lineup</h2>
+                  {lineupStatus === "error" ? (
+                    <div className="emptyCell">{lineupError || "Lineup solve failed"}</div>
+                  ) : lineupStatus === "solving" ? (
+                    <div className="emptyCell">Solving…</div>
+                  ) : null}
+                  <table className="dataTable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Fantasy Points</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {optimal.rows.map((r, idx) => (
+                        <tr key={idx}>
+                          <td>{r.name}</td>
+                          <td>{r.position}</td>
+                          <td>{r.salary}</td>
+                          <td>{r.fantasyPoints}</td>
+                          <td>{r.value}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td>{optimal.totals.name}</td>
+                        <td>{optimal.totals.position}</td>
+                        <td>{optimal.totals.salary}</td>
+                        <td>
+                          {typeof optimal.totals.fantasyPoints === "number"
+                            ? optimal.totals.fantasyPoints.toFixed(2)
+                            : optimal.totals.fantasyPoints}
+                        </td>
+                        <td>{optimal.totals.value}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="lineupPanel">
+                  <h2 className="sectionTitle">Second Best Lineup</h2>
+                  <table className="dataTable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Fantasy Points</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {secondBest.rows.map((r, idx) => (
+                        <tr key={idx}>
+                          <td>{r.name}</td>
+                          <td>{r.position}</td>
+                          <td>{r.salary}</td>
+                          <td>{r.fantasyPoints}</td>
+                          <td>{r.value}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td>{secondBest.totals.name}</td>
+                        <td>{secondBest.totals.position}</td>
+                        <td>{secondBest.totals.salary}</td>
+                        <td>
+                          {typeof secondBest.totals.fantasyPoints === "number"
+                            ? secondBest.totals.fantasyPoints.toFixed(2)
+                            : secondBest.totals.fantasyPoints}
+                        </td>
+                        <td>{secondBest.totals.value}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="lineupPanel">
+                  <h2 className="sectionTitle">Third Best Lineup</h2>
+                  <table className="dataTable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Fantasy Points</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {thirdBest.rows.map((r, idx) => (
+                        <tr key={idx}>
+                          <td>{r.name}</td>
+                          <td>{r.position}</td>
+                          <td>{r.salary}</td>
+                          <td>{r.fantasyPoints}</td>
+                          <td>{r.value}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td>{thirdBest.totals.name}</td>
+                        <td>{thirdBest.totals.position}</td>
+                        <td>{thirdBest.totals.salary}</td>
+                        <td>
+                          {typeof thirdBest.totals.fantasyPoints === "number"
+                            ? thirdBest.totals.fantasyPoints.toFixed(2)
+                            : thirdBest.totals.fantasyPoints}
+                        </td>
+                        <td>{thirdBest.totals.value}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+>>>>>>> Stashed changes
         </div>
       </main>
     </div>

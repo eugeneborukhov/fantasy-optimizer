@@ -7,6 +7,28 @@
     margin: 0 0 0.5rem;
 }
 
+.tabsBar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 0 16px 8px;
+}
+
+.tabButton {
+    border: 1px solid currentColor;
+    background: transparent;
+    color: inherit;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.tabButton.isActive {
+    background: rgba(127, 127, 127, 0.22);
+}
+
 .tableWrap {
     padding: 16px;
     overflow: auto;
@@ -28,6 +50,22 @@
 .sectionTitle {
     margin: 24px 0 12px;
     text-align: center;
+}
+
+.lineupsRow {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.lineupPanel {
+    width: max-content;
+}
+
+.lineupPanel .tableWrap {
+    padding-top: 0;
 }
 
 .emptyCell {

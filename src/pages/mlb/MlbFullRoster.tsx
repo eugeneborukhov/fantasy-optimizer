@@ -21,6 +21,7 @@ function DataTable({ rows, columns }: { rows: Row[]; columns: Column[] }) {
             <table className="dataTable">
                 <thead>
                     <tr>
+                        <th scope="col">#</th>
                         {columns.map((c) => (
                             <th scope="col" key={c.key}>
                                 {c.label}
@@ -29,8 +30,9 @@ function DataTable({ rows, columns }: { rows: Row[]; columns: Column[] }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {rows.map((row) => (
+                    {rows.map((row, idx) => (
                         <tr key={row.key}>
+                            <td>{idx + 1}</td>
                             {columns.map((c) => {
                                 const v = cellValue(row, c.key)
                                 const empty = v === ''
@@ -185,6 +187,7 @@ export default function MlbFullRoster() {
                         <table className="dataTable">
                             <thead>
                                 <tr>
+                                    <th scope="col">#</th>
                                     <th scope="col">Slot</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Salary</th>
@@ -192,10 +195,11 @@ export default function MlbFullRoster() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {MLB_DK_SLOTS.map((slot) => {
+                                {MLB_DK_SLOTS.map((slot, idx) => {
                                     const p = optimalLineup.playersBySlot[slot.key]
                                     return (
                                         <tr key={slot.key}>
+                                            <td>{idx + 1}</td>
                                             <td>{slot.label}</td>
                                             <td>{p.name}</td>
                                             <td>{p.salary}</td>
@@ -204,6 +208,7 @@ export default function MlbFullRoster() {
                                     )
                                 })}
                                 <tr>
+                                    <td />
                                     <td colSpan={2}>Total</td>
                                     <td>{optimalLineup.totalSalary}</td>
                                     <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
@@ -218,6 +223,7 @@ export default function MlbFullRoster() {
                             <table className="dataTable">
                                 <thead>
                                     <tr>
+                                        <th scope="col">#</th>
                                         <th scope="col">Slot</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Salary</th>
@@ -225,10 +231,11 @@ export default function MlbFullRoster() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {MLB_DK_SLOTS.map((slot) => {
+                                    {MLB_DK_SLOTS.map((slot, idx) => {
                                         const p = secondOptimalLineup.playersBySlot[slot.key]
                                         return (
                                             <tr key={slot.key}>
+                                                <td>{idx + 1}</td>
                                                 <td>{slot.label}</td>
                                                 <td>{p.name}</td>
                                                 <td>{p.salary}</td>
@@ -237,6 +244,7 @@ export default function MlbFullRoster() {
                                         )
                                     })}
                                     <tr>
+                                        <td />
                                         <td colSpan={2}>Total</td>
                                         <td>{secondOptimalLineup.totalSalary}</td>
                                         <td>{Math.round(secondOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>

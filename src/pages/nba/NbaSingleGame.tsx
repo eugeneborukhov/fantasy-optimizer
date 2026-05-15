@@ -731,6 +731,7 @@ export default function NbaSingleGame() {
           <table className="dataTable">
             <thead>
               <tr>
+                <th scope="col">#</th>
                 {columns.map((c) => (
                   <th key={c.key} scope="col">
                     {c.label}
@@ -741,13 +742,14 @@ export default function NbaSingleGame() {
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td className="emptyCell" colSpan={columns.length}>
+                  <td className="emptyCell" colSpan={columns.length + 1}>
                     No data yet
                   </td>
                 </tr>
               ) : (
-                rows.map((row) => (
+                rows.map((row, idx) => (
                   <tr key={row.name}>
+                    <td>{idx + 1}</td>
                     {columns.map((c) => (
                       <td key={c.key}>{row[c.key] ?? ""}</td>
                     ))}
@@ -768,6 +770,7 @@ export default function NbaSingleGame() {
               <table className="dataTable">
                 <thead>
                   <tr>
+                    <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Position</th>
                     <th scope="col">Salary</th>
@@ -778,6 +781,7 @@ export default function NbaSingleGame() {
                 <tbody>
                   {optimal.rows.map((r, idx) => (
                     <tr key={idx}>
+                      <td>{idx + 1}</td>
                       <td>{r.name}</td>
                       <td>{r.position}</td>
                       <td>{r.salary}</td>
@@ -786,6 +790,7 @@ export default function NbaSingleGame() {
                     </tr>
                   ))}
                   <tr>
+                    <td />
                     <td>{optimal.totals.name}</td>
                     <td>{optimal.totals.position}</td>
                     <td>{optimal.totals.salary}</td>
@@ -805,6 +810,7 @@ export default function NbaSingleGame() {
               <table className="dataTable">
                 <thead>
                   <tr>
+                    <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Position</th>
                     <th scope="col">Salary</th>
@@ -815,6 +821,7 @@ export default function NbaSingleGame() {
                 <tbody>
                   {secondBest.rows.map((r, idx) => (
                     <tr key={idx}>
+                      <td>{idx + 1}</td>
                       <td>{r.name}</td>
                       <td>{r.position}</td>
                       <td>{r.salary}</td>
@@ -823,6 +830,7 @@ export default function NbaSingleGame() {
                     </tr>
                   ))}
                   <tr>
+                    <td />
                     <td>{secondBest.totals.name}</td>
                     <td>{secondBest.totals.position}</td>
                     <td>{secondBest.totals.salary}</td>
@@ -842,6 +850,7 @@ export default function NbaSingleGame() {
               <table className="dataTable">
                 <thead>
                   <tr>
+                    <th scope="col">#</th>
                     <th scope="col">Name</th>
                     <th scope="col">Position</th>
                     <th scope="col">Salary</th>
@@ -852,6 +861,7 @@ export default function NbaSingleGame() {
                 <tbody>
                   {thirdBest.rows.map((r, idx) => (
                     <tr key={idx}>
+                      <td>{idx + 1}</td>
                       <td>{r.name}</td>
                       <td>{r.position}</td>
                       <td>{r.salary}</td>
@@ -860,6 +870,7 @@ export default function NbaSingleGame() {
                     </tr>
                   ))}
                   <tr>
+                    <td />
                     <td>{thirdBest.totals.name}</td>
                     <td>{thirdBest.totals.position}</td>
                     <td>{thirdBest.totals.salary}</td>

@@ -23,6 +23,7 @@ export default function Home() {
         <table className="menuTable">
           <thead>
             <tr>
+              <th scope="col">#</th>
               <th scope="col">Sport</th>
               {types.map((t) => (
                 <th scope="col" key={t.slug}>
@@ -32,8 +33,9 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {sports.map((s) => (
+            {sports.map((s, idx) => (
               <tr key={s.slug}>
+                <td>{idx + 1}</td>
                 <th scope="row">{s.label}</th>
                 {types.map((t) => (
                   <td key={`${s.slug}:${t.slug}`}>

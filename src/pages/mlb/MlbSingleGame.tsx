@@ -26,6 +26,7 @@ function DataTable({ rows, columns }: { rows: Row[]; columns: Column[] }) {
             <table className="dataTable">
                 <thead>
                     <tr>
+                        <th scope="col">#</th>
                         {columns.map((c) => (
                             <th scope="col" key={String(c.key)}>
                                 {c.label}
@@ -34,8 +35,9 @@ function DataTable({ rows, columns }: { rows: Row[]; columns: Column[] }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {rows.map((row) => (
+                    {rows.map((row, idx) => (
                         <tr key={row.key}>
+                            <td>{idx + 1}</td>
                             {columns.map((c) => {
                                 const v = cellValue(row, c.key)
                                 const empty = v === ''
@@ -287,6 +289,7 @@ export default function MlbSingleGame() {
                         <table className="dataTable">
                             <thead>
                                 <tr>
+                                    <th scope="col">#</th>
                                     <th scope="col">Slot</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Salary</th>
@@ -294,7 +297,7 @@ export default function MlbSingleGame() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {MLB_SINGLE_GAME_SLOTS.map((slot) => {
+                                {MLB_SINGLE_GAME_SLOTS.map((slot, idx) => {
                                     const p = optimalLineup.playersBySlot[slot.key]
                                     const salaryMult = slot.salaryMultiplier ?? 1
                                     const pointsMult = slot.fantasyPointsMultiplier ?? 1
@@ -302,6 +305,7 @@ export default function MlbSingleGame() {
                                     if (!p) {
                                         return (
                                             <tr key={slot.key}>
+                                                <td>{idx + 1}</td>
                                                 <td>{slot.label}</td>
                                                 <td />
                                                 <td />
@@ -312,6 +316,7 @@ export default function MlbSingleGame() {
 
                                     return (
                                         <tr key={slot.key}>
+                                            <td>{idx + 1}</td>
                                             <td>{slot.label}</td>
                                             <td>{p.name}</td>
                                             <td>{Math.round(p.salary * salaryMult)}</td>
@@ -323,6 +328,7 @@ export default function MlbSingleGame() {
                                     )
                                 })}
                                 <tr>
+                                    <td />
                                     <td colSpan={2}>Total</td>
                                     <td>{Math.round(optimalLineup.totalSalary)}</td>
                                     <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
@@ -337,6 +343,7 @@ export default function MlbSingleGame() {
                             <table className="dataTable">
                                 <thead>
                                     <tr>
+                                        <th scope="col">#</th>
                                         <th scope="col">Slot</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Salary</th>
@@ -344,7 +351,7 @@ export default function MlbSingleGame() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {MLB_SINGLE_GAME_SLOTS.map((slot) => {
+                                    {MLB_SINGLE_GAME_SLOTS.map((slot, idx) => {
                                         const p = secondOptimalLineup.playersBySlot[slot.key]
                                         const salaryMult = slot.salaryMultiplier ?? 1
                                         const pointsMult = slot.fantasyPointsMultiplier ?? 1
@@ -352,6 +359,7 @@ export default function MlbSingleGame() {
                                         if (!p) {
                                             return (
                                                 <tr key={slot.key}>
+                                                    <td>{idx + 1}</td>
                                                     <td>{slot.label}</td>
                                                     <td />
                                                     <td />
@@ -362,6 +370,7 @@ export default function MlbSingleGame() {
 
                                         return (
                                             <tr key={slot.key}>
+                                                <td>{idx + 1}</td>
                                                 <td>{slot.label}</td>
                                                 <td>{p.name}</td>
                                                 <td>{Math.round(p.salary * salaryMult)}</td>
@@ -374,6 +383,7 @@ export default function MlbSingleGame() {
                                         )
                                     })}
                                     <tr>
+                                        <td />
                                         <td colSpan={2}>Total</td>
                                         <td>{Math.round(secondOptimalLineup.totalSalary)}</td>
                                         <td>
@@ -394,6 +404,7 @@ export default function MlbSingleGame() {
                             <table className="dataTable">
                                 <thead>
                                     <tr>
+                                        <th scope="col">#</th>
                                         <th scope="col">Slot</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Salary</th>
@@ -401,7 +412,7 @@ export default function MlbSingleGame() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {MLB_SINGLE_GAME_SLOTS.map((slot) => {
+                                    {MLB_SINGLE_GAME_SLOTS.map((slot, idx) => {
                                         const p = thirdOptimalLineup.playersBySlot[slot.key]
                                         const salaryMult = slot.salaryMultiplier ?? 1
                                         const pointsMult = slot.fantasyPointsMultiplier ?? 1
@@ -409,6 +420,7 @@ export default function MlbSingleGame() {
                                         if (!p) {
                                             return (
                                                 <tr key={slot.key}>
+                                                    <td>{idx + 1}</td>
                                                     <td>{slot.label}</td>
                                                     <td />
                                                     <td />
@@ -419,6 +431,7 @@ export default function MlbSingleGame() {
 
                                         return (
                                             <tr key={slot.key}>
+                                                <td>{idx + 1}</td>
                                                 <td>{slot.label}</td>
                                                 <td>{p.name}</td>
                                                 <td>{Math.round(p.salary * salaryMult)}</td>
@@ -431,6 +444,7 @@ export default function MlbSingleGame() {
                                         )
                                     })}
                                     <tr>
+                                        <td />
                                         <td colSpan={2}>Total</td>
                                         <td>{Math.round(thirdOptimalLineup.totalSalary)}</td>
                                         <td>

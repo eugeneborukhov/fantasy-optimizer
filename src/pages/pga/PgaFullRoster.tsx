@@ -392,7 +392,7 @@ export default function PgaFullRoster() {
           <table className="dataTable">
             <thead>
               <tr>
-                <th scope="col">Lineup</th>
+                <th scope="col">#</th>
                 <th scope="col">Golfers</th>
                 <th scope="col">Total Probability</th>
                 <th scope="col">Total Salary</th>
@@ -418,6 +418,7 @@ export default function PgaFullRoster() {
         <table className="dataTable">
           <thead>
             <tr>
+              <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">Odds of Finishing Top 10</th>
               <th scope="col">Probability</th>
@@ -426,8 +427,9 @@ export default function PgaFullRoster() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {rows.map((r, idx) => (
               <tr key={r.name}>
+                <td>{idx + 1}</td>
                 <td>{r.name}</td>
                 <td>{r.odds}</td>
                 <td>{r.probability}</td>

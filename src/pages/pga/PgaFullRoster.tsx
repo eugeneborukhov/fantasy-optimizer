@@ -471,18 +471,11 @@ export default function PgaFullRoster() {
           <table className="dataTable">
             <thead>
               <tr>
-<<<<<<< Updated upstream
-                <th scope="col">#</th>
-                <th scope="col">Golfers</th>
-                <th scope="col">Total Probability</th>
-                <th scope="col">Total Salary</th>
-=======
                 <th scope="col">Name</th>
                 <th scope="col">Odds of Finishing Top 10</th>
                 <th scope="col">Probability</th>
                 <th scope="col">Salary</th>
                 <th scope="col">Value</th>
->>>>>>> Stashed changes
               </tr>
             </thead>
             <tbody>
@@ -497,42 +490,8 @@ export default function PgaFullRoster() {
               ))}
             </tbody>
           </table>
-<<<<<<< Updated upstream
-        ) : (
-          <p>Unable to compute lineups from the available data.</p>
-        )}
-      </div>
-
-      <div className="tableWrap">
-        <table className="dataTable">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Odds of Finishing Top 10</th>
-              <th scope="col">Probability</th>
-              <th scope="col">Salary</th>
-              <th scope="col">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, idx) => (
-              <tr key={r.name}>
-                <td>{idx + 1}</td>
-                <td>{r.name}</td>
-                <td>{r.odds}</td>
-                <td>{r.probability}</td>
-                <td>{r.salary}</td>
-                <td>{r.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-=======
         </div>
       )}
->>>>>>> Stashed changes
     </div>
   )
 }

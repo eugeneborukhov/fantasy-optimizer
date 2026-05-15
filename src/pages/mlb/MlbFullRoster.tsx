@@ -221,83 +221,8 @@ export default function MlbFullRoster() {
 
             {activeTab === 'batters' ? (
                 <>
-<<<<<<< Updated upstream
-                    <div className="tableWrap">
-                        <table className="dataTable">
-                            <thead>
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Slot</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Salary</th>
-                                    <th scope="col">Fantasy Points</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {MLB_DK_SLOTS.map((slot, idx) => {
-                                    const p = optimalLineup.playersBySlot[slot.key]
-                                    return (
-                                        <tr key={slot.key}>
-                                            <td>{idx + 1}</td>
-                                            <td>{slot.label}</td>
-                                            <td>{p.name}</td>
-                                            <td>{p.salary}</td>
-                                            <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
-                                        </tr>
-                                    )
-                                })}
-                                <tr>
-                                    <td />
-                                    <td colSpan={2}>Total</td>
-                                    <td>{optimalLineup.totalSalary}</td>
-                                    <td>{Math.round(optimalLineup.totalFantasyPoints * 1000) / 1000}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <h2 className="sectionTitle">2nd Optimal Lineup</h2>
-                    {secondOptimalLineup ? (
-                        <div className="tableWrap">
-                            <table className="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Slot</th>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Salary</th>
-                                        <th scope="col">Fantasy Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {MLB_DK_SLOTS.map((slot, idx) => {
-                                        const p = secondOptimalLineup.playersBySlot[slot.key]
-                                        return (
-                                            <tr key={slot.key}>
-                                                <td>{idx + 1}</td>
-                                                <td>{slot.label}</td>
-                                                <td>{p.name}</td>
-                                                <td>{p.salary}</td>
-                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                    <tr>
-                                        <td />
-                                        <td colSpan={2}>Total</td>
-                                        <td>{secondOptimalLineup.totalSalary}</td>
-                                        <td>{Math.round(secondOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (
-                        <p>No 2nd-best distinct lineup found.</p>
-                    )}
-=======
                     <h2 className="sectionTitle">Hitters</h2>
                     <DataTable rows={hitters} columns={HITTER_COLUMNS} />
->>>>>>> Stashed changes
                 </>
             ) : null}
 

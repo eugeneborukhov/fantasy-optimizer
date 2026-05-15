@@ -687,15 +687,15 @@ export default function NbaSingleGame() {
         const third =
           bestIds.length > 0 && secondIds.length > 0
             ? await optimizeMlbLineup({
-                players: optimizerPlayers,
-                salaryCap: 60000,
-                slots: NBA_SINGLE_GAME_SLOTS,
-                maxPlayersPerTeamByPositions: {
-                  maxPlayersPerTeam: 4,
-                  positions: ["PG", "SG", "SF", "PF", "C"],
-                },
-                excludeLineupsByPlayerIds: [bestIds, secondIds],
-              })
+              players: optimizerPlayers,
+              salaryCap: 60000,
+              slots: NBA_SINGLE_GAME_SLOTS,
+              maxPlayersPerTeamByPositions: {
+                maxPlayersPerTeam: 4,
+                positions: ["PG", "SG", "SF", "PF", "C"],
+              },
+              excludeLineupsByPlayerIds: [bestIds, secondIds],
+            })
             : null;
 
         if (cancelled) return;

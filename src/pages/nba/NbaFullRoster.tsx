@@ -711,6 +711,7 @@ export default function NbaFullRoster() {
   const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
   const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
   const [thirdBest, setThirdBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [fourthBest, setFourthBest] = useState<LineupResult>(() => finalizeLineup([]));
   const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
   const [lineupError, setLineupError] = useState<string>("");
 
@@ -757,16 +758,33 @@ export default function NbaFullRoster() {
           excludeLineupsByPlayerIds,
         });
 
+        const thirdIds = third
+          ? Object.values(third.playersBySlot).map((p) => p.id)
+          : [];
+
+        const excludeForFourth: string[][] = [...excludeLineupsByPlayerIds];
+        if (thirdIds.length > 0) excludeForFourth.push(thirdIds);
+
+        const fourth = await optimizeMlbLineup({
+          players: optimizerPlayers,
+          salaryCap: 60000,
+          slots: NBA_FULL_ROSTER_SLOTS,
+          maxPlayersPerTeamByPositions,
+          excludeLineupsByPlayerIds: excludeForFourth,
+        });
+
         if (cancelled) return;
         setOptimal(lineupFromOptimized(best, NBA_FULL_ROSTER_SLOTS));
         setSecondBest(lineupFromOptimized(second, NBA_FULL_ROSTER_SLOTS));
         setThirdBest(lineupFromOptimized(third, NBA_FULL_ROSTER_SLOTS));
+        setFourthBest(lineupFromOptimized(fourth, NBA_FULL_ROSTER_SLOTS));
         setLineupStatus("done");
       } catch (e) {
         if (cancelled) return;
         setOptimal(finalizeLineup([]));
         setSecondBest(finalizeLineup([]));
         setThirdBest(finalizeLineup([]));
+        setFourthBest(finalizeLineup([]));
         setLineupStatus("error");
         setLineupError(e instanceof Error ? e.message : String(e));
       }
@@ -987,6 +1005,43 @@ export default function NbaFullRoster() {
                             : thirdBest.totals.fantasyPoints}
                         </td>
                         <td>{thirdBest.totals.value}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="lineupPanel">
+                  <h2 className="sectionTitle">Fourth Best Lineup</h2>
+                  <table className="dataTable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Position</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Fantasy Points</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fourthBest.rows.map((r, idx) => (
+                        <tr key={idx}>
+                          <td>{r.name}</td>
+                          <td>{r.position}</td>
+                          <td>{r.salary}</td>
+                          <td>{r.fantasyPoints}</td>
+                          <td>{r.value}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td>{fourthBest.totals.name}</td>
+                        <td>{fourthBest.totals.position}</td>
+                        <td>{fourthBest.totals.salary}</td>
+                        <td>
+                          {typeof fourthBest.totals.fantasyPoints === "number"
+                            ? fourthBest.totals.fantasyPoints.toFixed(2)
+                            : fourthBest.totals.fantasyPoints}
+                        </td>
+                        <td>{fourthBest.totals.value}</td>
                       </tr>
                     </tbody>
                   </table>

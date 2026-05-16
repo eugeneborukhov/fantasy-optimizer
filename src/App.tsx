@@ -1,11 +1,12 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import SelectionPage from './pages/SelectionPage'
-import MlbFullRoster from './pages/mlb/MlbFullRoster'
-import MlbSingleGame from './pages/mlb/MlbSingleGame'
-import NbaFullRoster from './pages/nba/NbaFullRoster'
-import NbaSingleGame from './pages/nba/NbaSingleGame'
-import PgaFullRoster from './pages/pga/PgaFullRoster'
+import { Navigate, Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import SelectionPage from "./pages/SelectionPage";
+import MlbFullRoster from "./pages/mlb/MlbFullRoster";
+import MlbSingleGame from "./pages/mlb/MlbSingleGame";
+import NbaFullRoster from "./pages/nba/NbaFullRoster";
+import NbaSingleGame from "./pages/nba/NbaSingleGame";
+import PgaFullRoster from "./pages/pga/PgaFullRoster";
+import Winnings from "./pages/winnings/Winnings";
 
 function App() {
   return (
@@ -16,10 +17,11 @@ function App() {
       <Route path="/nba/full-roster" element={<NbaFullRoster />} />
       <Route path="/nba/single-game" element={<NbaSingleGame />} />
       <Route path="/pga/full-roster" element={<PgaFullRoster />} />
+      <Route path="/winnings" element={<Winnings />} />
       <Route path="/:sport/:type" element={<SelectionPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;

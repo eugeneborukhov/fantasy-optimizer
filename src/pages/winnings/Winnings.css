@@ -1,0 +1,98 @@
+.winningsPage {
+  padding: 16px;
+}
+
+.winningsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.winningsHeader h1 {
+  margin: 0;
+}
+
+.winningsHomeLink {
+  font-weight: 600;
+}
+
+.winningsMain {
+  width: 100%;
+}
+
+.winningsSummary {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.winningsFilters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.winningsFilterField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.winningsFilterField span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.winningsFilterField select,
+.winningsFilterField input {
+  min-height: 34px;
+  min-width: 130px;
+  padding: 0.2rem 0.4rem;
+}
+
+.winningsFilterActions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.winningsFilterActions button {
+  min-height: 34px;
+  padding: 0.35rem 0.7rem;
+  font-weight: 600;
+}
+
+.winningsTableWrap {
+  overflow-x: auto;
+}
+
+.winningsTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.winningsTable th,
+.winningsTable td {
+  border: 1px solid currentColor;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.winningsTable tfoot th,
+.winningsTable tfoot td {
+  font-weight: 700;
+}
+
+.winningsMonthlySection,
+.winningsYearlySection {
+  margin-top: 24px;
+}
+
+.winningsMonthlySection h2,
+.winningsYearlySection h2 {
+  margin: 0 0 10px;
+}

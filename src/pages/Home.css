@@ -24,3 +24,12 @@
 .menuTable a {
   font-weight: 600;
 }
+
+.homeWinningsLinkRow {
+  width: min(760px, 100%);
+  margin: 14px auto 0;
+}
+
+.homeWinningsLinkRow a {
+  font-weight: 600;
+}

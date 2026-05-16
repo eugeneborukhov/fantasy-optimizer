@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom'
-import './Home.css'
+import { Link } from "react-router-dom";
+import "./Home.css";
 
 const sports = [
-  { label: 'NBA', slug: 'nba' },
-  { label: 'MLB', slug: 'mlb' },
-  { label: 'PGA', slug: 'pga' },
-] as const
+  { label: "NBA", slug: "nba" },
+  { label: "MLB", slug: "mlb" },
+  { label: "PGA", slug: "pga" },
+] as const;
 
 const types = [
-  { label: 'Full Roster', slug: 'full-roster' },
-  { label: 'Single Game', slug: 'single-game' },
-] as const
+  { label: "Full Roster", slug: "full-roster" },
+  { label: "Single Game", slug: "single-game" },
+] as const;
 
 export default function Home() {
   return (
@@ -46,7 +46,11 @@ export default function Home() {
             ))}
           </tbody>
         </table>
+
+        <div className="homeWinningsLinkRow">
+          <Link to="/winnings">Winnings</Link>
+        </div>
       </main>
     </div>
-  )
+  );
 }

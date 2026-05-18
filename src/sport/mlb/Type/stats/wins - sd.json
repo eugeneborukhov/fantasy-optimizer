@@ -1,0 +1,167 @@
+{
+  "markets": [
+    {
+      "id": "334926488",
+      "eventId": "34153992",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Logan Gilbert Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--1205650059",
+      "sortOrder": 1,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153992|14017|2:106794",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334926613",
+      "eventId": "34153992",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Walker Buehler Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--1205650059",
+      "sortOrder": 2,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153992|14017|2:109571",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334926488#2153169841_13L84240Q11581306583Q20",
+      "marketId": "334926488",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B114",
+        "decimal": "2.14",
+        "fractional": "57/50"
+      },
+      "trueOdds": 2.14,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "111248",
+          "name": "Logan Gilbert",
+          "type": "Player",
+          "seoIdentifier": "Logan Gilbert",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106794" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334926488#2153169910_13L84240Q1-1312278408Q20",
+      "marketId": "334926488",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212157",
+        "decimal": "1.63",
+        "fractional": "100/157"
+      },
+      "trueOdds": 1.63694268,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "111248",
+          "name": "Logan Gilbert",
+          "type": "Player",
+          "seoIdentifier": "Logan Gilbert",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106794" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334926613#2153170028_13L84240Q11581306583Q20",
+      "marketId": "334926613",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B235",
+        "decimal": "3.35",
+        "fractional": "47/20"
+      },
+      "trueOdds": 3.35,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "32718",
+          "name": "Walker Buehler",
+          "type": "Player",
+          "seoIdentifier": "Walker Buehler",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109571" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334926613#2153170124_13L84240Q1-1312278408Q20",
+      "marketId": "334926613",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212331",
+        "decimal": "1.30",
+        "fractional": "100/331"
+      },
+      "trueOdds": 1.30211481,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "32718",
+          "name": "Walker Buehler",
+          "type": "Player",
+          "seoIdentifier": "Walker Buehler",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109571" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets--1205650059": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734153992\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

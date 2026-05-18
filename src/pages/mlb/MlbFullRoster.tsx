@@ -96,6 +96,7 @@ export default function MlbFullRoster() {
     const [optimalLineup, setOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [secondOptimalLineup, setSecondOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [thirdOptimalLineup, setThirdOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [fourthOptimalLineup, setFourthOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [lineupStatus, setLineupStatus] = useState<'idle' | 'solving' | 'done' | 'error'>('idle')
     const [lineupError, setLineupError] = useState<string>('')
 
@@ -109,6 +110,7 @@ export default function MlbFullRoster() {
             setOptimalLineup(null)
             setSecondOptimalLineup(null)
             setThirdOptimalLineup(null)
+            setFourthOptimalLineup(null)
 
             try {
                 const result = await optimizeMlbLineup({
@@ -162,9 +164,27 @@ export default function MlbFullRoster() {
                     },
                 })
 
+                const thirdPlayerIds = third
+                    ? Array.from(new Set(Object.values(third.playersBySlot).map((p) => p.id)))
+                    : []
+
+                if (thirdPlayerIds.length > 0) excludedLineupsByPlayerIds.push(thirdPlayerIds)
+
+                const fourth = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
                 setOptimalLineup(result)
                 setSecondOptimalLineup(second)
                 setThirdOptimalLineup(third)
+                setFourthOptimalLineup(fourth)
                 setLineupStatus('done')
             } catch (err) {
                 if (cancelled) return
@@ -352,6 +372,44 @@ export default function MlbFullRoster() {
                                         </div>
                                     ) : (
                                         <p>No 3rd-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">4th Optimal Lineup</h2>
+                                    {fourthOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = fourthOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{fourthOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(fourthOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 4th-best distinct lineup found.</p>
                                     )}
                                 </div>
                             </div>

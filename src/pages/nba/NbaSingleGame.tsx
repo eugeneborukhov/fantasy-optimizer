@@ -488,6 +488,22 @@ type LineupResult = {
 
 const SINGLE_GAME_ROSTER_SIZE = 6;
 const MVP_MULTIPLIER = 1.5;
+const MAX_SINGLE_GAME_LINEUPS = 8;
+
+const SINGLE_GAME_LINEUP_TITLES = [
+  "Optimal Lineup",
+  "Second Best Lineup",
+  "Third Best Lineup",
+  "Fourth Best Lineup",
+  "Fifth Best Lineup",
+  "Sixth Best Lineup",
+  "Seventh Best Lineup",
+  "Eighth Best Lineup",
+] as const;
+
+function createEmptyLineups(): LineupResult[] {
+  return Array.from({ length: MAX_SINGLE_GAME_LINEUPS }, () => finalizeLineup([]));
+}
 
 function orderSingleGameLineup(lineup: OptimalLineupRow[]): OptimalLineupRow[] {
   const copy = [...lineup];
@@ -641,9 +657,7 @@ export default function NbaSingleGame() {
     return [...byId.values()];
   }, []);
 
-  const [optimal, setOptimal] = useState<LineupResult>(() => finalizeLineup([]));
-  const [secondBest, setSecondBest] = useState<LineupResult>(() => finalizeLineup([]));
-  const [thirdBest, setThirdBest] = useState<LineupResult>(() => finalizeLineup([]));
+  const [topLineups, setTopLineups] = useState<LineupResult[]>(createEmptyLineups);
   const [lineupStatus, setLineupStatus] = useState<"solving" | "done" | "error">("solving");
   const [lineupError, setLineupError] = useState<string>("");
 
@@ -655,59 +669,50 @@ export default function NbaSingleGame() {
         setLineupStatus("solving");
         setLineupError("");
 
-        const best = await optimizeMlbLineup({
-          players: optimizerPlayers,
-          salaryCap: 60000,
-          slots: NBA_SINGLE_GAME_SLOTS,
-          maxPlayersPerTeamByPositions: {
-            maxPlayersPerTeam: 4,
-            positions: ["PG", "SG", "SF", "PF", "C"],
-          },
-        });
+        const optimizedLineups: Array<{ playersBySlot: Record<string, MlbLineupPlayer> } | null> = [];
+        const excludedLineupsByPlayerIds: string[][] = [];
 
-        const bestIds = best
-          ? Array.from(new Set(Object.values(best.playersBySlot).map((p) => p.id)))
-          : [];
+        for (let i = 0; i < MAX_SINGLE_GAME_LINEUPS; i++) {
+          const optimized = await optimizeMlbLineup({
+            players: optimizerPlayers,
+            salaryCap: 60000,
+            slots: NBA_SINGLE_GAME_SLOTS,
+            maxPlayersPerTeamByPositions: {
+              maxPlayersPerTeam: 4,
+              positions: ["PG", "SG", "SF", "PF", "C"],
+            },
+            excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+          });
 
-        const second = await optimizeMlbLineup({
-          players: optimizerPlayers,
-          salaryCap: 60000,
-          slots: NBA_SINGLE_GAME_SLOTS,
-          maxPlayersPerTeamByPositions: {
-            maxPlayersPerTeam: 4,
-            positions: ["PG", "SG", "SF", "PF", "C"],
-          },
-          excludeLineupsByPlayerIds: bestIds.length > 0 ? [bestIds] : [],
-        });
+          if (cancelled) return;
 
-        const secondIds = second
-          ? Array.from(new Set(Object.values(second.playersBySlot).map((p) => p.id)))
-          : [];
+          optimizedLineups.push(optimized);
 
-        const third =
-          bestIds.length > 0 && secondIds.length > 0
-            ? await optimizeMlbLineup({
-              players: optimizerPlayers,
-              salaryCap: 60000,
-              slots: NBA_SINGLE_GAME_SLOTS,
-              maxPlayersPerTeamByPositions: {
-                maxPlayersPerTeam: 4,
-                positions: ["PG", "SG", "SF", "PF", "C"],
-              },
-              excludeLineupsByPlayerIds: [bestIds, secondIds],
-            })
-            : null;
+          if (!optimized) {
+            break;
+          }
+
+          const playerIds = Array.from(
+            new Set(Object.values(optimized.playersBySlot).map((p) => p.id)),
+          );
+
+          if (playerIds.length === 0) {
+            break;
+          }
+
+          excludedLineupsByPlayerIds.push(playerIds);
+        }
+
+        const nextTopLineups = Array.from({ length: MAX_SINGLE_GAME_LINEUPS }, (_, i) =>
+          lineupFromOptimizedSingleGame(optimizedLineups[i] ?? null),
+        );
 
         if (cancelled) return;
-        setOptimal(lineupFromOptimizedSingleGame(best));
-        setSecondBest(lineupFromOptimizedSingleGame(second));
-        setThirdBest(lineupFromOptimizedSingleGame(third));
+        setTopLineups(nextTopLineups);
         setLineupStatus("done");
       } catch (e) {
         if (cancelled) return;
-        setOptimal(finalizeLineup([]));
-        setSecondBest(finalizeLineup([]));
-        setThirdBest(finalizeLineup([]));
+        setTopLineups(createEmptyLineups());
         setLineupStatus("error");
         setLineupError(e instanceof Error ? e.message : String(e));
       }
@@ -760,130 +765,52 @@ export default function NbaSingleGame() {
           </table>
 
           <div className="lineupsRow">
-            <div className="lineupPanel">
-              <h2 className="sectionTitle">Optimal Lineup</h2>
-              {lineupStatus === "error" ? (
-                <div className="emptyCell">{lineupError || "Lineup solve failed"}</div>
-              ) : lineupStatus === "solving" ? (
-                <div className="emptyCell">Solving…</div>
-              ) : null}
-              <table className="dataTable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Position</th>
-                    <th scope="col">Salary</th>
-                    <th scope="col">Fantasy Points</th>
-                    <th scope="col">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {optimal.rows.map((r, idx) => (
-                    <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>{r.name}</td>
-                      <td>{r.position}</td>
-                      <td>{r.salary}</td>
-                      <td>{r.fantasyPoints}</td>
-                      <td>{r.value}</td>
+            {topLineups.map((lineup, lineupIndex) => (
+              <div className="lineupPanel" key={SINGLE_GAME_LINEUP_TITLES[lineupIndex]}>
+                <h2 className="sectionTitle">{SINGLE_GAME_LINEUP_TITLES[lineupIndex]}</h2>
+                {lineupIndex === 0 && lineupStatus === "error" ? (
+                  <div className="emptyCell">{lineupError || "Lineup solve failed"}</div>
+                ) : lineupIndex === 0 && lineupStatus === "solving" ? (
+                  <div className="emptyCell">Solving…</div>
+                ) : null}
+                <table className="dataTable">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Position</th>
+                      <th scope="col">Salary</th>
+                      <th scope="col">Fantasy Points</th>
+                      <th scope="col">Value</th>
                     </tr>
-                  ))}
-                  <tr>
-                    <td />
-                    <td>{optimal.totals.name}</td>
-                    <td>{optimal.totals.position}</td>
-                    <td>{optimal.totals.salary}</td>
-                    <td>
-                      {typeof optimal.totals.fantasyPoints === "number"
-                        ? optimal.totals.fantasyPoints.toFixed(2)
-                        : optimal.totals.fantasyPoints}
-                    </td>
-                    <td>{optimal.totals.value}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="lineupPanel">
-              <h2 className="sectionTitle">Second Best Lineup</h2>
-              <table className="dataTable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Position</th>
-                    <th scope="col">Salary</th>
-                    <th scope="col">Fantasy Points</th>
-                    <th scope="col">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {secondBest.rows.map((r, idx) => (
-                    <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>{r.name}</td>
-                      <td>{r.position}</td>
-                      <td>{r.salary}</td>
-                      <td>{r.fantasyPoints}</td>
-                      <td>{r.value}</td>
+                  </thead>
+                  <tbody>
+                    {lineup.rows.map((r, idx) => (
+                      <tr key={idx}>
+                        <td>{idx + 1}</td>
+                        <td>{r.name}</td>
+                        <td>{r.position}</td>
+                        <td>{r.salary}</td>
+                        <td>{r.fantasyPoints}</td>
+                        <td>{r.value}</td>
+                      </tr>
+                    ))}
+                    <tr>
+                      <td />
+                      <td>{lineup.totals.name}</td>
+                      <td>{lineup.totals.position}</td>
+                      <td>{lineup.totals.salary}</td>
+                      <td>
+                        {typeof lineup.totals.fantasyPoints === "number"
+                          ? lineup.totals.fantasyPoints.toFixed(2)
+                          : lineup.totals.fantasyPoints}
+                      </td>
+                      <td>{lineup.totals.value}</td>
                     </tr>
-                  ))}
-                  <tr>
-                    <td />
-                    <td>{secondBest.totals.name}</td>
-                    <td>{secondBest.totals.position}</td>
-                    <td>{secondBest.totals.salary}</td>
-                    <td>
-                      {typeof secondBest.totals.fantasyPoints === "number"
-                        ? secondBest.totals.fantasyPoints.toFixed(2)
-                        : secondBest.totals.fantasyPoints}
-                    </td>
-                    <td>{secondBest.totals.value}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div className="lineupPanel">
-              <h2 className="sectionTitle">Third Best Lineup</h2>
-              <table className="dataTable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Position</th>
-                    <th scope="col">Salary</th>
-                    <th scope="col">Fantasy Points</th>
-                    <th scope="col">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {thirdBest.rows.map((r, idx) => (
-                    <tr key={idx}>
-                      <td>{idx + 1}</td>
-                      <td>{r.name}</td>
-                      <td>{r.position}</td>
-                      <td>{r.salary}</td>
-                      <td>{r.fantasyPoints}</td>
-                      <td>{r.value}</td>
-                    </tr>
-                  ))}
-                  <tr>
-                    <td />
-                    <td>{thirdBest.totals.name}</td>
-                    <td>{thirdBest.totals.position}</td>
-                    <td>{thirdBest.totals.salary}</td>
-                    <td>
-                      {typeof thirdBest.totals.fantasyPoints === "number"
-                        ? thirdBest.totals.fantasyPoints.toFixed(2)
-                        : thirdBest.totals.fantasyPoints}
-                    </td>
-                    <td>{thirdBest.totals.value}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
         </div>
       </main>

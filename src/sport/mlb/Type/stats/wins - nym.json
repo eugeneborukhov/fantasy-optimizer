@@ -1,0 +1,90 @@
+{
+  "markets": [
+    {
+      "id": "334928318",
+      "eventId": "34153991",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Carlos Rodon Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--1479388754",
+      "sortOrder": 1,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153991|14017|2:107978",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334928318#2153177451_13L84240Q11581306583Q20",
+      "marketId": "334928318",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B181",
+        "decimal": "2.81",
+        "fractional": "181/100"
+      },
+      "trueOdds": 2.81,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "31607",
+          "name": "Carlos Rodon",
+          "type": "Player",
+          "seoIdentifier": "Carlos Rodon",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "107978" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334928318#2153177483_13L84240Q1-1312278408Q20",
+      "marketId": "334928318",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212256",
+        "decimal": "1.39",
+        "fractional": "25/64"
+      },
+      "trueOdds": 1.390625,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "31607",
+          "name": "Carlos Rodon",
+          "type": "Player",
+          "seoIdentifier": "Carlos Rodon",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "107978" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets--1479388754": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734153991\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

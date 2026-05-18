@@ -1,0 +1,167 @@
+{
+  "markets": [
+    {
+      "id": "334925663",
+      "eventId": "34153997",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Luis Severino Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets-461396096",
+      "sortOrder": 1,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153997|14017|2:109365",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334925521",
+      "eventId": "34153997",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Trevor McDonald Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets-461396096",
+      "sortOrder": 2,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153997|14017|2:178983",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334925521#2153166841_13L84240Q11581306583Q20",
+      "marketId": "334925521",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B221",
+        "decimal": "3.21",
+        "fractional": "221/100"
+      },
+      "trueOdds": 3.21,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "704968",
+          "name": "Trevor McDonald",
+          "type": "Player",
+          "seoIdentifier": "Trevor McDonald",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "178983" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334925521#2153166895_13L84240Q1-1312278408Q20",
+      "marketId": "334925521",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212315",
+        "decimal": "1.31",
+        "fractional": "20/63"
+      },
+      "trueOdds": 1.31746032,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "704968",
+          "name": "Trevor McDonald",
+          "type": "Player",
+          "seoIdentifier": "Trevor McDonald",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "178983" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334925663#2153166627_13L84240Q11581306583Q20",
+      "marketId": "334925663",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B159",
+        "decimal": "2.59",
+        "fractional": "159/100"
+      },
+      "trueOdds": 2.59,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "32506",
+          "name": "Luis Severino",
+          "type": "Player",
+          "seoIdentifier": "Luis Severino",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109365" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334925663#2153166731_13L84240Q1-1312278408Q20",
+      "marketId": "334925663",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212222",
+        "decimal": "1.45",
+        "fractional": "50/111"
+      },
+      "trueOdds": 1.45045046,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "32506",
+          "name": "Luis Severino",
+          "type": "Player",
+          "seoIdentifier": "Luis Severino",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109365" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets-461396096": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734153997\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

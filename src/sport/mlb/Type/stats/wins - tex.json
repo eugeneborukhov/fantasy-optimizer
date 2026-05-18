@@ -1,0 +1,167 @@
+{
+  "markets": [
+    {
+      "id": "334886891",
+      "eventId": "34153884",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Jacob deGrom Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--619547039",
+      "sortOrder": 1,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153884|14017|2:108249",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334887064",
+      "eventId": "34153884",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Will Kai-Wei Teng Record a Win?",
+      "subcategoryId": "9884",
+      "componentMapping": { "primary": 8, "fallback": 0 },
+      "marketType": {
+        "id": "14017",
+        "betOfferTypeId": 0,
+        "name": "Win Probability"
+      },
+      "subscriptionKey": "markets--619547039",
+      "sortOrder": 2,
+      "tags": [
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153884|14017|2:178984",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334886891#2153025608_13L84240Q11581306583Q20",
+      "marketId": "334886891",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B103",
+        "decimal": "2.03",
+        "fractional": "103/100"
+      },
+      "trueOdds": 2.03,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "31748",
+          "name": "Jacob deGrom",
+          "type": "Player",
+          "seoIdentifier": "Jacob deGrom",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "108249" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334886891#2153025640_13L84240Q1-1312278408Q20",
+      "marketId": "334886891",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212143",
+        "decimal": "1.69",
+        "fractional": "100/143"
+      },
+      "trueOdds": 1.6993007,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "31748",
+          "name": "Jacob deGrom",
+          "type": "Player",
+          "seoIdentifier": "Jacob deGrom",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "108249" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334887064#2153027026_13L84240Q11581306583Q20",
+      "marketId": "334887064",
+      "label": "Yes",
+      "displayOdds": {
+        "american": "\u002B473",
+        "decimal": "5.73",
+        "fractional": "473/100"
+      },
+      "trueOdds": 5.73,
+      "outcomeType": "Yes",
+      "participants": [
+        {
+          "id": "552714",
+          "name": "Kai-Wei Teng",
+          "type": "Player",
+          "seoIdentifier": "Kai-Wei Teng",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "178984" }
+        }
+      ],
+      "sortOrder": 10,
+      "tags": ["OSB"],
+      "metadata": {}
+    },
+    {
+      "id": "0QA334887064#2153027035_13L84240Q1-1312278408Q20",
+      "marketId": "334887064",
+      "label": "No",
+      "displayOdds": {
+        "american": "\u2212750",
+        "decimal": "1.13",
+        "fractional": "2/15"
+      },
+      "trueOdds": 1.13333334,
+      "outcomeType": "No",
+      "participants": [
+        {
+          "id": "552714",
+          "name": "Kai-Wei Teng",
+          "type": "Player",
+          "seoIdentifier": "Kai-Wei Teng",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "178984" }
+        }
+      ],
+      "sortOrder": 20,
+      "tags": ["OSB"],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets--619547039": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734153884\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

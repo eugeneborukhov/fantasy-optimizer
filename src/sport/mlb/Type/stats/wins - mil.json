@@ -1,11 +1,11 @@
 {
   "markets": [
     {
-      "id": "334317651",
-      "eventId": "34144808",
+      "id": "334877070",
+      "eventId": "34153983",
       "sportId": "7",
       "leagueId": "84240",
-      "name": "Will Chase Burns Record a Win?",
+      "name": "Will Logan Henderson Record a Win?",
       "subcategoryId": "9884",
       "componentMapping": { "primary": 8, "fallback": 0 },
       "marketType": {
@@ -13,7 +13,7 @@
         "betOfferTypeId": 0,
         "name": "Win Probability"
       },
-      "subscriptionKey": "markets--269231187",
+      "subscriptionKey": "markets-816206431",
       "sortOrder": 1,
       "tags": [
         "YourBetEligible",
@@ -22,15 +22,15 @@
         "OSB",
         "PlayerProps"
       ],
-      "correlatedId": "34144808|14017|2:201974",
+      "correlatedId": "34153983|14017|2:197313",
       "dynamicMetadata": {}
     },
     {
-      "id": "334317851",
-      "eventId": "34144808",
+      "id": "334876938",
+      "eventId": "34153983",
       "sportId": "7",
       "leagueId": "84240",
-      "name": "Will Foster Griffin Record a Win?",
+      "name": "Will Connor Prielipp Record a Win?",
       "subcategoryId": "9884",
       "componentMapping": { "primary": 8, "fallback": 0 },
       "marketType": {
@@ -38,7 +38,7 @@
         "betOfferTypeId": 0,
         "name": "Win Probability"
       },
-      "subscriptionKey": "markets--269231187",
+      "subscriptionKey": "markets-816206431",
       "sortOrder": 2,
       "tags": [
         "YourBetEligible",
@@ -47,31 +47,31 @@
         "OSB",
         "PlayerProps"
       ],
-      "correlatedId": "34144808|14017|2:106442",
+      "correlatedId": "34153983|14017|2:229302",
       "dynamicMetadata": {}
     }
   ],
   "selections": [
     {
-      "id": "0QA334317651#2150653666_13L84240Q11581306583Q20",
-      "marketId": "334317651",
+      "id": "0QA334876938#2152979380_13L84240Q11581306583Q20",
+      "marketId": "334876938",
       "label": "Yes",
       "displayOdds": {
-        "american": "\u002B124",
-        "decimal": "2.24",
-        "fractional": "31/25"
+        "american": "\u002B284",
+        "decimal": "3.84",
+        "fractional": "71/25"
       },
-      "trueOdds": 2.24,
+      "trueOdds": 3.84,
       "outcomeType": "Yes",
       "participants": [
         {
-          "id": "804441",
-          "name": "Chase Burns",
+          "id": "656143",
+          "name": "Connor Prielipp",
           "type": "Player",
-          "seoIdentifier": "Chase Burns",
+          "seoIdentifier": "Connor Prielipp",
           "venueRole": "HomePlayer",
           "isNationalTeam": false,
-          "metadata": { "sdid": "201974" }
+          "metadata": { "sdid": "229302" }
         }
       ],
       "sortOrder": 10,
@@ -79,25 +79,25 @@
       "metadata": {}
     },
     {
-      "id": "0QA334317651#2150653672_13L84240Q1-1312278408Q20",
-      "marketId": "334317651",
+      "id": "0QA334876938#2152979516_13L84240Q1-1312278408Q20",
+      "marketId": "334876938",
       "label": "No",
       "displayOdds": {
-        "american": "\u2212172",
-        "decimal": "1.58",
-        "fractional": "25/43"
+        "american": "\u2212412",
+        "decimal": "1.24",
+        "fractional": "25/103"
       },
-      "trueOdds": 1.58139535,
+      "trueOdds": 1.24271845,
       "outcomeType": "No",
       "participants": [
         {
-          "id": "804441",
-          "name": "Chase Burns",
+          "id": "656143",
+          "name": "Connor Prielipp",
           "type": "Player",
-          "seoIdentifier": "Chase Burns",
+          "seoIdentifier": "Connor Prielipp",
           "venueRole": "HomePlayer",
           "isNationalTeam": false,
-          "metadata": { "sdid": "201974" }
+          "metadata": { "sdid": "229302" }
         }
       ],
       "sortOrder": 20,
@@ -105,25 +105,25 @@
       "metadata": {}
     },
     {
-      "id": "0QA334317851#2150655110_13L84240Q11581306583Q20",
-      "marketId": "334317851",
+      "id": "0QA334877070#2152980284_13L84240Q11581306583Q20",
+      "marketId": "334877070",
       "label": "Yes",
       "displayOdds": {
-        "american": "\u002B234",
-        "decimal": "3.34",
-        "fractional": "117/50"
+        "american": "\u002B192",
+        "decimal": "2.92",
+        "fractional": "48/25"
       },
-      "trueOdds": 3.34,
+      "trueOdds": 2.92,
       "outcomeType": "Yes",
       "participants": [
         {
-          "id": "110892",
-          "name": "Foster Griffin",
+          "id": "582215",
+          "name": "Logan Henderson",
           "type": "Player",
-          "seoIdentifier": "Foster Griffin",
+          "seoIdentifier": "Logan Henderson",
           "venueRole": "AwayPlayer",
           "isNationalTeam": false,
-          "metadata": { "sdid": "106442" }
+          "metadata": { "sdid": "197313" }
         }
       ],
       "sortOrder": 10,
@@ -131,25 +131,25 @@
       "metadata": {}
     },
     {
-      "id": "0QA334317851#2150655177_13L84240Q1-1312278408Q20",
-      "marketId": "334317851",
+      "id": "0QA334877070#2152980327_13L84240Q1-1312278408Q20",
+      "marketId": "334877070",
       "label": "No",
       "displayOdds": {
-        "american": "\u2212338",
-        "decimal": "1.29",
-        "fractional": "50/169"
+        "american": "\u2212270",
+        "decimal": "1.37",
+        "fractional": "10/27"
       },
-      "trueOdds": 1.29585799,
+      "trueOdds": 1.37037038,
       "outcomeType": "No",
       "participants": [
         {
-          "id": "110892",
-          "name": "Foster Griffin",
+          "id": "582215",
+          "name": "Logan Henderson",
           "type": "Player",
-          "seoIdentifier": "Foster Griffin",
+          "seoIdentifier": "Logan Henderson",
           "venueRole": "AwayPlayer",
           "isNationalTeam": false,
-          "metadata": { "sdid": "106442" }
+          "metadata": { "sdid": "197313" }
         }
       ],
       "sortOrder": 20,
@@ -158,9 +158,9 @@
     }
   ],
   "subscriptionPartials": {
-    "markets--269231187": {
+    "markets-816206431": {
       "entity": "markets",
-      "query": "$filter=eventId eq \u002734144808\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "query": "$filter=eventId eq \u002734153983\u0027 AND clientMetadata/subCategoryId eq \u00279884\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
       "locale": "en"
     }
   }

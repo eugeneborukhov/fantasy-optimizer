@@ -1,0 +1,1093 @@
+{
+  "markets": [
+    {
+      "id": "334886182",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Pete Crow-Armstrong Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 1,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:120778",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886284",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Nico Hoerner Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 2,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:109263",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886124",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Sam Antonacci Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 3,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:228525",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "335090868",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Matt Shaw Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 4,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:198780",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886195",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Tristan Peters Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 5,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:206630",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886132",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Chase Meidroth Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 6,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:199260",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886325",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Miguel Vargas Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 7,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:105981",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886448",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Jarred Kelenic Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 8,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:106797",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886343",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Seiya Suzuki Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 9,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:151677",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886331",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Ian Happ Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 10,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:109246",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886281",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Munetaka Murakami Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 11,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:228625",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334885989",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Michael Busch Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 12,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:105978",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886198",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Drew Romo Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 13,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:182261",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334886094",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Andrew Benintendi Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 14,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:107812",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "334885984",
+      "eventId": "34153883",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Colson Montgomery Stolen Bases",
+      "subcategoryId": "18726",
+      "componentMapping": { "primary": 331, "fallback": 0 },
+      "marketType": {
+        "id": "14461",
+        "betOfferTypeId": 0,
+        "name": "Stolen Bases Milestones"
+      },
+      "subscriptionKey": "markets-389422609",
+      "sortOrder": 15,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34153883|14461|2:179785",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA334885984#2153022665_13L84240Q1-537797314Q20",
+      "marketId": "334885984",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B1560",
+        "decimal": "16.60",
+        "fractional": "78/5"
+      },
+      "trueOdds": 16.6,
+      "participants": [
+        {
+          "id": "587675",
+          "name": "Colson Montgomery",
+          "type": "Player",
+          "seoIdentifier": "Colson Montgomery",
+          "statistic": { "prefix": "SB", "value": 1 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "179785" }
+        }
+      ],
+      "sortOrder": 166065,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334885989#2153023220_13L84240Q1-537797314Q20",
+      "marketId": "334885989",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B980",
+        "decimal": "10.80",
+        "fractional": "49/5"
+      },
+      "trueOdds": 10.8,
+      "participants": [
+        {
+          "id": "459806",
+          "name": "Michael Busch",
+          "type": "Player",
+          "seoIdentifier": "Michael Busch",
+          "statistic": { "prefix": "SB", "value": 1 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "105978" }
+        }
+      ],
+      "sortOrder": 108020,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886094#2153022807_13L84240Q1-537797314Q20",
+      "marketId": "334886094",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B1160",
+        "decimal": "12.60",
+        "fractional": "58/5"
+      },
+      "trueOdds": 12.6,
+      "participants": [
+        {
+          "id": "31520",
+          "name": "Andrew Benintendi",
+          "type": "Player",
+          "seoIdentifier": "Andrew Benintendi",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "107812" }
+        }
+      ],
+      "sortOrder": 126007,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886124#2153022957_13L84240Q1-537797314Q20",
+      "marketId": "334886124",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B507",
+        "decimal": "6.07",
+        "fractional": "507/100"
+      },
+      "trueOdds": 6.07,
+      "participants": [
+        {
+          "id": "806344",
+          "name": "Sam Antonacci",
+          "type": "Player",
+          "seoIdentifier": "Sam Antonacci",
+          "statistic": { "prefix": "SB", "value": 3 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "228525" }
+        }
+      ],
+      "sortOrder": 60757,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886124#2153022974_13L84240Q1-1265516786Q20",
+      "marketId": "334886124",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B3800",
+        "decimal": "39.00",
+        "fractional": "38/1"
+      },
+      "trueOdds": 39,
+      "participants": [
+        {
+          "id": "806344",
+          "name": "Sam Antonacci",
+          "type": "Player",
+          "seoIdentifier": "Sam Antonacci",
+          "statistic": { "prefix": "SB", "value": 3 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "228525" }
+        }
+      ],
+      "sortOrder": 390074,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886132#2153023595_13L84240Q1-537797314Q20",
+      "marketId": "334886132",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B720",
+        "decimal": "8.20",
+        "fractional": "36/5"
+      },
+      "trueOdds": 8.2,
+      "participants": [
+        {
+          "id": "702982",
+          "name": "Chase Meidroth",
+          "type": "Player",
+          "seoIdentifier": "Chase Meidroth",
+          "statistic": { "prefix": "SB", "value": 1 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "199260" }
+        }
+      ],
+      "sortOrder": 82095,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886132#2153023687_13L84240Q1-1265516786Q20",
+      "marketId": "334886132",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B5100",
+        "decimal": "52.00",
+        "fractional": "51/1"
+      },
+      "trueOdds": 52,
+      "participants": [
+        {
+          "id": "702982",
+          "name": "Chase Meidroth",
+          "type": "Player",
+          "seoIdentifier": "Chase Meidroth",
+          "statistic": { "prefix": "SB", "value": 1 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "199260" }
+        }
+      ],
+      "sortOrder": 520087,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886182#2153023024_13L84240Q1-537797314Q20",
+      "marketId": "334886182",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B308",
+        "decimal": "4.08",
+        "fractional": "77/25"
+      },
+      "trueOdds": 4.08,
+      "participants": [
+        {
+          "id": "494682",
+          "name": "Pete Crow-Armstrong",
+          "type": "Player",
+          "seoIdentifier": "Pete Crow-Armstrong",
+          "statistic": { "prefix": "SB", "value": 11 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "120778" }
+        }
+      ],
+      "sortOrder": 40824,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886182#2153023060_13L84240Q1-1265516786Q20",
+      "marketId": "334886182",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B2100",
+        "decimal": "22.00",
+        "fractional": "21/1"
+      },
+      "trueOdds": 22,
+      "participants": [
+        {
+          "id": "494682",
+          "name": "Pete Crow-Armstrong",
+          "type": "Player",
+          "seoIdentifier": "Pete Crow-Armstrong",
+          "statistic": { "prefix": "SB", "value": 11 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "120778" }
+        }
+      ],
+      "sortOrder": 220060,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886195#2153023113_13L84240Q1-537797314Q20",
+      "marketId": "334886195",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B710",
+        "decimal": "8.10",
+        "fractional": "71/10"
+      },
+      "trueOdds": 8.1,
+      "participants": [
+        {
+          "id": "658798",
+          "name": "Tristan Peters",
+          "type": "Player",
+          "seoIdentifier": "Tristan Peters",
+          "statistic": { "prefix": "SB", "value": 4 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "206630" }
+        }
+      ],
+      "sortOrder": 81013,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886195#2153023149_13L84240Q1-1265516786Q20",
+      "marketId": "334886195",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B4900",
+        "decimal": "50.00",
+        "fractional": "49/1"
+      },
+      "trueOdds": 50,
+      "participants": [
+        {
+          "id": "658798",
+          "name": "Tristan Peters",
+          "type": "Player",
+          "seoIdentifier": "Tristan Peters",
+          "statistic": { "prefix": "SB", "value": 4 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "206630" }
+        }
+      ],
+      "sortOrder": 500049,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886198#2153023111_13L84240Q1-537797314Q20",
+      "marketId": "334886198",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B1000",
+        "decimal": "11.00",
+        "fractional": "10/1"
+      },
+      "trueOdds": 11,
+      "participants": [
+        {
+          "id": "494700",
+          "name": "Drew Romo",
+          "type": "Player",
+          "seoIdentifier": "Drew Romo",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "182261" }
+        }
+      ],
+      "sortOrder": 110011,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886281#2153024324_13L84240Q1-537797314Q20",
+      "marketId": "334886281",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B970",
+        "decimal": "10.70",
+        "fractional": "97/10"
+      },
+      "trueOdds": 10.7,
+      "participants": [
+        {
+          "id": "494995",
+          "name": "Munetaka Murakami",
+          "type": "Player",
+          "seoIdentifier": "Munetaka Murakami",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "228625" }
+        }
+      ],
+      "sortOrder": 107024,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886284#2153023436_13L84240Q1-537797314Q20",
+      "marketId": "334886284",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B351",
+        "decimal": "4.51",
+        "fractional": "351/100"
+      },
+      "trueOdds": 4.51,
+      "participants": [
+        {
+          "id": "32405",
+          "name": "Nico Hoerner",
+          "type": "Player",
+          "seoIdentifier": "Nico Hoerner",
+          "statistic": { "prefix": "SB", "value": 8 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109263" }
+        }
+      ],
+      "sortOrder": 45136,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886284#2153023535_13L84240Q1-1265516786Q20",
+      "marketId": "334886284",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B2600",
+        "decimal": "27.00",
+        "fractional": "26/1"
+      },
+      "trueOdds": 27,
+      "participants": [
+        {
+          "id": "32405",
+          "name": "Nico Hoerner",
+          "type": "Player",
+          "seoIdentifier": "Nico Hoerner",
+          "statistic": { "prefix": "SB", "value": 8 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109263" }
+        }
+      ],
+      "sortOrder": 270035,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886325#2153023944_13L84240Q1-537797314Q20",
+      "marketId": "334886325",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B700",
+        "decimal": "8.00",
+        "fractional": "7/1"
+      },
+      "trueOdds": 8,
+      "participants": [
+        {
+          "id": "459809",
+          "name": "Miguel Vargas",
+          "type": "Player",
+          "seoIdentifier": "Miguel Vargas",
+          "statistic": { "prefix": "SB", "value": 6 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "105981" }
+        }
+      ],
+      "sortOrder": 80044,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886325#2153023949_13L84240Q1-1265516786Q20",
+      "marketId": "334886325",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B5200",
+        "decimal": "53.00",
+        "fractional": "52/1"
+      },
+      "trueOdds": 53,
+      "participants": [
+        {
+          "id": "459809",
+          "name": "Miguel Vargas",
+          "type": "Player",
+          "seoIdentifier": "Miguel Vargas",
+          "statistic": { "prefix": "SB", "value": 6 },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "105981" }
+        }
+      ],
+      "sortOrder": 530049,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA334886331#2153023388_13L84240Q1-537797314Q20",
+      "marketId": "334886331",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B940",
+        "decimal": "10.40",
+        "fractional": "47/5"
+      },
+      "trueOdds": 10.4,
+      "participants": [
+        {
+          "id": "32388",
+          "name": "Ian Happ",
+          "type": "Player",
+          "seoIdentifier": "Ian Happ",
+          "statistic": { "prefix": "SB", "value": 2 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "109246" }
+        }
+      ],
+      "sortOrder": 104088,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886343#2153024643_13L84240Q1-537797314Q20",
+      "marketId": "334886343",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B860",
+        "decimal": "9.60",
+        "fractional": "43/5"
+      },
+      "trueOdds": 9.6,
+      "participants": [
+        {
+          "id": "112834",
+          "name": "Seiya Suzuki",
+          "type": "Player",
+          "seoIdentifier": "Seiya Suzuki",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "151677" }
+        }
+      ],
+      "sortOrder": 96043,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886448#2153024469_13L84240Q1-537797314Q20",
+      "marketId": "334886448",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B760",
+        "decimal": "8.60",
+        "fractional": "38/5"
+      },
+      "trueOdds": 8.6,
+      "participants": [
+        {
+          "id": "111252",
+          "name": "Jarred Kelenic",
+          "type": "Player",
+          "seoIdentifier": "Jarred Kelenic",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106797" }
+        }
+      ],
+      "sortOrder": 86069,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA334886448#2153024487_13L84240Q1-1265516786Q20",
+      "marketId": "334886448",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B5300",
+        "decimal": "54.00",
+        "fractional": "53/1"
+      },
+      "trueOdds": 54,
+      "participants": [
+        {
+          "id": "111252",
+          "name": "Jarred Kelenic",
+          "type": "Player",
+          "seoIdentifier": "Jarred Kelenic",
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "106797" }
+        }
+      ],
+      "sortOrder": 540087,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    },
+    {
+      "id": "0QA335090868#2153896024_13L84240Q1-537797314Q20",
+      "marketId": "335090868",
+      "label": "1\u002B",
+      "displayOdds": {
+        "american": "\u002B571",
+        "decimal": "6.71",
+        "fractional": "571/100"
+      },
+      "trueOdds": 6.71,
+      "participants": [
+        {
+          "id": "721198",
+          "name": "Matt Shaw",
+          "type": "Player",
+          "seoIdentifier": "Matt Shaw",
+          "statistic": { "prefix": "SB", "value": 3 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "198780" }
+        }
+      ],
+      "sortOrder": 67124,
+      "tags": [
+        "MostBalancedOdds",
+        "SGP",
+        "MostBalancedGlobalProbability",
+        "OSB"
+      ],
+      "metadata": {},
+      "milestoneValue": 1
+    },
+    {
+      "id": "0QA335090868#2153896025_13L84240Q1-1265516786Q20",
+      "marketId": "335090868",
+      "label": "2\u002B",
+      "displayOdds": {
+        "american": "\u002B4100",
+        "decimal": "42.00",
+        "fractional": "41/1"
+      },
+      "trueOdds": 42,
+      "participants": [
+        {
+          "id": "721198",
+          "name": "Matt Shaw",
+          "type": "Player",
+          "seoIdentifier": "Matt Shaw",
+          "statistic": { "prefix": "SB", "value": 3 },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": { "sdid": "198780" }
+        }
+      ],
+      "sortOrder": 420025,
+      "tags": ["SGP", "OSB"],
+      "metadata": {},
+      "milestoneValue": 2
+    }
+  ],
+  "subscriptionPartials": {
+    "markets-389422609": {
+      "entity": "markets",
+      "query": "$filter=eventId eq \u002734153883\u0027 AND clientMetadata/subCategoryId eq \u002718726\u0027 AND tags/all(t: t ne \u0027SportcastBetBuilder\u0027) and tags/any(t: t eq \u0027OSB\u0027)",
+      "locale": "en"
+    }
+  }
+}

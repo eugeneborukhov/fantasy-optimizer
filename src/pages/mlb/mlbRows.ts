@@ -1226,8 +1226,20 @@ export function buildRows(salariesSource: unknown): Row[] {
         const projectedStolenBases =
             projectedStolenBasesRaw !== null ? round3(projectedStolenBasesRaw) : ''
 
+        const isPitcher = position === 'P'
+
         const earnedRunsInfo =
-            earnedRunsByName.get(playerKeyWithTeam) ?? earnedRunsByName.get(playerKeyNameOnly)
+            earnedRunsByName.get(playerKeyWithTeam) ??
+            earnedRunsByName.get(playerKeyNameOnly) ??
+            (isPitcher
+                ? {
+                    line: '2 or Fewer',
+                    threshold: 2,
+                    odds: '+100',
+                    probabilityRaw: 0.5,
+                    preferred: false,
+                }
+                : undefined)
         const earnedRuns = earnedRunsInfo?.line ?? ''
         const projectedEarnedRunsRaw =
             earnedRunsInfo !== undefined
@@ -1271,8 +1283,6 @@ export function buildRows(salariesSource: unknown): Row[] {
         const winsOdds = winsInfo?.yesOdds ?? ''
         const projectedWins =
             winsInfo !== undefined ? round3(clampProbability(winsInfo.yesProbabilityFair)) : ''
-
-        const isPitcher = position === 'P'
 
         const qualityStartProbabilityRaw =
             isPitcher &&

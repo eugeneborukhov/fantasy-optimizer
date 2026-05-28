@@ -73,6 +73,7 @@ export default function MlbFullRoster() {
     }, [rows])
 
     const [excludedGames, setExcludedGames] = useState<string[]>([])
+    const [minLineupDifference, setMinLineupDifference] = useState<1 | 2 | 3 | 4>(1)
     const excludedGamesSet = useMemo(() => new Set(excludedGames), [excludedGames])
 
     const optimizerPlayers: MlbLineupPlayer[] = useMemo(() => {
@@ -97,6 +98,10 @@ export default function MlbFullRoster() {
     const [secondOptimalLineup, setSecondOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [thirdOptimalLineup, setThirdOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [fourthOptimalLineup, setFourthOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [fifthOptimalLineup, setFifthOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [sixthOptimalLineup, setSixthOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [seventhOptimalLineup, setSeventhOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
+    const [eighthOptimalLineup, setEighthOptimalLineup] = useState<MlbOptimizedLineup | null>(null)
     const [lineupStatus, setLineupStatus] = useState<'idle' | 'solving' | 'done' | 'error'>('idle')
     const [lineupError, setLineupError] = useState<string>('')
 
@@ -111,12 +116,17 @@ export default function MlbFullRoster() {
             setSecondOptimalLineup(null)
             setThirdOptimalLineup(null)
             setFourthOptimalLineup(null)
+            setFifthOptimalLineup(null)
+            setSixthOptimalLineup(null)
+            setSeventhOptimalLineup(null)
+            setEighthOptimalLineup(null)
 
             try {
                 const result = await optimizeMlbLineup({
                     players: optimizerPlayers,
                     salaryCap: 35_000,
                     slots: MLB_DK_SLOTS,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
                     maxPlayersPerTeamByPositions: {
                         maxPlayersPerTeam: 4,
                         positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
@@ -140,6 +150,7 @@ export default function MlbFullRoster() {
                     salaryCap: 35_000,
                     slots: MLB_DK_SLOTS,
                     excludeLineupsByPlayerIds: [bestPlayerIds],
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
                     maxPlayersPerTeamByPositions: {
                         maxPlayersPerTeam: 4,
                         positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
@@ -158,6 +169,7 @@ export default function MlbFullRoster() {
                     salaryCap: 35_000,
                     slots: MLB_DK_SLOTS,
                     excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
                     maxPlayersPerTeamByPositions: {
                         maxPlayersPerTeam: 4,
                         positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
@@ -175,6 +187,79 @@ export default function MlbFullRoster() {
                     salaryCap: 35_000,
                     slots: MLB_DK_SLOTS,
                     excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
+                const fourthPlayerIds = fourth
+                    ? Array.from(new Set(Object.values(fourth.playersBySlot).map((p) => p.id)))
+                    : []
+
+                if (fourthPlayerIds.length > 0) excludedLineupsByPlayerIds.push(fourthPlayerIds)
+
+                const fifth = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
+                const fifthPlayerIds = fifth
+                    ? Array.from(new Set(Object.values(fifth.playersBySlot).map((p) => p.id)))
+                    : []
+
+                if (fifthPlayerIds.length > 0) excludedLineupsByPlayerIds.push(fifthPlayerIds)
+
+                const sixth = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
+                const sixthPlayerIds = sixth
+                    ? Array.from(new Set(Object.values(sixth.playersBySlot).map((p) => p.id)))
+                    : []
+
+                if (sixthPlayerIds.length > 0) excludedLineupsByPlayerIds.push(sixthPlayerIds)
+
+                const seventh = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
+                    maxPlayersPerTeamByPositions: {
+                        maxPlayersPerTeam: 4,
+                        positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
+                    },
+                })
+
+                const seventhPlayerIds = seventh
+                    ? Array.from(new Set(Object.values(seventh.playersBySlot).map((p) => p.id)))
+                    : []
+
+                if (seventhPlayerIds.length > 0) excludedLineupsByPlayerIds.push(seventhPlayerIds)
+
+                const eighth = await optimizeMlbLineup({
+                    players: optimizerPlayers,
+                    salaryCap: 35_000,
+                    slots: MLB_DK_SLOTS,
+                    excludeLineupsByPlayerIds: excludedLineupsByPlayerIds,
+                    minDifferentPlayersFromExcludedLineups: minLineupDifference,
                     maxPlayersPerTeamByPositions: {
                         maxPlayersPerTeam: 4,
                         positions: ['2B', 'SS', '1B', 'C', 'CF', 'RF', 'OF', 'LF', '3B'],
@@ -185,6 +270,10 @@ export default function MlbFullRoster() {
                 setSecondOptimalLineup(second)
                 setThirdOptimalLineup(third)
                 setFourthOptimalLineup(fourth)
+                setFifthOptimalLineup(fifth)
+                setSixthOptimalLineup(sixth)
+                setSeventhOptimalLineup(seventh)
+                setEighthOptimalLineup(eighth)
                 setLineupStatus('done')
             } catch (err) {
                 if (cancelled) return
@@ -198,7 +287,7 @@ export default function MlbFullRoster() {
         return () => {
             cancelled = true
         }
-    }, [optimizerPlayers])
+    }, [optimizerPlayers, minLineupDifference])
 
     return (
         <div>
@@ -255,6 +344,24 @@ export default function MlbFullRoster() {
 
             {activeTab === 'lineups' ? (
                 <>
+                    <h2 className="sectionTitle">Lineup Diversity</h2>
+                    <fieldset className="lineupDiffFieldset">
+                        <legend>Minimum Different Players Between Lineups</legend>
+                        <div className="lineupDiffOptions" role="radiogroup" aria-label="Minimum different players between lineups">
+                            {[1, 2, 3, 4].map((value) => (
+                                <label key={value} className="lineupDiffOption">
+                                    <input
+                                        type="radio"
+                                        name="min-lineup-difference"
+                                        checked={minLineupDifference === value}
+                                        onChange={() => setMinLineupDifference(value as 1 | 2 | 3 | 4)}
+                                    />
+                                    <span>{value}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+
                     <h2 className="sectionTitle">Optimal Lineup</h2>
                     {optimizerPlayers.length === 0 ? (
                         <p>No players available for optimization (check exclusions, projections, and salary).</p>
@@ -410,6 +517,158 @@ export default function MlbFullRoster() {
                                         </div>
                                     ) : (
                                         <p>No 4th-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">5th Optimal Lineup</h2>
+                                    {fifthOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = fifthOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{fifthOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(fifthOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 5th-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">6th Optimal Lineup</h2>
+                                    {sixthOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = sixthOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{sixthOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(sixthOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 6th-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">7th Optimal Lineup</h2>
+                                    {seventhOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = seventhOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{seventhOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(seventhOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 7th-best distinct lineup found.</p>
+                                    )}
+                                </div>
+
+                                <div className="lineupPanel">
+                                    <h2 className="sectionTitle">8th Optimal Lineup</h2>
+                                    {eighthOptimalLineup ? (
+                                        <div className="tableWrap">
+                                            <table className="dataTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Slot</th>
+                                                        <th scope="col">Name</th>
+                                                        <th scope="col">Salary</th>
+                                                        <th scope="col">Fantasy Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {MLB_DK_SLOTS.map((slot) => {
+                                                        const p = eighthOptimalLineup.playersBySlot[slot.key]
+                                                        return (
+                                                            <tr key={slot.key}>
+                                                                <td>{slot.label}</td>
+                                                                <td>{p.name}</td>
+                                                                <td>{p.salary}</td>
+                                                                <td>{Math.round(p.fantasyPoints * 1000) / 1000}</td>
+                                                            </tr>
+                                                        )
+                                                    })}
+                                                    <tr>
+                                                        <td colSpan={2}>Total</td>
+                                                        <td>{eighthOptimalLineup.totalSalary}</td>
+                                                        <td>{Math.round(eighthOptimalLineup.totalFantasyPoints * 1000) / 1000}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <p>No 8th-best distinct lineup found.</p>
                                     )}
                                 </div>
                             </div>

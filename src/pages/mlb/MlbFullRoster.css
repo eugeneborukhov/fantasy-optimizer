@@ -68,6 +68,25 @@
     padding-top: 0;
 }
 
+.lineupDiffFieldset {
+    margin: 0 auto;
+    width: fit-content;
+    padding: 10px 14px;
+}
+
+.lineupDiffOptions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.lineupDiffOption {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .emptyCell {
     text-align: center;
 }

@@ -111,9 +111,14 @@ export async function optimizeMlbLineup(params: {
     maxPlayersPerTeamByPositions?: { maxPlayersPerTeam: number; positions: string[] }
     /**
      * Excludes lineups that match the exact set of player ids (order/slot doesn't matter).
-     * Each entry adds a constraint: "pick at most N-1 of these N players".
+     * Each entry adds a constraint: "pick at most N-minDifferentPlayersFromExcludedLineups of these N players".
      */
     excludeLineupsByPlayerIds?: string[][]
+    /**
+     * Minimum number of players that must differ from each excluded lineup.
+     * Default is 1 (i.e. not the same exact lineup).
+     */
+    minDifferentPlayersFromExcludedLineups?: number
 }): Promise<MlbOptimizedLineup | null>
 export async function optimizeMlbLineup<Key extends string>(params: {
     players: MlbLineupPlayer[]
@@ -131,9 +136,14 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     maxPlayersPerTeamByPositions?: { maxPlayersPerTeam: number; positions: string[] }
     /**
      * Excludes lineups that match the exact set of player ids (order/slot doesn't matter).
-     * Each entry adds a constraint: "pick at most N-1 of these N players".
+     * Each entry adds a constraint: "pick at most N-minDifferentPlayersFromExcludedLineups of these N players".
      */
     excludeLineupsByPlayerIds?: string[][]
+    /**
+     * Minimum number of players that must differ from each excluded lineup.
+     * Default is 1 (i.e. not the same exact lineup).
+     */
+    minDifferentPlayersFromExcludedLineups?: number
 }): Promise<OptimizedLineup<Key> | null>
 export async function optimizeMlbLineup<Key extends string>(params: {
     players: MlbLineupPlayer[]
@@ -142,12 +152,17 @@ export async function optimizeMlbLineup<Key extends string>(params: {
     requireAtLeastOneFromTeams?: string[]
     maxPlayersPerTeamByPositions?: { maxPlayersPerTeam: number; positions: string[] }
     excludeLineupsByPlayerIds?: string[][]
+    minDifferentPlayersFromExcludedLineups?: number
 }): Promise<OptimizedLineup<Key> | null> {
     const { players, salaryCap } = params
     const slots = (params.slots ?? (MLB_DK_SLOTS as unknown as LineupSlot<Key>[]))
     const requireAtLeastOneFromTeams = params.requireAtLeastOneFromTeams
     const maxPlayersPerTeamByPositions = params.maxPlayersPerTeamByPositions
     const excludeLineupsByPlayerIds = params.excludeLineupsByPlayerIds ?? []
+    const minDifferentPlayersFromExcludedLineups = Math.max(
+        1,
+        Math.floor(params.minDifferentPlayersFromExcludedLineups ?? 1),
+    )
 
     const usablePlayers = players.filter(
         (p) =>
@@ -323,7 +338,7 @@ export async function optimizeMlbLineup<Key extends string>(params: {
         }
     }
 
-    // Exclude exact player sets ("not the same 9 players")
+    // Exclude exact player sets with configurable minimum player differences.
     excludeLineupsByPlayerIds.forEach((ids, idx) => {
         const playerIndexes = Array.from(
             new Set(
@@ -338,11 +353,13 @@ export async function optimizeMlbLineup<Key extends string>(params: {
         const constraintVars = playerIndexes.flatMap((pi) => varsByPlayerIndex.get(pi) ?? [])
         if (constraintVars.length === 0) return
 
-        // If a lineup picks all N of these players, it would have LHS=N. Force LHS <= N-1.
+        // If a lineup must differ by at least K players from this N-player set,
+        // then it can overlap with at most N-K players.
+        const maxOverlap = Math.max(0, playerIndexes.length - minDifferentPlayersFromExcludedLineups)
         subjectTo.push({
             name: `exclude_lineup_${idx}`,
             vars: constraintVars,
-            bnds: { type: glpk.GLP_UP, lb: 0, ub: playerIndexes.length - 1 },
+            bnds: { type: glpk.GLP_UP, lb: 0, ub: maxOverlap },
         })
     })
 
